@@ -1,6 +1,6 @@
 
-AtomSpace CogServer Client (aka "CogStorage")
-==========================
+AtomSpace CogStorage Client
+===========================
 The code in this git repo allows an AtomSpace to communicate with
 other AtomSpaces by having them all connect to a common CogServer.
 The CogServer itself also provides an AtomSpace, which all clients
