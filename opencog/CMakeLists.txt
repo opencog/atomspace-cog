@@ -4,11 +4,12 @@ INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
 
 DECLARE_GUILE_CONFIG_TARGET(SCM_CONFIG "opencog cog-config" "OPENCOG_TEST")
 
-# The build order used here is loosely in terms of
-# dependencies: the later parts depend on, or may
-# someday depend on the earlier parts.
-#
 ADD_SUBDIRECTORY (persist)
+
+ADD_GUILE_MODULE (FILES
+   scm/persist-cog.scm
+   MODULE_DESTINATION "${GUILE_SITE_DIR}/opencog"
+)
 
 WRITE_GUILE_CONFIG(${GUILE_BIN_DIR}/opencog/cog-config.scm SCM_CONFIG TRUE)
 
