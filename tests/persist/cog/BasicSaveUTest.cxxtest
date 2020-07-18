@@ -142,10 +142,14 @@ static void atomCompare(AtomPtr a, AtomPtr b, const char* where)
 
             if (not ((*ta) == (*tb)))
             {
-                fprintf(stderr, "Error, truth value miscompare, "
-                    "ma=%f mb=%f ca=%f cb=%f\n",
+                fprintf(stderr,
+                    "Error, truth value miscompare, ma=%18.16g\n"
+                    "                               mb=%18.16g\n"
+                    "   mdiff=%g ca=%g cb=%g\n",
                     ta->get_mean(), tb->get_mean(),
+                    ta->get_mean() - tb->get_mean(),
                     ta->get_confidence(), tb->get_confidence());
+                fprintf(stderr, "Above is for %s\n\n", a->to_string().c_str());
             }
         }
     }
@@ -289,7 +293,6 @@ void BasicSaveUTest::test_single_atom(void)
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-
     // Trash the contents of the database.
     single_atom_save_restore("aaa ");
     single_atom_save_restore("bbb ");
@@ -404,6 +407,7 @@ void BasicSaveUTest::test_table()
     store->kill_data();
     delete store;
     delete as2;
+
     logger().debug("END TEST: %s", __FUNCTION__);
 }
 

@@ -113,6 +113,9 @@ void CogStorage::init(const char * uri)
 
 	// Throw away the cogserver prompt.
 	do_recv();
+
+	do_send("(cog-set-server-mode! #t)\n");
+	do_recv();
 }
 
 CogStorage::CogStorage(std::string uri)

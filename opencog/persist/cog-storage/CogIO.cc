@@ -36,8 +36,12 @@ using namespace opencog;
 
 void CogStorage::storeAtom(const Handle& h, bool synchronous)
 {
-	std::string msg = "(cog-set-values! " + Sexpr::encode_atom(h) +
-		Sexpr::encode_atom_values(h) + ")\n";
+	std::string msg;
+	if (h->haveValues())
+		msg = "(cog-set-values! " + Sexpr::encode_atom(h) +
+			Sexpr::encode_atom_values(h) + ")\n";
+	else
+		msg = Sexpr::encode_atom(h) + "\n";
 	do_send(msg);
 
 	// Flush the response.
@@ -161,9 +165,9 @@ void CogStorage::loadType(AtomTable &table, Type t)
 
 void CogStorage::storeAtomSpace(const AtomTable &table)
 {
-	HandleSet all_roots;
-	table.getHandleSetByType(all_roots, ATOM, true);
-	for (const Handle& h : all_roots)
+	HandleSet all_atoms;
+	table.getHandleSetByType(all_atoms, ATOM, true);
+	for (const Handle& h : all_atoms)
 		storeAtom(h);
 }
 

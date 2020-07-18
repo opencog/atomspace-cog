@@ -7,8 +7,8 @@ The CogServer itself also provides an AtomSpace, which all clients
 interact with, in common.  In ascii-art:
 ```
  +-------------+
- |             |
- |  CogServer  |  <-----internet------> Remote AtomSpace A
+ |  CogServer  |
+ |    with     |  <-----internet------> Remote AtomSpace A
  |  AtomSpace  |  <---+
  +-------------+      |
                       +-- internet ---> Remote AtomSpace B
