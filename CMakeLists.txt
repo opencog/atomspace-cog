@@ -88,6 +88,16 @@ ELSE (ATOMSPACE_FOUND)
 	MESSAGE(FATAL_ERROR "AtomSpace missing: it is needed!")
 ENDIF (ATOMSPACE_FOUND)
 
+# CogServer
+FIND_PACKAGE(CogServer 1.0.0 CONFIG)
+IF (COGSERVER_FOUND)
+	MESSAGE(STATUS "CogServer found.")
+	ADD_DEFINITIONS(-DHAVE_SERVER)
+	SET(HAVE_SERVER 1)
+ELSE (COGSERVER_FOUND)
+	MESSAGE(STATUS "CogServer was not found.")
+ENDIF (COGSERVER_FOUND)
+
 # ----------------------------------------------------------
 # Needed for unit tests
 
