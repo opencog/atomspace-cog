@@ -33,7 +33,7 @@
 #include <opencog/atoms/base/Node.h>
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
 #include <opencog/persist/cog-storage/CogStorage.h>
-#include <opencog/persist/cog-storage/CogPersistSCM.h>
+#include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
 
@@ -42,11 +42,9 @@ using namespace opencog;
 class DeleteUTest :  public CxxTest::TestSuite
 {
     private:
-        AtomSpace *_as;
-        DHTPersistSCM *_pm;
-        std::string uri;
-        std::string boot;
-        CogStorage *astore;
+        AtomSpace* _as;
+        CogServer* srvr = NULL;
+        std::thread * main_loop = NULL;
 
         NodePtr n1[10];
         NodePtr n2[10];
@@ -68,8 +66,6 @@ class DeleteUTest :  public CxxTest::TestSuite
         DeleteUTest(void);
         ~DeleteUTest()
         {
-            delete astore;
-
             // erase the log file if no assertions failed
             if (!CxxTest::TestTracker::tracker().suiteFailed())
                 std::remove(logger().get_filename().c_str());
@@ -101,17 +97,6 @@ DeleteUTest:: DeleteUTest(void)
     logger().set_print_to_stdout_flag(true);
     logger().set_sync_flag(true);
 
-    uri = "dht:///atomspace-dht-test";
-    boot = "dht://localhost:4555/";
-
-    // Create a singe DHT node that will act as
-    // as the repo for the duration of the test.
-    astore = new CogStorage("dht://:4555/");
-    if (!astore->connected())
-    {
-        logger().error("DeleteUTest: cannot setup a DHT node");
-        exit(1);
-    }
 }
 
 /*
@@ -120,10 +105,23 @@ DeleteUTest:: DeleteUTest(void)
 void DeleteUTest::setUp(void)
 {
     _as = new AtomSpace();
+
+    // Create a single cogserver node that will act as
+    // as the repo for the duration of the test.
+    srvr = &cogserver();
+    srvr->loadModules();
+    srvr->enableNetworkServer(16001);
+    main_loop = new std::thread(&CogServer::serverLoop, srvr);
+    printf("Started CogServer\n");
 }
 
 void DeleteUTest::tearDown(void)
 {
+    srvr->stop();
+    main_loop->join();
+    srvr->disableNetworkServer();
+    delete main_loop;
+    delete srvr;
     delete _as;
 }
 
@@ -271,19 +269,10 @@ void DeleteUTest::fetch_space(int idx, AtomSpace *space)
     hvec.push_back(hb3);
     hvec.push_back(hb4);
 
-    std::string ref = _pm->do_atom_hash(hl[idx]);
-    std::string valus = _pm->do_examine(ref);
-    printf("Pre fetch memuid=%s\n", ref.c_str());
-    printf("Pre fetch have vals=%s\n", valus.c_str());
-
     AtomPtr alb = createLink(hvec, hl[idx]->get_type());
     Handle hlb(alb->get_handle());
 
     Handle flb = space->fetch_atom(hlb);
-    ref = _pm->do_atom_hash(hl[idx]);
-    valus = _pm->do_examine(ref);
-    printf("Post fetch have vals=%s\n", valus.c_str());
-
 
     HandleSeq hv2({hlb, hb2});
     AtomPtr alb2 = createLink(hv2, hl2[idx]->get_type());
@@ -393,11 +382,6 @@ void DeleteUTest::delete_links(int idx, AtomSpace *as)
 	as->remove_atom(hl3[idx]);
 	as->remove_atom(hl2[idx]);
 	as->remove_atom(hl[idx]);
-
-	std::string ref = _pm->do_atom_hash(hl[idx]);
-	std::string valus = _pm->do_examine(ref);
-	printf("After delete memuid=%s\n", ref.c_str());
-	printf("After delete have vals=%s\n", valus.c_str());
 }
 
 // This removes all the links, and one node, from atomspace,
@@ -419,11 +403,9 @@ void DeleteUTest::test_remove(void)
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-    _pm = new CogPersistSCM(_as);
-    TSM_ASSERT("Persist Module not loaded", _pm);
-
-    _pm->do_open(uri);
-    _pm->do_bootstrap(boot);
+    CogStorage *store = new CogStorage("cog://localhost:16001");
+    TS_ASSERT(store->connected())
+    store->registerWith(_as);
 
     int idx = 0;
     add_to_space(idx++, _as, "AA-aa-wow ");
@@ -490,11 +472,8 @@ void DeleteUTest::test_remove(void)
     for (i=0; i<idx; i++)
         check_empty(i, _as);
 
-    /* Orderly shutdown avoids warning in Postgres log file. */
-    _pm->do_close();
+    delete store;
 
-    delete _pm;
-    _pm = nullptr;
     logger().debug("END TEST: %s", __FUNCTION__);
 }
 
@@ -504,11 +483,9 @@ void DeleteUTest::test_recurse(void)
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-    _pm = new CogPersistSCM(_as);
-    TSM_ASSERT("Persist Module not loaded", _pm);
-
-    _pm->do_open(uri);
-    _pm->do_bootstrap(boot);
+    CogStorage *store = new CogStorage("cog://localhost:16001");
+    TS_ASSERT(store->connected())
+    store->registerWith(_as);
 
     int idx = 0;
     add_to_space(idx++, _as, "AA-aa-wow ");
@@ -589,11 +566,8 @@ void DeleteUTest::test_recurse(void)
     for (i=0; i<idx; i++)
         check_empty(i, _as);
 
-    /* Orderly shutdown avoids warning in Postgres log file. */
-    _pm->do_close();
+    delete store;
 
-    delete _pm;
-    _pm  = nullptr;
     logger().debug("END TEST: %s", __FUNCTION__);
 }
 
