@@ -28,10 +28,13 @@
 
 #include <opencog/atoms/atom_types/atom_types.h>
 #include <opencog/atoms/base/Atom.h>
+#include <opencog/atoms/base/Node.h>
+#include <opencog/atoms/base/Link.h>
 #include <opencog/atomspace/AtomSpace.h>
 #include <opencog/guile/SchemeEval.h>
 #include <opencog/persist/cog-storage/CogStorage.h>
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
+#include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
 
@@ -41,19 +44,23 @@ class FetchUTest :  public CxxTest::TestSuite
 {
 	private:
 		std::string uri;
-		std::string boot;
-		std::string dht_open;
-		CogStorage *astore;
+		std::string srv_open;
 
-		AtomSpace *_as;
-		SchemeEval *eval;
+		AtomSpace* _as;
+		SchemeEval* eval;
+		CogServer* srvr = NULL;
+		std::thread * main_loop = NULL;
 
 	public:
 
 		FetchUTest(void);
 		~FetchUTest()
 		{
-			delete astore;
+			srvr->stop();
+			main_loop->join();
+			srvr->disableNetworkServer();
+			delete main_loop;
+			delete srvr;
 
 			// erase the log file if no assertions failed
 			if (!CxxTest::TestTracker::tracker().suiteFailed())
@@ -74,20 +81,17 @@ FetchUTest::FetchUTest(void)
 	logger().set_level(Logger::DEBUG);
 	logger().set_print_to_stdout_flag(true);
 
-	uri = "dht:///atomspace-dht-test";
-	boot = "dht://localhost:4555/";
+	uri = "cog://localhost:16001";
 
-	// Create a singe DHT node that will act as
+	srv_open = "(cogserver-open \"" + uri + "\")\n";
+
+	// Create a single cogserver node that will act as
 	// as the repo for the duration of the test.
-	astore = new CogStorage("dht://:4555/");
-	if (!astore->connected())
-	{
-		logger().error("FetchUTest: cannot setup a DHT node");
-		exit(1);
-	}
-
-	dht_open = "(dht-open \"" + uri + "\")\n" +
-	           "(dht-bootstrap \"" + boot + "\")\n";
+	srvr = &cogserver();
+	srvr->loadModules();
+	srvr->enableNetworkServer(16001);
+	main_loop = new std::thread(&CogServer::serverLoop, srvr);
+	printf("Started CogServer\n");
 }
 
 /*
@@ -163,16 +167,16 @@ void FetchUTest::test_stuff(void)
 
 	// First, initialize the database
 	eval->eval("(use-modules (opencog persist) (opencog persist-dht))");
-	eval->eval(dht_open);
+	eval->eval(srv_open);
 	eval->eval(R"((cog-set-tv! (Concept "AAA") (stv 0.1 0.11)))");
 	eval->eval(R"((cog-set-tv! (Concept "BBB") (stv 0.2 0.22)))");
 	eval->eval("(store-atomspace)");
-	eval->eval("(dht-close)");
+	eval->eval("(cogserver-close)");
 
 	delete _as;
 	_as = new AtomSpace();
 	eval = SchemeEval::get_evaluator(_as);
-	eval->eval(dht_open);
+	eval->eval(srv_open);
 	eval->eval(R"((fetch-atom (List (Concept "AAA") (Concept "BBB"))))");
 
 	// The above should NOT update the TV of (Concept "AAA")
@@ -196,12 +200,12 @@ void FetchUTest::test_stuff(void)
 	// Saving everything should not crash.  It should, however,
 	// change the TV on (Concept "BBB") back to DEFAULT_TV.
 	eval->eval("(store-atomspace)");
-	eval->eval("(dht-close)");
+	eval->eval("(cogserver-close)");
 
 	delete _as;
 	_as = new AtomSpace();
 	eval = SchemeEval::get_evaluator(_as);
-	eval->eval(dht_open);
+	eval->eval(srv_open);
 
 	// AAA should have been updated, as above.
 	eval->eval(R"((fetch-atom (Concept "AAA")))");
@@ -218,7 +222,7 @@ void FetchUTest::test_stuff(void)
 	printf("Expecting %s\n", dtv->to_string().c_str());
 	printf("Got %s\n", tv->to_string().c_str());
 
-	eval->eval("(dht-close)");
+	eval->eval("(cogserver-close)");
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
 
@@ -230,18 +234,18 @@ void FetchUTest::test_readonly(void)
 
 	// First, initialize the database
 	eval->eval("(use-modules (opencog persist) (opencog persist-dht))");
-	eval->eval(dht_open);
+	eval->eval(srv_open);
 	eval->eval(R"((cog-set-tv! (Concept "AAA") (stv 0.1 0.11)))");
 	eval->eval(R"((cog-set-tv! (Concept "BBB") (stv 0.2 0.22)))");
 	eval->eval(R"((List (Concept "AAA") (Concept "BBB")))");
 	eval->eval("(store-atomspace)");
-	eval->eval("(dht-close)");
+	eval->eval("(cogserver-close)");
 
 	delete _as;
 	_as = new AtomSpace();
 	_as->set_read_only();
 	eval = SchemeEval::get_evaluator(_as);
-	eval->eval(dht_open);
+	eval->eval(srv_open);
 
 	// Despite the AtomSpace being readonly, we should still be
 	// able to load atoms from the database.
