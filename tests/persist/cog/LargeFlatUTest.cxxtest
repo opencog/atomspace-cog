@@ -89,7 +89,7 @@ LargeFlatUTest::LargeFlatUTest(void)
 	// as the repo for the duration of the test.
 	srvr = &cogserver();
 	srvr->loadModules();
-	srvr->enableNetworkServer(16001);
+	srvr->enableNetworkServer(16008);
 	main_loop = new std::thread(&CogServer::serverLoop, srvr);
 	printf("Started CogServer\n");
 }
@@ -343,7 +343,7 @@ void LargeFlatUTest::test_atomspace(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-	CogStorage *store = new CogStorage("cog://localhost:16001");
+	CogStorage *store = new CogStorage("cog://localhost:16008");
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 

@@ -112,7 +112,7 @@ MultiPersistUTest:: MultiPersistUTest(void)
     // as the repo for the duration of the test.
     srvr = &cogserver();
     srvr->loadModules();
-    srvr->enableNetworkServer(16001);
+    srvr->enableNetworkServer(16006);
     main_loop = new std::thread(&CogServer::serverLoop, srvr);
     printf("Started CogServer\n");
 
@@ -141,7 +141,7 @@ void MultiPersistUTest::setUp(void)
 {
     _as = new AtomSpace();
 
-    store = new CogStorage("cog://localhost:16001");
+    store = new CogStorage("cog://localhost:16006");
     TS_ASSERT(store->connected())
     store->registerWith(_as);
 }
