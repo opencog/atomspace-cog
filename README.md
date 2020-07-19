@@ -19,10 +19,11 @@ Here, AtomSpace A can load/store Atoms (and Values) to the CogServer,
 as can AtomSpace B, and so these two can share AtomSpace contents
 however desired.
 
-This provides a very simple, low-brow backend for AtomSpace storage
+This provides a simple, unsophisticated backend for AtomSpace storage
 via the CogServer. At this time, it is ... not optimized for speed,
-and its super-simplistic.  It is meant as a proof-of-concept for
-a scalable distributed network of AtomSpaces, provided by the
+and is super-simplistic.  It is meant as a proof-of-concept for
+a scalable distributed network of AtomSpaces; one possible design being
+explored is the
 [AtomSpace OpenDHT backend](https://github.com/opencog/atomspace-dht).
 
 Example Usage
@@ -58,17 +59,27 @@ granular load and store is possible; see the
 
 Status
 ------
-This is Version 0.5. Six of the nine unit tests consistently pass:
- * BasicSaveUTest
- * ValueSaveUTest
- * PersistUTest
- * FetchUTest
- * DeleteUTest
- * MultiUserUTest
+This is Version 0.5. All nine unit tests consistently pass. Two of the
+unit tests run quite slowly (`LargeFlatUTest` and `LargeZipfUTest`)
+because they transfer large amounts of data (slow == about 1/2 hour).
+The main reason for the poor speed is network delays; see notes below.
 
-Pass, but takes half an hour to run (not surprising, these are big.)
- * LargeFlatUTest
- * LargeZipfUTest
+Performance
+-----------
+Almost all time is lost during network delays: CPU use is less than 10%
+of the wall-clock time. This is primarily due to the TCP Nagle
+algorithm, but also due to the simplistic single-threaded design.
+Replacing the low-level TCP socket interface with something fancier
+might help with the network delay. Replacing the single-threaded design
+with parallel threads for atom save/restore could (should) provide
+large improvements.
 
-Sometimes hangs for an unknown reason:
- * MultiPersistUTest
+Design
+------
+The grand-total size of the implementation is less than 500 lines of
+code. Seriously! This is really a very simple system!  Take a look at
+[CogStorage.h](opencog/persist/cog-storage/CogStorage.h) first, and
+then take a look at [CogIO.cc](opencog/persist/cog-storage/CogIO.cc)
+which does all of the data transfer to/from the cogserver. Finally,
+[CogStorage.cc](opencog/persist/cog-storage/CogStorage.cc) provides
+init and socket I/O.

@@ -1,5 +1,6 @@
 /*
  * opencog/persist/cog-storage/CogPersistSCM.cc
+ * Scheme Guile API wrappers for the backend.
  *
  * Copyright (c) 2020 Linas Vepstas <linasvepstas@gmail.com>
  *
