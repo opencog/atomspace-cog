@@ -35,12 +35,13 @@ using namespace opencog;
 
 void CogStorage::storeAtom(const Handle& h, bool synchronous)
 {
+	// If there are no values, be sure to reset the TV to the default TV.
 	std::string msg;
 	if (h->haveValues())
 		msg = "(cog-set-values! " + Sexpr::encode_atom(h) +
 			Sexpr::encode_atom_values(h) + ")\n";
 	else
-		msg = Sexpr::encode_atom(h) + "\n";
+		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " (stv 1 0))\n";
 	do_send(msg);
 
 	// Flush the response.
