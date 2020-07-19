@@ -1,7 +1,7 @@
 CogServer AtomSpace Shim
 ------------------------
 Allow a CogServer to share it's AtomSpace with other AtomSpaces on
-other machines. In ascii-art:
+other machines. In ASCII-art:
 
 ```
  +-------------+
@@ -30,11 +30,13 @@ $1 = "Started CogServer"
 scheme@(guile-user)> Listening on port 17001
 ```
 
-You can also do this in python.
+You can also do this in python (i.e. start and run the cogserver in
+python).  If you don't have the cogserver, well:
+[go back and get it](https://github.com/opencog/cogserver).
 
 Run the Demos
 -------------
 The examples go through some simple usage scenarios.
 
-* fetch-store.scm -- Basic fetch and store of single atoms.
-* load-dump.scm -- Loading and saving entire AtomSpaces.
+* [fetch-store.scm](fetch-store.scm) -- Basic fetch and store of single atoms.
+* [load-dump.scm](load-dump.scm) -- Loading and saving entire AtomSpaces.
