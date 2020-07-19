@@ -18,7 +18,8 @@ ADD_CXXTEST(DeleteUTest)
 ADD_CXXTEST(MultiPersistUTest)
 ADD_CXXTEST(MultiUserUTest)
 
-# XXX FIXME Disable these two tests for now; they hang
-# (take forever to run) Don't know why. Needs fixing.
-# ADD_CXXTEST(LargeFlatUTest)
+# XXX FIXME Disable these two tests for now;
+# they take a very long time to run.
+# actually, they just fail.
+ADD_CXXTEST(LargeFlatUTest)
 # ADD_CXXTEST(LargeZipfUTest)

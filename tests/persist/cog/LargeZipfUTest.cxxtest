@@ -32,7 +32,7 @@
 #include <opencog/atoms/base/Node.h>
 #include <opencog/atoms/truthvalue/CountTruthValue.h>
 #include <opencog/persist/cog-storage/CogStorage.h>
-#include <opencog/persist/cog-storage/CogPersistSCM.h>
+#include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
 
@@ -42,9 +42,8 @@ class LargeZipfUTest :  public CxxTest::TestSuite
 {
 	private:
 		AtomSpace *_as;
-		std::string uri;
-		std::string boot;
-		CogStorage *astore;
+		CogServer* srvr = NULL;
+		std::thread * main_loop = NULL;
 
 #define NWORDS 5000
 		Handle hword[NWORDS];
@@ -75,22 +74,27 @@ LargeZipfUTest:: LargeZipfUTest(void)
 	logger().set_level(Logger::INFO);
 	logger().set_print_to_stdout_flag(true);
 
-	uri = "dht:///atomspace-dht-test";
-	boot = "dht://localhost:4555/";
 
-	// Create a singe DHT node that will act as
+	// Create a single cogserver node that will act as
 	// as the repo for the duration of the test.
-	astore = new CogStorage("dht://:4555/");
-	if (!astore->connected())
-	{
-		logger().error("LargeZipfUTest: cannot setup a DHT node");
-		exit(1);
-	}
+	srvr = &cogserver();
+	srvr->loadModules();
+	srvr->enableNetworkServer(16001);
+	main_loop = new std::thread(&CogServer::serverLoop, srvr);
+	printf("Started CogServer\n");
 }
 
 LargeZipfUTest::~LargeZipfUTest()
 {
-	delete astore;
+	srvr->stop();
+	main_loop->join();
+	srvr->disableNetworkServer();
+	delete main_loop;
+	delete srvr;
+
+	// Let the network quiesce before moving to the next test.
+	sleep(1);
+
 	// erase the log file if no assertions failed
 	if (!CxxTest::TestTracker::tracker().suiteFailed())
 		std::remove(logger().get_filename().c_str());
@@ -271,10 +275,9 @@ void LargeZipfUTest::test_atomspace(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-	CogPersistSCM* _pm = new CogPersistSCM(_as);
-	TSM_ASSERT("Persist Module not loaded", _pm);
-
-	_pm->do_open(uri);
+	CogStorage *store = new CogStorage("cog://localhost:16001");
+	TS_ASSERT(store->connected())
+	store->registerWith(_as);
 
 	/* Create a large number of atoms */
 	filler_up(_as);
@@ -312,10 +315,7 @@ void LargeZipfUTest::test_atomspace(void)
 	/* Verify that the atoms are no longer being found. */
 	check_empty(_as);
 
-	/* Orderly shutdown avoids warning in Postgres log file. */
-	_pm->do_close();
-
-	delete _pm;
+	delete store;
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
 
