@@ -58,8 +58,7 @@ granular load and store is possible; see the
 
 Status
 ------
-This is Version 0.5. There is one known bug. Six of the nine unit
-tests pass:
+This is Version 0.5. Six of the nine unit tests consistently pass:
  * BasicSaveUTest
  * ValueSaveUTest
  * PersistUTest
@@ -67,9 +66,9 @@ tests pass:
  * DeleteUTest
  * MultiUserUTest
 
-Hangs for an unknown reason:
- * MultiPersistUTest
-
-Take a bit long to run:
+Pass, but takes half an hour to run (not surprising, these are big.)
  * LargeFlatUTest
  * LargeZipfUTest
+
+Hangs for an unknown reason:
+ * MultiPersistUTest
