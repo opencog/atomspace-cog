@@ -70,5 +70,5 @@ Pass, but takes half an hour to run (not surprising, these are big.)
  * LargeFlatUTest
  * LargeZipfUTest
 
-Hangs for an unknown reason:
+Sometimes hangs for an unknown reason:
  * MultiPersistUTest
