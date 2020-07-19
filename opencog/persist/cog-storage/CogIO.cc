@@ -126,7 +126,13 @@ void CogStorage::decode_atom_list(AtomTable& table)
 		int pcnt = Sexpr::get_next_expr(expr, l, r, 0);
 		if (l == r) break;
 		if (0 < pcnt) break;
-		table.add(Sexpr::decode_atom(expr, l, r, 0));
+		Handle h = table.add(Sexpr::decode_atom(expr, l, r, 0));
+
+		// Get all of the keys.
+		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l) + ")\n";
+		do_send(get_keys);
+		std::string msg = do_recv();
+		Sexpr::decode_alist(h, msg);
 
 		// advance to next.
 		l = r+1;
