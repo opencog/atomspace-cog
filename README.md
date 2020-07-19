@@ -4,7 +4,7 @@ AtomSpace CogStorage Client
 The code in this git repo allows an AtomSpace to communicate with
 other AtomSpaces by having them all connect to a common CogServer.
 The CogServer itself also provides an AtomSpace, which all clients
-interact with, in common.  In ascii-art:
+interact with, in common.  In ASCII-art:
 ```
  +-------------+
  |  CogServer  |
@@ -28,7 +28,7 @@ explored is the
 
 Example Usage
 -------------
-Well, see the examples directory for details. But, in breif:
+Well, see the examples directory for details. But, in brief:
 
 * Start the CogServer at "example.com":
 ```
