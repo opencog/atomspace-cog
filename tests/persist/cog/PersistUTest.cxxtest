@@ -16,6 +16,8 @@
 #include <opencog/atoms/base/Link.h>
 #include <opencog/atoms/base/Node.h>
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
+#include <opencog/cogserver/server/CogServer.h>
+
 #include <opencog/persist/cog-storage/CogStorage.h>
 #include <opencog/persist/cog-storage/CogPersistSCM.h>
 
@@ -27,6 +29,8 @@ class PersistUTest :  public CxxTest::TestSuite
 {
     private:
         AtomSpace *_as;
+        CogServer* srvr = NULL;
+        std::thread * main_loop = NULL;
 
         NodePtr n1[10];
         NodePtr n2[10];
@@ -77,10 +81,23 @@ PersistUTest:: PersistUTest(void)
 void PersistUTest::setUp(void)
 {
     _as = new AtomSpace();
+
+    // Create a single cogserver node that will act as
+    // as the repo for the duration of the test.
+    srvr = &cogserver();
+    srvr->loadModules();
+    srvr->enableNetworkServer(16001);
+    main_loop = new std::thread(&CogServer::serverLoop, srvr);
+    printf("Started CogServer\n");
 }
 
 void PersistUTest::tearDown(void)
 {
+    srvr->stop();
+    main_loop->join();
+    srvr->disableNetworkServer();
+    delete main_loop;
+    delete srvr;
     delete _as;
 }
 
@@ -284,7 +301,7 @@ void PersistUTest::test_atomspace(void)
     CogPersistSCM* _pm = new CogPersistSCM(_as);
     TSM_ASSERT("Persist Module not loaded", _pm);
 
-    _pm->do_open("dht:///atomspace-dht-test");
+    _pm->do_open("cog://localhost:16001");
 
     int idx = 0;
     add_to_space(idx++, _as, "AA-aa-wow ");
