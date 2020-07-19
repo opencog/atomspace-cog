@@ -29,6 +29,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/tcp.h>
 #include <netdb.h>
 #include <errno.h>
 
@@ -101,8 +102,16 @@ void CogStorage::init(const char * uri)
 		throw IOException(TRACE_INFO, "Unable to connect to host %s: %s",
 			host.c_str(), strerror(norr));
 	}
-
 	free(servinfo);
+	if (0 > rc)
+		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
+
+	// We are going to be sending oceans of tiny packets,
+	// and we want the fastest-possible responses.
+	int flags = 1;
+	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
+	flags = 1;
+	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_QUICKACK, &flags, sizeof(flags));
 
 	// Get to the scheme prompt, but make it be silent.
 	std::string eval = "scm hush\n";
