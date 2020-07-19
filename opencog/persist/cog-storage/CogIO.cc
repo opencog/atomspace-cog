@@ -157,7 +157,13 @@ void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 
 void CogStorage::loadAtomSpace(AtomTable &table)
 {
-	std::string msg = "(cog-get-all-roots)\n";
+	// Get nodes and links separately, in an effort to get
+	// smaller replies.
+	std::string msg = "(cog-get-atoms 'Node #t)\n";
+	do_send(msg);
+	decode_atom_list(table);
+
+	msg = "(cog-get-atoms 'Link #t)\n";
 	do_send(msg);
 	decode_atom_list(table);
 }
