@@ -66,6 +66,15 @@ class PersistUTest :  public CxxTest::TestSuite
         PersistUTest(void);
         ~PersistUTest()
         {
+            srvr->stop();
+            main_loop->join();
+            srvr->disableNetworkServer();
+            delete main_loop;
+            delete srvr;
+
+            // Let the network quiesce before moving to the next test.
+            sleep(1);
+
             // erase the log file if no assertions failed
             if (!CxxTest::TestTracker::tracker().suiteFailed())
                 std::remove(logger().get_filename().c_str());
@@ -87,14 +96,6 @@ PersistUTest:: PersistUTest(void)
 {
     logger().set_level(Logger::DEBUG);
     logger().set_print_to_stdout_flag(true);
-}
-
-/*
- * This is called once before each test, for each test (!!)
- */
-void PersistUTest::setUp(void)
-{
-    _as = new AtomSpace();
 
     // Create a single cogserver node that will act as
     // as the repo for the duration of the test.
@@ -105,13 +106,16 @@ void PersistUTest::setUp(void)
     printf("Started CogServer\n");
 }
 
+/*
+ * This is called once before each test, for each test (!!)
+ */
+void PersistUTest::setUp(void)
+{
+    _as = new AtomSpace();
+}
+
 void PersistUTest::tearDown(void)
 {
-    srvr->stop();
-    main_loop->join();
-    srvr->disableNetworkServer();
-    delete main_loop;
-    delete srvr;
     delete _as;
 }
 
