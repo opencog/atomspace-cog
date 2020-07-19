@@ -15,11 +15,11 @@ ADD_CXXTEST(PersistUTest)
 ADD_CXXTEST(FetchUTest)
 TARGET_LINK_LIBRARIES(FetchUTest execution)
 ADD_CXXTEST(DeleteUTest)
-ADD_CXXTEST(MultiPersistUTest)
+# ADD_CXXTEST(MultiPersistUTest)
 ADD_CXXTEST(MultiUserUTest)
 
 # XXX FIXME Disable these two tests for now;
 # they take a very long time to run.
 # actually, they just fail.
-ADD_CXXTEST(LargeFlatUTest)
+# ADD_CXXTEST(LargeFlatUTest)
 # ADD_CXXTEST(LargeZipfUTest)

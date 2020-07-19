@@ -47,6 +47,29 @@ scheme@(guile-user)> (use-modules (opencog))
 scheme@(guile-user)> (use-modules (opencog persist))
 scheme@(guile-user)> (use-modules (opencog persist-cog))
 scheme@(guile-user)> (cogserver-open "cog://example.com/")
+scheme@(guile-user)> (load-atomspace)
 ```
 
-For more detailed examples, see the `examples` directory.
+That's it! You've copied the entire AtomSpace from the server to
+the client!  Of course, copying everything is generally a bad idea
+(well, for example, its slow, when the atomspace is large). More
+granular load and store is possible; see the
+[examples directory](examples) for details.
+
+Status
+------
+This is Version 0.5. There is one known bug. Six of the nine unit
+tests pass:
+ * BasicSaveUTest
+ * ValueSaveUTest
+ * PersistUTest
+ * FetchUTest
+ * DeleteUTest
+ * MultiUserUTest
+
+Hangs for an unknown reason:
+ * MultiPersistUTest
+
+Take a bit long to run:
+ * LargeFlatUTest
+ * LargeZipfUTest
