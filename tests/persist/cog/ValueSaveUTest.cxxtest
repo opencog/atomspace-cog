@@ -21,10 +21,11 @@
 #include <opencog/atoms/value/LinkValue.h>
 #include <opencog/atoms/value/StringValue.h>
 #include <opencog/atoms/base/Valuation.h>
-
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
+#include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/persist/cog-storage/CogStorage.h>
+
 
 #include <opencog/util/Logger.h>
 
@@ -34,8 +35,8 @@ class ValueSaveUTest :  public CxxTest::TestSuite
 {
 	private:
 		std::string uri;
-		std::string boot;
-		CogStorage *astore;
+		CogServer* srvr = NULL;
+		std::thread * main_loop = NULL;
 
 	public:
 
@@ -44,22 +45,25 @@ class ValueSaveUTest :  public CxxTest::TestSuite
 			logger().set_level(Logger::DEBUG);
 			logger().set_print_to_stdout_flag(true);
 
-			uri = "dht:///atomspace-dht-test";
-			boot = "dht://localhost:4555/";
+			uri = "cog://localhost:16001";
 
-			// Create a singe DHT node that will act as
+			// Create a single cogserver node that will act as
 			// as the repo for the duration of the test.
-			astore = new CogStorage("dht://:4555/");
-			if (!astore->connected())
-			{
-				logger().error("ValueSaveUTest: cannot setup a DHT node");
-				exit(1);
-			}
+			srvr = &cogserver();
+			srvr->loadModules();
+			srvr->enableNetworkServer(16001);
+			main_loop = new std::thread(&CogServer::serverLoop, srvr);
+			printf("Started CogServer\n");
 		}
 
 		~ValueSaveUTest()
 		{
-			delete astore;
+			srvr->stop();
+			main_loop->join();
+			srvr->disableNetworkServer();
+			delete main_loop;
+			delete srvr;
+
 			// erase the log file if no assertions failed
 			if (!CxxTest::TestTracker::tracker().suiteFailed())
 				std::remove(logger().get_filename().c_str());
@@ -93,7 +97,6 @@ void ValueSaveUTest::tearDown(void) {}
 void ValueSaveUTest::test_single_atom_save()
 {
 	CogStorage *store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -159,7 +162,6 @@ void ValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 	// ------
 	// First, save the value
 	CogStorage *store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -183,7 +185,6 @@ void ValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 	// ---------------------------------
 	// Now, fetch the value and compare.
 	store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	as = new AtomSpace();
@@ -208,7 +209,6 @@ void ValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 void ValueSaveUTest::test_save_restore(bool fkey)
 {
 	CogStorage *store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -261,7 +261,6 @@ void ValueSaveUTest::test_save_restore(bool fkey)
 void ValueSaveUTest::test_load_by_type()
 {
 	CogStorage *store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -322,7 +321,6 @@ void ValueSaveUTest::test_load_by_type()
 	// Start it up again.
 
 	store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	as = new AtomSpace();
@@ -381,7 +379,6 @@ void ValueSaveUTest::test_load_by_type()
 void ValueSaveUTest::test_link_by_type()
 {
 	CogStorage *store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -470,7 +467,6 @@ void ValueSaveUTest::test_link_by_type()
 	// Start it up again.
 
 	store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	as = new AtomSpace();
@@ -587,7 +583,6 @@ void ValueSaveUTest::test_link_by_type()
 void ValueSaveUTest::test_incoming()
 {
 	CogStorage *store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -676,7 +671,6 @@ void ValueSaveUTest::test_incoming()
 	// Start it up again.
 
 	store = new CogStorage(uri);
-	store->dht_bootstrap(boot);
 	TS_ASSERT(store->connected())
 
 	as = new AtomSpace();

@@ -10,7 +10,7 @@ LINK_LIBRARIES(
 # atomspace/persist/sql/multi-driver unit tests.
 # Same as the atomspace/persist/ipfs unit tests.
 ADD_CXXTEST(BasicSaveUTest)
-#ADD_CXXTEST(ValueSaveUTest)
+ADD_CXXTEST(ValueSaveUTest)
 #ADD_CXXTEST(PersistUTest)
 #ADD_CXXTEST(FetchUTest)
 #TARGET_LINK_LIBRARIES(FetchUTest execution)
