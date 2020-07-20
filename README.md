@@ -65,8 +65,7 @@ is intentional, they are pounding the server with multiple threads,
 looking for race conditions.
 
 XXX Well, not quite true, there's a bug in the cogserver that prevents
-DeleteUTest and MultiPersistUTest from running at full speed. Looking
-into it... YMMV.
+MultiPersistUTest from running at full speed. Looking into it...
 
 Design
 ------
