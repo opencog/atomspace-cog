@@ -59,20 +59,14 @@ granular load and store is possible; see the
 
 Status
 ------
-This is Version 0.5. All nine unit tests consistently pass. Two of the
-unit tests run quite slowly (`LargeFlatUTest` and `LargeZipfUTest`)
-because they transfer large amounts of data (slow == about 1/2 hour).
-The main reason for the poor speed is network delays; see notes below.
+This is Version 0.5. All nine unit tests consistently pass. Performance
+looks good. Five of the unit tests take a minute or longer to run; this
+is intentional, they are pounding the server with multiple threads,
+looking for race conditions.
 
-Performance
------------
-Almost all time is lost during network delays: CPU use is less than 10%
-of the wall-clock time. This is primarily due to the TCP Nagle
-algorithm, but also due to the simplistic single-threaded design.
-Replacing the low-level TCP socket interface with something fancier
-might help with the network delay. Replacing the single-threaded design
-with parallel threads for atom save/restore could (should) provide
-large improvements.
+XXX Well, not quite true, there's a bug in the cogserver that prevents
+DeleteUTest and MultiPersistUTest from running at full speed. Looking
+into it... YMMV.
 
 Design
 ------
