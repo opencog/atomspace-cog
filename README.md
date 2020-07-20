@@ -59,10 +59,13 @@ granular load and store is possible; see the
 
 Status
 ------
-This is Version 0.5. All nine unit tests consistently pass. Performance
-looks good. Two of the unit tests take about a minute to run; this
-is intentional, they are pounding the server with large datasets,
-looking for race conditions.
+This is Version 0.5. Eight of nine unit tests consistently pass.
+Performance looks good. Two of the unit tests take about a minute
+to run; this is intentional, they are pounding the server with
+large datasets.
+
+One unit test, MultiPersistUTest, often fails. Don't know why,
+looking into it.
 
 
 Design
