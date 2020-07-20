@@ -60,12 +60,10 @@ granular load and store is possible; see the
 Status
 ------
 This is Version 0.5. All nine unit tests consistently pass. Performance
-looks good. Five of the unit tests take a minute or longer to run; this
-is intentional, they are pounding the server with multiple threads,
+looks good. Two of the unit tests take about a minute to run; this
+is intentional, they are pounding the server with large datasets,
 looking for race conditions.
 
-XXX Well, not quite true, there's a bug in the cogserver that prevents
-MultiPersistUTest from running at full speed. Looking into it...
 
 Design
 ------

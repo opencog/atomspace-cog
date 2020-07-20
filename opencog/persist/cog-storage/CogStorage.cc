@@ -50,6 +50,7 @@ void CogStorage::init(const char * uri)
 	if (strncmp(uri, "cog://", URIX_LEN))
 		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri);
 
+	std::lock_guard<std::mutex> lck(_mtx);
 	_uri = uri;
 
 	// We expect the URI to be for the form

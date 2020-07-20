@@ -33,6 +33,12 @@
 
 using namespace opencog;
 
+// Design note: each of the calls below grabs a lock to protect the
+// send-recv pair.  This is so that mutiple threads sharing the same
+// socket do not accidentally get confused about whose data is whose.
+// If you want faster throughput, then open multiple sockets to the
+// cogserver, it can handle that just fine.
+
 void CogStorage::storeAtom(const Handle& h, bool synchronous)
 {
 	// If there are no values, be sure to reset the TV to the default TV.
@@ -42,6 +48,8 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 			Sexpr::encode_atom_values(h) + ")\n";
 	else
 		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " (stv 1 0))\n";
+
+	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
 
 	// Flush the response.
@@ -56,6 +64,7 @@ void CogStorage::removeAtom(const Handle& h, bool recursive)
 	else
 		msg = "(cog-extract! " + Sexpr::encode_atom(h) + ")\n";
 
+	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
 
 	// Flush the response.
@@ -67,6 +76,7 @@ Handle CogStorage::getNode(Type t, const char * str)
 	std::string typena = nameserver().getTypeName(t) + " \"" + str + "\"";
 
 	// Does the cogserver even know about this atom?
+	std::lock_guard<std::mutex> lck(_mtx);
 	do_send("(cog-node '" + typena + ")\n");
 	std::string msg = do_recv();
 	if (0 == msg.compare(0, 2, "()"))
@@ -91,6 +101,7 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 		typena += Sexpr::encode_atom(ho);
 
 	// Does the cogserver even know about this atom?
+	std::lock_guard<std::mutex> lck(_mtx);
 	do_send("(cog-link '" + typena + ")\n");
 	std::string msg = do_recv();
 	if (0 == msg.compare(0, 2, "()"))
@@ -143,6 +154,7 @@ void CogStorage::decode_atom_list(AtomTable& table)
 void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
 {
 	std::string atom = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
+	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(atom);
 	decode_atom_list(table);
 }
@@ -151,12 +163,15 @@ void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 {
 	std::string msg = "(cog-incoming-by-type " + Sexpr::encode_atom(h)
 		+ " '" + nameserver().getTypeName(t) + ")\n";
+	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
 	decode_atom_list(table);
 }
 
 void CogStorage::loadAtomSpace(AtomTable &table)
 {
+	std::lock_guard<std::mutex> lck(_mtx);
+
 	// Get nodes and links separately, in an effort to get
 	// smaller replies.
 	std::string msg = "(cog-get-atoms 'Node #t)\n";
@@ -171,6 +186,8 @@ void CogStorage::loadAtomSpace(AtomTable &table)
 void CogStorage::loadType(AtomTable &table, Type t)
 {
 	std::string msg = "(cog-get-atoms '" + nameserver().getTypeName(t) + ")\n";
+
+	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
 	decode_atom_list(table);
 }
@@ -185,6 +202,7 @@ void CogStorage::storeAtomSpace(const AtomTable &table)
 
 void CogStorage::kill_data(void)
 {
+	std::lock_guard<std::mutex> lck(_mtx);
 	do_send("(cog-atomspace-clear)\n");
 	do_recv();
 }
