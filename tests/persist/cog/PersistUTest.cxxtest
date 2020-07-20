@@ -72,9 +72,6 @@ class PersistUTest :  public CxxTest::TestSuite
             delete main_loop;
             delete srvr;
 
-            // Let the network quiesce before moving to the next test.
-            sleep(1);
-
             // erase the log file if no assertions failed
             if (!CxxTest::TestTracker::tracker().suiteFailed())
                 std::remove(logger().get_filename().c_str());
