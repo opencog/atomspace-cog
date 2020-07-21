@@ -183,7 +183,6 @@ void BasicSaveUTest::single_atom_save_restore(std::string id)
         logger().debug("single_atom_save_restore: cannot connect to db");
         return;
     }
-    // printf("Single save/restore:\n%s\n", store->dht_node_info().c_str());
 
     // Create an atom ...
     AtomPtr a(createNode(SCHEMA_NODE, id + "someNode"));
