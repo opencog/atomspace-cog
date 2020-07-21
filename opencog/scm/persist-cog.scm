@@ -5,7 +5,7 @@
 (define-module (opencog persist-cog))
 
 (use-modules (opencog))
-(use-modules (opencog cs-config))
+(use-modules (opencog cog-config))
 (load-extension
 	(string-append opencog-ext-path-persist-cog "libpersist-cog")
 	"opencog_persist_cog_init")
