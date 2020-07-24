@@ -50,11 +50,7 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 	else
 		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " (stv 1 0))\n";
 
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send(msg);
-
-	// Flush the response.
-	do_recv();
+	_io_queue.enqueue(this, msg, &CogStorage::noop);
 }
 
 void CogStorage::removeAtom(const Handle& h, bool recursive)
@@ -65,11 +61,7 @@ void CogStorage::removeAtom(const Handle& h, bool recursive)
 	else
 		msg = "(cog-extract! " + Sexpr::encode_atom(h) + ")\n";
 
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send(msg);
-
-	// Flush the response.
-	do_recv();
+	_io_queue.enqueue(this, msg, &CogStorage::noop);
 }
 
 Handle CogStorage::getNode(Type t, const char * str)
