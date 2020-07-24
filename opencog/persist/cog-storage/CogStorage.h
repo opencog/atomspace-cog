@@ -46,7 +46,7 @@ class CogStorage : public BackingStore
 		void init(const char *);
 		std::string _uri;
 
-		CogChannel<CogStorage, std::string> _io_queue;
+		CogChannel<CogStorage> _io_queue;
 
 		// Socket API ... is single-threaded.
 		std::mutex _mtx;

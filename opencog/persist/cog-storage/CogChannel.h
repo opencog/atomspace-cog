@@ -40,7 +40,7 @@ namespace opencog
  *  @{
  */
 
-template<typename Client, typename Message>
+template<typename Client>
 class CogChannel
 {
 	private:
@@ -61,7 +61,7 @@ class CogChannel
 		void connect(const std::string& uri);
 		bool connected(void); // connection to DB is alive
 
-		void enqueue(Client*, const Message&, void (Client::*)(const Message&));
+		void enqueue(Client*, const std::string&, void (Client::*)(const std::string&));
 };
 
 #include <sys/types.h>
@@ -70,19 +70,11 @@ class CogChannel
 #include <netdb.h>
 #include <errno.h>
 
-#include "CogChannel.h"
-
-using namespace opencog;
-
-/// This is a cheap, simple, super-low-brow atomspace server
-/// built on the cogserver. Its not special. It's simple.
-/// It is meant to be replaced by something better.
-
 /* ================================================================ */
 // Constructors
 
-template<typename Client, typename Message>
-void CogChannel<Client, Message>::connect(const std::string& uri)
+template<typename Client>
+void CogChannel<Client>::connect(const std::string& uri)
 {
 #define URIX_LEN (sizeof("cog://") - 1)  // Should be 6
 	if (strncmp(uri.c_str(), "cog://", URIX_LEN))
@@ -166,29 +158,37 @@ void CogChannel<Client, Message>::connect(const std::string& uri)
 	do_recv();
 }
 
-template<typename Client, typename Message>
-CogChannel<Client, Message>::CogChannel(void)
+template<typename Client>
+CogChannel<Client>::CogChannel(void)
 	: _sockfd(-1)
 {
 }
 
-template<typename Client, typename Message>
-CogChannel<Client, Message>::~CogChannel()
+template<typename Client>
+CogChannel<Client>::~CogChannel()
 {
 	if (connected())
 		close(_sockfd);
 }
 
-template<typename Client, typename Message>
-bool CogChannel<Client, Message>::connected(void)
+template<typename Client>
+bool CogChannel<Client>::connected(void)
 {
 	return 0 < _sockfd;
 }
 
 /* ================================================================== */
 
-template<typename Client, typename Message>
-void CogChannel<Client, Message>::do_send(const std::string& str)
+template<typename Client>
+void CogChannel<Client>::enqueue(Client* client,
+                                 const std::string& msg,
+                                 void (Client::*handler)(const std::string&))
+{
+	// do_send(msg);
+}
+
+template<typename Client>
+void CogChannel<Client>::do_send(const std::string& str)
 {
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");
@@ -199,8 +199,8 @@ void CogChannel<Client, Message>::do_send(const std::string& str)
 			strerror(errno));
 }
 
-template<typename Client, typename Message>
-std::string CogChannel<Client, Message>::do_recv()
+template<typename Client>
+std::string CogChannel<Client>::do_recv()
 {
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");
