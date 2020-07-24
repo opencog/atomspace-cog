@@ -25,6 +25,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <time.h>
 #include <atomic>
 #include <cstdio>
 #include <thread>
@@ -424,8 +425,18 @@ void MultiUserUTest::run_user_test(int thread_id)
 
 	nstarted.fetch_add(1);
 
+	time_t start = time(0);
+
 	// Spin, until they are all started.
-	while (n_threads != nstarted.fetch_add(0)) std::this_thread::yield();
+	while (n_threads != nstarted.fetch_add(0))
+	{
+		usleep (50000);
+		time_t end = time(0);
+		if (10 < end - start) break;
+		std::this_thread::yield();
+	}
+	time_t end = time(0);
+	TSM_ASSERT("Took too long to connect", 10 < end - start);
 
 	add_atoms(thread_id);
 	_store[thread_id]->unregisterWith(_as[thread_id]);
