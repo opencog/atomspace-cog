@@ -32,6 +32,7 @@
 
 #include <opencog/atomspace/AtomTable.h>
 #include <opencog/atomspace/BackingStore.h>
+#include <opencog/persist/cog-storage/CogChannel.h>
 
 namespace opencog
 {
@@ -44,6 +45,8 @@ class CogStorage : public BackingStore
 	private:
 		void init(const char *);
 		std::string _uri;
+
+		CogChannel<CogStorage, std::string> _io_queue;
 
 		// Socket API ... is single-threaded.
 		std::mutex _mtx;

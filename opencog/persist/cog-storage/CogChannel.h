@@ -44,7 +44,6 @@ template<typename Client, typename Message>
 class CogChannel
 {
 	private:
-		void init(const char *);
 		std::string _uri;
 
 		// Socket API ... is single-threaded.
@@ -54,10 +53,12 @@ class CogChannel
 		std::string do_recv(void);
 
 	public:
-		CogChannel(std::string uri);
+		CogChannel(void);
 		CogChannel(const CogChannel&) = delete; // disable copying
 		CogChannel& operator=(const CogChannel&) = delete; // disable assignment
 		virtual ~CogChannel();
+
+		void connect(const std::string& uri);
 		bool connected(void); // connection to DB is alive
 
 		void enqueue(Client*, const Message&, void (Client::*)(const Message&));
@@ -81,10 +82,10 @@ using namespace opencog;
 // Constructors
 
 template<typename Client, typename Message>
-void CogChannel<Client, Message>::init(const char * uri)
+void CogChannel<Client, Message>::connect(const std::string& uri)
 {
 #define URIX_LEN (sizeof("cog://") - 1)  // Should be 6
-	if (strncmp(uri, "cog://", URIX_LEN))
+	if (strncmp(uri.c_str(), "cog://", URIX_LEN))
 		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri);
 
 	std::lock_guard<std::mutex> lck(_mtx);
@@ -94,7 +95,7 @@ void CogChannel<Client, Message>::init(const char * uri)
 	//    cog://ipv4-addr/atomspace-name
 	//    cog://ipv4-addr:port/atomspace-name
 
-	std::string host(uri + URIX_LEN);
+	std::string host(uri.substr(URIX_LEN));
 	size_t slash = host.find_first_of(":/");
 	if (std::string::npos != slash)
 		host = host.substr(0, slash);
@@ -166,10 +167,9 @@ void CogChannel<Client, Message>::init(const char * uri)
 }
 
 template<typename Client, typename Message>
-CogChannel<Client, Message>::CogChannel(std::string uri)
+CogChannel<Client, Message>::CogChannel(void)
 	: _sockfd(-1)
 {
-	init(uri.c_str());
 }
 
 template<typename Client, typename Message>
