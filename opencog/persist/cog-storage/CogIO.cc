@@ -50,7 +50,8 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 	else
 		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " (stv 1 0))\n";
 
-	_io_queue.enqueue(this, msg, nullptr, &CogStorage::noop);
+	Pkt pkt;
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop);
 }
 
 void CogStorage::removeAtom(const Handle& h, bool recursive)
@@ -61,7 +62,8 @@ void CogStorage::removeAtom(const Handle& h, bool recursive)
 	else
 		msg = "(cog-extract! " + Sexpr::encode_atom(h) + ")\n";
 
-	_io_queue.enqueue(this, msg, nullptr, &CogStorage::noop);
+	Pkt pkt;
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop);
 }
 
 Handle CogStorage::getNode(Type t, const char * str)
@@ -112,10 +114,8 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 	return h;
 }
 
-void CogStorage::decode_atom_list(const std::string& expr, void* data)
+void CogStorage::decode_atom_list(const std::string& expr, Pkt& pkt)
 {
-	AtomTable* table = (AtomTable*) data;
-
 	// Loop and decode atoms.
 	size_t l = expr.find('(') + 1; // skip the first paren.
 	size_t end = expr.rfind(')');  // trim tailing paren.
@@ -127,7 +127,7 @@ void CogStorage::decode_atom_list(const std::string& expr, void* data)
 		int pcnt = Sexpr::get_next_expr(expr, l, r, 0);
 		if (l == r) break;
 		if (0 < pcnt) break;
-		Handle h = table->add(Sexpr::decode_atom(expr, l, r, 0));
+		Handle h = pkt.table->add(Sexpr::decode_atom(expr, l, r, 0));
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
@@ -144,7 +144,9 @@ void CogStorage::decode_atom_list(const std::string& expr, void* data)
 void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
 {
 	std::string msg = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
-	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
+
+	Pkt pkt{&table, Handle::UNDEFINED};
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
@@ -152,26 +154,29 @@ void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 	std::string msg = "(cog-incoming-by-type " + Sexpr::encode_atom(h)
 		+ " '" + nameserver().getTypeName(t) + ")\n";
 
-	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
+	Pkt pkt{&table, Handle::UNDEFINED};
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::loadAtomSpace(AtomTable &table)
 {
 	// Get nodes and links separately, in an effort to get
 	// smaller replies.
+	Pkt pkt{&table, Handle::UNDEFINED};
 	std::string msg = "(cog-get-atoms 'Node #t)\n";
-	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 
 	barrier();
 	msg = "(cog-get-atoms 'Link #t)\n";
-	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::loadType(AtomTable &table, Type t)
 {
 	std::string msg = "(cog-get-atoms '" + nameserver().getTypeName(t) + ")\n";
 
-	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
+	Pkt pkt{&table, Handle::UNDEFINED};
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::storeAtomSpace(const AtomTable &table)
@@ -184,11 +189,12 @@ void CogStorage::storeAtomSpace(const AtomTable &table)
 
 void CogStorage::kill_data(void)
 {
+	Pkt pkt;
 	_io_queue.enqueue(this, "(cog-atomspace-clear)\n",
-		nullptr, &CogStorage::noop);
+		pkt, &CogStorage::noop);
 }
 
 /// Do nothing at all.
-void CogStorage::noop(const std::string& ignore, void* nothing)
+void CogStorage::noop(const std::string& ignore, Pkt& nothing)
 {
 }

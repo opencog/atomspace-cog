@@ -43,8 +43,8 @@ using namespace opencog;
 /* ================================================================ */
 // Constructors
 
-template<typename Client>
-void CogChannel<Client>::open_connection(const std::string& uri)
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::open_connection(const std::string& uri)
 {
 #define URIX_LEN (sizeof("cog://") - 1)  // Should be 6
 	if (strncmp(uri.c_str(), "cog://", URIX_LEN))
@@ -128,32 +128,32 @@ void CogChannel<Client>::open_connection(const std::string& uri)
 	do_recv();
 }
 
-template<typename Client>
-CogChannel<Client>::CogChannel(void)
+template<typename Client, typename Data>
+CogChannel<Client, Data>::CogChannel(void)
 	: _sockfd(-1)
 {
 }
 
-template<typename Client>
-CogChannel<Client>::~CogChannel()
+template<typename Client, typename Data>
+CogChannel<Client, Data>::~CogChannel()
 {
 	if (connected())
 		close(_sockfd);
 }
 
-template<typename Client>
-bool CogChannel<Client>::connected(void)
+template<typename Client, typename Data>
+bool CogChannel<Client, Data>::connected(void)
 {
 	return 0 < _sockfd;
 }
 
 /* ================================================================== */
 
-template<typename Client>
-void CogChannel<Client>::enqueue(Client* client,
-                                 const std::string& msg,
-                                 void* data,
-                  void (Client::*handler)(const std::string&, void*))
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::enqueue(Client* client,
+                                       const std::string& msg,
+                                       Data& data,
+                  void (Client::*handler)(const std::string&, Data&))
 {
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
@@ -161,8 +161,8 @@ void CogChannel<Client>::enqueue(Client* client,
 	(client->*handler)(reply, data);
 }
 
-template<typename Client>
-void CogChannel<Client>::do_send(const std::string& str)
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::do_send(const std::string& str)
 {
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");
@@ -173,8 +173,8 @@ void CogChannel<Client>::do_send(const std::string& str)
 			strerror(errno));
 }
 
-template<typename Client>
-std::string CogChannel<Client>::do_recv()
+template<typename Client, typename Data>
+std::string CogChannel<Client, Data>::do_recv()
 {
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");

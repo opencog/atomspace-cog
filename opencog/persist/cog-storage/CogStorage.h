@@ -46,7 +46,13 @@ class CogStorage : public BackingStore
 		void init(const char *);
 		std::string _uri;
 
-		CogChannel<CogStorage> _io_queue;
+		struct Pkt
+		{
+			AtomTable* table;
+			Handle h;
+		};
+
+		CogChannel<CogStorage, Pkt> _io_queue;
 
 		// Socket API ... is single-threaded.
 		std::mutex _mtx;
@@ -54,8 +60,8 @@ class CogStorage : public BackingStore
 		void do_send(const std::string&);
 		std::string do_recv(void);
 
-		void noop(const std::string&, void*);
-		void decode_atom_list(const std::string&, void*);
+		void noop(const std::string&, Pkt&);
+		void decode_atom_list(const std::string&, Pkt&);
 
 	public:
 		CogStorage(std::string uri);

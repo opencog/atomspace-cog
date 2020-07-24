@@ -39,7 +39,7 @@ namespace opencog
  *  @{
  */
 
-template<typename Client>
+template<typename Client, typename Data>
 class CogChannel
 {
 	private:
@@ -60,8 +60,8 @@ class CogChannel
 		void open_connection(const std::string& uri);
 		bool connected(void); // connection to DB is alive
 
-		void enqueue(Client*, const std::string&, void*,
-		             void (Client::*)(const std::string&, void*));
+		void enqueue(Client*, const std::string&, Data&,
+		             void (Client::*)(const std::string&, Data&));
 };
 
 /** @}*/
