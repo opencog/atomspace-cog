@@ -1,9 +1,9 @@
 /*
  * FILE:
- * opencog/persist/cog-storage/CogStorage.cc
+ * opencog/persist/cog-storage/CogChannel.cc
  *
  * FUNCTION:
- * Simple CogServer-backed persistent storage.
+ * CogServer I/O communications channel.
  *
  * HISTORY:
  * Copyright (c) 2020 Linas Vepstas <linasvepstas@gmail.com>
@@ -33,21 +33,18 @@
 #include <netdb.h>
 #include <errno.h>
 
-#include "CogStorage.h"
+#include <opencog/persist/cog-storage/CogChannel.h>
 
 using namespace opencog;
-
-/// This is a cheap, simple, super-low-brow atomspace server
-/// built on the cogserver. Its not special. It's simple.
-/// It is meant to be replaced by something better.
 
 /* ================================================================ */
 // Constructors
 
-void CogStorage::init(const char * uri)
+template<typename Client>
+void CogChannel<Client>::open_connection(const std::string& uri)
 {
 #define URIX_LEN (sizeof("cog://") - 1)  // Should be 6
-	if (strncmp(uri, "cog://", URIX_LEN))
+	if (strncmp(uri.c_str(), "cog://", URIX_LEN))
 		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri);
 
 	std::lock_guard<std::mutex> lck(_mtx);
@@ -57,7 +54,7 @@ void CogStorage::init(const char * uri)
 	//    cog://ipv4-addr/atomspace-name
 	//    cog://ipv4-addr:port/atomspace-name
 
-	std::string host(uri + URIX_LEN);
+	std::string host(uri.substr(URIX_LEN));
 	size_t slash = host.find_first_of(":/");
 	if (std::string::npos != slash)
 		host = host.substr(0, slash);
@@ -128,27 +125,40 @@ void CogStorage::init(const char * uri)
 	do_recv();
 }
 
-CogStorage::CogStorage(std::string uri)
+template<typename Client>
+CogChannel<Client>::CogChannel(void)
 	: _sockfd(-1)
 {
-	init(uri.c_str());
-	_io_queue.open_connection(uri);
 }
 
-CogStorage::~CogStorage()
+template<typename Client>
+CogChannel<Client>::~CogChannel()
 {
 	if (connected())
 		close(_sockfd);
 }
 
-bool CogStorage::connected(void)
+template<typename Client>
+bool CogChannel<Client>::connected(void)
 {
 	return 0 < _sockfd;
 }
 
 /* ================================================================== */
 
-void CogStorage::do_send(const std::string& str)
+template<typename Client>
+void CogChannel<Client>::enqueue(Client* client,
+                                 const std::string& msg,
+                                 void (Client::*handler)(const std::string&))
+{
+	std::lock_guard<std::mutex> lck(_mtx);
+	do_send(msg);
+	std::string reply = do_recv();
+	client->handler(reply);
+}
+
+template<typename Client>
+void CogChannel<Client>::do_send(const std::string& str)
 {
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");
@@ -159,7 +169,8 @@ void CogStorage::do_send(const std::string& str)
 			strerror(errno));
 }
 
-std::string CogStorage::do_recv()
+template<typename Client>
+std::string CogChannel<Client>::do_recv()
 {
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");
@@ -203,44 +214,6 @@ std::string CogStorage::do_recv()
 		rb += buf;
 	}
 	return rb;
-}
-
-/* ================================================================== */
-/// Drain the pending store queue. This is a fencing operation; the
-/// goal is to make sure that all writes that occurred before the
-/// barrier really are performed before before all the writes after
-/// the barrier.
-///
-void CogStorage::barrier()
-{
-}
-
-/* ================================================================ */
-
-void CogStorage::registerWith(AtomSpace* as)
-{
-	BackingStore::registerWith(as);
-}
-
-void CogStorage::unregisterWith(AtomSpace* as)
-{
-	if (connected())
-		close(_sockfd);
-	_sockfd = -1;
-
-	BackingStore::unregisterWith(as);
-}
-
-/* ================================================================ */
-
-void CogStorage::clear_stats(void)
-{
-}
-
-void CogStorage::print_stats(void)
-{
-	printf("Connected to %s\n", _uri.c_str());
-	printf("no stats yet\n");
 }
 
 /* ============================= END OF FILE ================= */
