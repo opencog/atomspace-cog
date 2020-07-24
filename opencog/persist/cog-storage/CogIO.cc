@@ -50,7 +50,7 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 	else
 		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " (stv 1 0))\n";
 
-	_io_queue.enqueue(this, msg, &CogStorage::noop);
+	_io_queue.enqueue(this, msg, nullptr, &CogStorage::noop);
 }
 
 void CogStorage::removeAtom(const Handle& h, bool recursive)
@@ -61,7 +61,7 @@ void CogStorage::removeAtom(const Handle& h, bool recursive)
 	else
 		msg = "(cog-extract! " + Sexpr::encode_atom(h) + ")\n";
 
-	_io_queue.enqueue(this, msg, &CogStorage::noop);
+	_io_queue.enqueue(this, msg, nullptr, &CogStorage::noop);
 }
 
 Handle CogStorage::getNode(Type t, const char * str)
@@ -112,8 +112,10 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 	return h;
 }
 
-void CogStorage::decode_atom_list(const std::string& expr)
+void CogStorage::decode_atom_list(const std::string& expr, void* data)
 {
+	AtomTable* table = (AtomTable*) data;
+
 	// Loop and decode atoms.
 	size_t l = expr.find('(') + 1; // skip the first paren.
 	size_t end = expr.rfind(')');  // trim tailing paren.
@@ -125,7 +127,7 @@ void CogStorage::decode_atom_list(const std::string& expr)
 		int pcnt = Sexpr::get_next_expr(expr, l, r, 0);
 		if (l == r) break;
 		if (0 < pcnt) break;
-		Handle h = _table->add(Sexpr::decode_atom(expr, l, r, 0));
+		Handle h = table->add(Sexpr::decode_atom(expr, l, r, 0));
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
@@ -141,42 +143,35 @@ void CogStorage::decode_atom_list(const std::string& expr)
 
 void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
 {
-	if (nullptr == _table) _table = &table;
-
 	std::string msg = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
-	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
+	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 {
-	if (nullptr == _table) _table = &table;
-
 	std::string msg = "(cog-incoming-by-type " + Sexpr::encode_atom(h)
 		+ " '" + nameserver().getTypeName(t) + ")\n";
 
-	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
+	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::loadAtomSpace(AtomTable &table)
 {
-	if (nullptr == _table) _table = &table;
-
 	// Get nodes and links separately, in an effort to get
 	// smaller replies.
 	std::string msg = "(cog-get-atoms 'Node #t)\n";
-	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
+	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
 
 	barrier();
 	msg = "(cog-get-atoms 'Link #t)\n";
-	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
+	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::loadType(AtomTable &table, Type t)
 {
-	if (nullptr == _table) _table = &table;
 	std::string msg = "(cog-get-atoms '" + nameserver().getTypeName(t) + ")\n";
 
-	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
+	_io_queue.enqueue(this, msg, &table, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::storeAtomSpace(const AtomTable &table)
@@ -189,10 +184,11 @@ void CogStorage::storeAtomSpace(const AtomTable &table)
 
 void CogStorage::kill_data(void)
 {
-	_io_queue.enqueue(this, "(cog-atomspace-clear)\n", &CogStorage::noop);
+	_io_queue.enqueue(this, "(cog-atomspace-clear)\n",
+		nullptr, &CogStorage::noop);
 }
 
 /// Do nothing at all.
-void CogStorage::noop(const std::string& ignore)
+void CogStorage::noop(const std::string& ignore, void* nothing)
 {
 }

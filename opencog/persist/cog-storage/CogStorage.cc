@@ -130,7 +130,7 @@ void CogStorage::init(const char * uri)
 }
 
 CogStorage::CogStorage(std::string uri)
-	: _sockfd(-1), _table(nullptr)
+	: _sockfd(-1)
 {
 	init(uri.c_str());
 	_io_queue.open_connection(uri);

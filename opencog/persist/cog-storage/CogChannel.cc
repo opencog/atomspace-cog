@@ -152,12 +152,13 @@ bool CogChannel<Client>::connected(void)
 template<typename Client>
 void CogChannel<Client>::enqueue(Client* client,
                                  const std::string& msg,
-                                 void (Client::*handler)(const std::string&))
+                                 void* data,
+                  void (Client::*handler)(const std::string&, void*))
 {
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
 	std::string reply = do_recv();
-	(client->*handler)(reply);
+	(client->*handler)(reply, data);
 }
 
 template<typename Client>
