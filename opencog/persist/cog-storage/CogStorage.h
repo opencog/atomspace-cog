@@ -54,8 +54,9 @@ class CogStorage : public BackingStore
 		void do_send(const std::string&);
 		std::string do_recv(void);
 
-		void decode_atom_list(AtomTable&);
+		void decode_atom_list(const std::string&);
 
+		AtomTable* _table;
 		void noop(const std::string&);
 
 	public:

@@ -120,13 +120,8 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 	return h;
 }
 
-void CogStorage::decode_atom_list(AtomTable& table)
+void CogStorage::decode_atom_list(const std::string& expr)
 {
-	// XXX FIXME .. this WILL fail if the returned list is large.
-	// Basically, we don't know quite when all the bytes have been
-	// received on the socket... For now, we punt.
-	std::string expr = do_recv();
-
 	// Loop and decode atoms.
 	size_t l = expr.find('(') + 1; // skip the first paren.
 	size_t end = expr.rfind(')');  // trim tailing paren.
@@ -138,7 +133,7 @@ void CogStorage::decode_atom_list(AtomTable& table)
 		int pcnt = Sexpr::get_next_expr(expr, l, r, 0);
 		if (l == r) break;
 		if (0 < pcnt) break;
-		Handle h = table.add(Sexpr::decode_atom(expr, l, r, 0));
+		Handle h = _table->add(Sexpr::decode_atom(expr, l, r, 0));
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
@@ -154,43 +149,42 @@ void CogStorage::decode_atom_list(AtomTable& table)
 
 void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
 {
-	std::string atom = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send(atom);
-	decode_atom_list(table);
+	if (nullptr == _table) _table = &table;
+
+	std::string msg = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
+	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 {
+	if (nullptr == _table) _table = &table;
+
 	std::string msg = "(cog-incoming-by-type " + Sexpr::encode_atom(h)
 		+ " '" + nameserver().getTypeName(t) + ")\n";
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send(msg);
-	decode_atom_list(table);
+
+	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::loadAtomSpace(AtomTable &table)
 {
-	std::lock_guard<std::mutex> lck(_mtx);
+	if (nullptr == _table) _table = &table;
 
 	// Get nodes and links separately, in an effort to get
 	// smaller replies.
 	std::string msg = "(cog-get-atoms 'Node #t)\n";
-	do_send(msg);
-	decode_atom_list(table);
+	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
 
+	barrier();
 	msg = "(cog-get-atoms 'Link #t)\n";
-	do_send(msg);
-	decode_atom_list(table);
+	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::loadType(AtomTable &table, Type t)
 {
+	if (nullptr == _table) _table = &table;
 	std::string msg = "(cog-get-atoms '" + nameserver().getTypeName(t) + ")\n";
 
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send(msg);
-	decode_atom_list(table);
+	_io_queue.enqueue(this, msg, &CogStorage::decode_atom_list);
 }
 
 void CogStorage::storeAtomSpace(const AtomTable &table)
