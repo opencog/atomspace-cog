@@ -155,9 +155,13 @@ void CogChannel<Client, Data>::enqueue(Client* client,
                                        Data& data,
                   void (Client::*handler)(const std::string&, Data&))
 {
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send(msg);
-	std::string reply = do_recv();
+	std::string reply;
+	{
+		std::lock_guard<std::mutex> lck(_mtx);
+		do_send(msg);
+		reply = do_recv();
+	}
+	// Client is called unlocked.
 	(client->*handler)(reply, data);
 }
 
