@@ -27,12 +27,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
 #include <errno.h>
+#include <unistd.h>
 
+#include <opencog/util/exceptions.h>
 #include <opencog/persist/cog-storage/CogChannel.h>
 
 using namespace opencog;

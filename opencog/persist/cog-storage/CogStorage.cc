@@ -34,6 +34,7 @@
 #include <errno.h>
 
 #include "CogStorage.h"
+#include "CogChannel.cc"
 
 using namespace opencog;
 

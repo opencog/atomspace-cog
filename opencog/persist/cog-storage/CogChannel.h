@@ -30,6 +30,9 @@
 #ifndef _OPENCOG_COG_CHANNEL_H
 #define _OPENCOG_COG_CHANNEL_H
 
+#include <mutex>
+#include <string>
+
 namespace opencog
 {
 /** \addtogroup grp_persist
