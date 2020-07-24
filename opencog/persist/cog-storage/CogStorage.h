@@ -56,6 +56,8 @@ class CogStorage : public BackingStore
 
 		void decode_atom_list(AtomTable&);
 
+		void noop(const std::string&);
+
 	public:
 		CogStorage(std::string uri);
 		CogStorage(const CogStorage&) = delete; // disable copying

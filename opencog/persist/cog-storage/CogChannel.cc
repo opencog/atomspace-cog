@@ -157,7 +157,7 @@ void CogChannel<Client>::enqueue(Client* client,
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
 	std::string reply = do_recv();
-	client->handler(reply);
+	(client->*handler)(reply);
 }
 
 template<typename Client>

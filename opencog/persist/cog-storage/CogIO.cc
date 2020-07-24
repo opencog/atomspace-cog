@@ -30,6 +30,7 @@
 #include <opencog/persist/sexpr/Sexpr.h>
 
 #include "CogStorage.h"
+#include "CogChannel.cc"
 
 using namespace opencog;
 
@@ -202,7 +203,10 @@ void CogStorage::storeAtomSpace(const AtomTable &table)
 
 void CogStorage::kill_data(void)
 {
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send("(cog-atomspace-clear)\n");
-	do_recv();
+	_io_queue.enqueue(this, "(cog-atomspace-clear)\n", &CogStorage::noop);
+}
+
+/// Do nothing at all.
+void CogStorage::noop(const std::string& ignore)
+{
 }
