@@ -34,12 +34,6 @@
 
 using namespace opencog;
 
-// Design note: each of the calls below grabs a lock to protect the
-// send-recv pair.  This is so that mutiple threads sharing the same
-// socket do not accidentally get confused about whose data is whose.
-// If you want faster throughput, then open multiple sockets to the
-// cogserver, it can handle that just fine.
-
 void CogStorage::storeAtom(const Handle& h, bool synchronous)
 {
 	// If there are no values, be sure to reset the TV to the default TV.
@@ -82,9 +76,10 @@ Handle CogStorage::getNode(Type t, const char * str)
 
 	// Get all of the keys.
 	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
-	do_send(get_keys);
-	msg = do_recv();
-	Sexpr::decode_alist(h, msg);
+
+	Pkt pkt{nullptr, h};
+	_io_queue.enqueue(this, get_keys, pkt, &CogStorage::decode_kvp_list);
+	barrier();
 
 	return h;
 }
@@ -107,9 +102,9 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 
 	// Get all of the keys.
 	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
-	do_send(get_keys);
-	msg = do_recv();
-	Sexpr::decode_alist(h, msg);
+	Pkt pkt{nullptr, h};
+	_io_queue.enqueue(this, get_keys, pkt, &CogStorage::decode_kvp_list);
+	barrier();
 
 	return h;
 }
@@ -131,9 +126,8 @@ void CogStorage::decode_atom_list(const std::string& expr, Pkt& pkt)
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
-		do_send(get_keys);
-		std::string msg = do_recv();
-		Sexpr::decode_alist(h, msg);
+		Pkt pkt{nullptr, h};
+		_io_queue.enqueue(this, get_keys, pkt, &CogStorage::decode_kvp_list);
 
 		// advance to next.
 		l = r+1;
@@ -197,4 +191,11 @@ void CogStorage::kill_data(void)
 /// Do nothing at all.
 void CogStorage::noop(const std::string& ignore, Pkt& nothing)
 {
+}
+
+/// Decode a key-value-pair association list.
+/// attach the key-value pairs to the atom in the packet.
+void CogStorage::decode_kvp_list(const std::string& reply, Pkt& pkt)
+{
+	Sexpr::decode_alist(pkt.h, reply);
 }
