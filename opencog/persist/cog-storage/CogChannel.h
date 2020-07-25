@@ -82,6 +82,8 @@ class CogChannel
 		             void (Client::*)(const std::string&, const Data&));
 		void synchro(Client*, const std::string&, Data&,
 		             void (Client::*)(const std::string&, Data&));
+
+		void barrier();
 };
 
 /** @}*/

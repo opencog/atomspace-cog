@@ -55,6 +55,7 @@ CogChannel<Client, Data>::CogChannel(void)
 template<typename Client, typename Data>
 CogChannel<Client, Data>::~CogChannel()
 {
+	_msg_buffer.barrier();
 	if (connected())
 		close(_sockfd);
 }
@@ -235,6 +236,7 @@ void CogChannel<Client, Data>::synchro(Client* client,
 		do_send(msg);
 		reply = do_recv();
 	}
+
 	// Client is called unlocked.
 	(client->*handler)(reply, data);
 }
@@ -265,6 +267,12 @@ void CogChannel<Client, Data>::reply_handler(const Msg& msg)
 
 	// Client is called unlocked.
 	(msg.client->*msg.callback)(reply, msg.data);
+}
+
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::barrier()
+{
+	_msg_buffer.barrier();
 }
 
 /* ============================= END OF FILE ================= */

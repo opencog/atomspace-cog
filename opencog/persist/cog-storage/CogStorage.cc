@@ -75,6 +75,7 @@ bool CogStorage::connected(void)
 ///
 void CogStorage::barrier()
 {
+	_io_queue.barrier();
 }
 
 /* ================================================================ */

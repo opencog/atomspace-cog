@@ -131,7 +131,7 @@ void CogStorage::decode_atom_list(const std::string& expr, const Pkt& pkt)
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
 		Pkt pkt{nullptr, h};
-		_io_queue.enqueue(this, get_keys, pkt, &CogStorage::decode_kvp_list);
+		_io_queue.enqueue(this, get_keys, pkt, &CogStorage::decode_kvp_list_const);
 
 		// advance to next.
 		l = r+1;
@@ -199,7 +199,7 @@ void CogStorage::noop(const std::string& ignore, const Pkt& nothing)
 
 /// Decode a key-value-pair association list.
 /// attach the key-value pairs to the atom in the packet.
-void CogStorage::decode_kvp_list(const std::string& reply, const Pkt& pkt)
+void CogStorage::decode_kvp_list_const(const std::string& reply, const Pkt& pkt)
 {
 	Handle h = pkt.h;
 	Sexpr::decode_alist(h, reply);

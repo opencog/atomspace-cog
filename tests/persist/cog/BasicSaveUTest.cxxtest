@@ -195,6 +195,7 @@ void BasicSaveUTest::single_atom_save_restore(std::string id)
 
     // Store the atom ...
     store->storeAtom(h, true);
+    store->barrier();
     printf("Done storing single node\n");
 
     // Fetch it back ...
@@ -216,6 +217,7 @@ void BasicSaveUTest::single_atom_save_restore(std::string id)
 
     Handle l(createLink(hvec, LIST_LINK));
     store->storeAtom(l->get_handle(), true);
+    store->barrier();
     printf("Done storing single link\n");
 
     Handle hl = store->getLink(LIST_LINK, hvec);
