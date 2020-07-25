@@ -63,6 +63,7 @@ class CogStorage : public BackingStore
 		void noop(const std::string&, Pkt&);
 		void decode_atom_list(const std::string&, Pkt&);
 		void decode_kvp_list(const std::string&, Pkt&);
+		void is_ok(const std::string&, Pkt&);
 
 	public:
 		CogStorage(std::string uri);

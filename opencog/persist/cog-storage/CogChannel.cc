@@ -166,6 +166,22 @@ void CogChannel<Client, Data>::enqueue(Client* client,
 }
 
 template<typename Client, typename Data>
+void CogChannel<Client, Data>::synchro(Client* client,
+                                       const std::string& msg,
+                                       Data& data,
+                  void (Client::*handler)(const std::string&, Data&))
+{
+	std::string reply;
+	{
+		std::lock_guard<std::mutex> lck(_mtx);
+		do_send(msg);
+		reply = do_recv();
+	}
+	// Client is called unlocked.
+	(client->*handler)(reply, data);
+}
+
+template<typename Client, typename Data>
 void CogChannel<Client, Data>::do_send(const std::string& str)
 {
 	if (not connected())

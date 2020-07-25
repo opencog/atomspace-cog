@@ -60,16 +60,22 @@ void CogStorage::removeAtom(const Handle& h, bool recursive)
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop);
 }
 
+void CogStorage::is_ok(const std::string& reply, Pkt& pkt)
+{
+	if (reply.compare(0, 2, "()"))
+		pkt.table = (AtomTable *) -1;
+}
+
 Handle CogStorage::getNode(Type t, const char * str)
 {
 	std::string typena = nameserver().getTypeName(t) + " \"" + str + "\"";
 
 	// Does the cogserver even know about this atom?
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send("(cog-node '" + typena + ")\n");
-	std::string msg = do_recv();
-	if (0 == msg.compare(0, 2, "()"))
-		return Handle();
+	Pkt pkt{nullptr, Handle::UNDEFINED};
+	_io_queue.synchro(this,"(cog-node '" + typena + ")\n",
+	                  pkt, &CogStorage::is_ok);
+	if (nullptr == pkt.table)
+		return Handle::UNDEFINED;
 
 	// Yes, the cogserver knows about this atom
 	Handle h = createNode(t, str);
@@ -77,9 +83,8 @@ Handle CogStorage::getNode(Type t, const char * str)
 	// Get all of the keys.
 	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
 
-	Pkt pkt{nullptr, h};
-	_io_queue.enqueue(this, get_keys, pkt, &CogStorage::decode_kvp_list);
-	barrier();
+	Pkt pkta{nullptr, h};
+	_io_queue.synchro(this, get_keys, pkta, &CogStorage::decode_kvp_list);
 
 	return h;
 }
@@ -91,20 +96,19 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 		typena += Sexpr::encode_atom(ho);
 
 	// Does the cogserver even know about this atom?
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send("(cog-link '" + typena + ")\n");
-	std::string msg = do_recv();
-	if (0 == msg.compare(0, 2, "()"))
-		return Handle();
+	Pkt pkt{nullptr, Handle::UNDEFINED};
+	_io_queue.synchro(this,"(cog-link '" + typena + ")\n",
+	                  pkt, &CogStorage::is_ok);
+	if (nullptr == pkt.table)
+		return Handle::UNDEFINED;
 
 	// Yes, the cogserver knows about this atom
 	Handle h = createLink(hs, t);
 
 	// Get all of the keys.
 	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
-	Pkt pkt{nullptr, h};
-	_io_queue.enqueue(this, get_keys, pkt, &CogStorage::decode_kvp_list);
-	barrier();
+	Pkt pkta{nullptr, h};
+	_io_queue.synchro(this, get_keys, pkta, &CogStorage::decode_kvp_list);
 
 	return h;
 }

@@ -62,6 +62,8 @@ class CogChannel
 
 		void enqueue(Client*, const std::string&, Data&,
 		             void (Client::*)(const std::string&, Data&));
+		void synchro(Client*, const std::string&, Data&,
+		             void (Client::*)(const std::string&, Data&));
 };
 
 /** @}*/
