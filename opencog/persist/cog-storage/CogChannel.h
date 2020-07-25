@@ -33,6 +33,8 @@
 #include <mutex>
 #include <string>
 
+#include <opencog/util/async_buffer.h>
+
 namespace opencog
 {
 /** \addtogroup grp_persist
@@ -50,6 +52,16 @@ class CogChannel
 		int _sockfd;
 		void do_send(const std::string&);
 		std::string do_recv(void);
+
+		struct Msg
+		{
+			std::string str_to_send;
+			Data data;
+			Client* client;
+			void (Client::*callback)(const std::string&, const Data&);
+		};
+		async_buffer<CogChannel, Msg> _msg_buffer;
+		void reply_handler(const Msg&);
 
 	public:
 		CogChannel(void);

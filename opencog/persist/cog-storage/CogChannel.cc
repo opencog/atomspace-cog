@@ -43,6 +43,24 @@ using namespace opencog;
 /* ================================================================ */
 // Constructors
 
+// Number of threads to run.
+#define NTHREADS 4
+
+template<typename Client, typename Data>
+CogChannel<Client, Data>::CogChannel(void)
+	: _sockfd(-1), _msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
+{
+}
+
+template<typename Client, typename Data>
+CogChannel<Client, Data>::~CogChannel()
+{
+	if (connected())
+		close(_sockfd);
+}
+
+/* ================================================================ */
+
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::open_connection(const std::string& uri)
 {
@@ -129,19 +147,6 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 }
 
 template<typename Client, typename Data>
-CogChannel<Client, Data>::CogChannel(void)
-	: _sockfd(-1)
-{
-}
-
-template<typename Client, typename Data>
-CogChannel<Client, Data>::~CogChannel()
-{
-	if (connected())
-		close(_sockfd);
-}
-
-template<typename Client, typename Data>
 bool CogChannel<Client, Data>::connected(void)
 {
 	return 0 < _sockfd;
@@ -156,38 +161,6 @@ void CogChannel<Client, Data>::close_connection(void)
 }
 
 /* ================================================================== */
-
-template<typename Client, typename Data>
-void CogChannel<Client, Data>::enqueue(Client* client,
-                                       const std::string& msg,
-                                       Data& data,
-                  void (Client::*handler)(const std::string&, Data&))
-{
-	std::string reply;
-	{
-		std::lock_guard<std::mutex> lck(_mtx);
-		do_send(msg);
-		reply = do_recv();
-	}
-	// Client is called unlocked.
-	(client->*handler)(reply, data);
-}
-
-template<typename Client, typename Data>
-void CogChannel<Client, Data>::synchro(Client* client,
-                                       const std::string& msg,
-                                       Data& data,
-                  void (Client::*handler)(const std::string&, Data&))
-{
-	std::string reply;
-	{
-		std::lock_guard<std::mutex> lck(_mtx);
-		do_send(msg);
-		reply = do_recv();
-	}
-	// Client is called unlocked.
-	(client->*handler)(reply, data);
-}
 
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::do_send(const std::string& str)
@@ -246,6 +219,56 @@ std::string CogChannel<Client, Data>::do_recv()
 		rb += buf;
 	}
 	return rb;
+}
+
+/* ================================================================== */
+
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::enqueue(Client* client,
+                                       const std::string& msg,
+                                       Data& data,
+                  void (Client::*handler)(const std::string&, Data&))
+{
+	std::string reply;
+	{
+		std::lock_guard<std::mutex> lck(_mtx);
+		do_send(msg);
+		reply = do_recv();
+	}
+	// Client is called unlocked.
+	(client->*handler)(reply, data);
+}
+
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::synchro(Client* client,
+                                       const std::string& msg,
+                                       Data& data,
+                  void (Client::*handler)(const std::string&, Data&))
+{
+	std::string reply;
+	{
+		std::lock_guard<std::mutex> lck(_mtx);
+		do_send(msg);
+		reply = do_recv();
+	}
+	// Client is called unlocked.
+	(client->*handler)(reply, data);
+}
+
+/* ================================================================== */
+
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::reply_handler(const Msg& msg)
+{
+	std::string reply;
+	{
+		std::lock_guard<std::mutex> lck(_mtx);
+		do_send(msg.str_to_send);
+		reply = do_recv();
+	}
+
+	// Client is called unlocked.
+	(msg.client->*msg.callback)(reply, msg.data);
 }
 
 /* ============================= END OF FILE ================= */
