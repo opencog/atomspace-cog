@@ -10,7 +10,7 @@
  *
  * LICENSE:
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License v3 as
  * published by the Free Software Foundation and including the exceptions
@@ -224,22 +224,6 @@ std::string CogChannel<Client, Data>::do_recv()
 /* ================================================================== */
 
 template<typename Client, typename Data>
-void CogChannel<Client, Data>::enqueue(Client* client,
-                                       const std::string& msg,
-                                       Data& data,
-                  void (Client::*handler)(const std::string&, Data&))
-{
-	std::string reply;
-	{
-		std::lock_guard<std::mutex> lck(_mtx);
-		do_send(msg);
-		reply = do_recv();
-	}
-	// Client is called unlocked.
-	(client->*handler)(reply, data);
-}
-
-template<typename Client, typename Data>
 void CogChannel<Client, Data>::synchro(Client* client,
                                        const std::string& msg,
                                        Data& data,
@@ -257,6 +241,18 @@ void CogChannel<Client, Data>::synchro(Client* client,
 
 /* ================================================================== */
 
+// Place the message int to queue
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::enqueue(Client* client,
+                                       const std::string& msg,
+                                       Data& data,
+                  void (Client::*handler)(const std::string&, const Data&))
+{
+	Msg block{msg, data, client, handler};
+	_msg_buffer.insert(block);
+}
+
+// Run message from queue.
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::reply_handler(const Msg& msg)
 {

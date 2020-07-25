@@ -59,7 +59,12 @@ class CogChannel
 			Data data;
 			Client* client;
 			void (Client::*callback)(const std::string&, const Data&);
+
+			// Need operator<() in order to queue up the messages.
+			int operator<(const Msg& other) const
+			{ return this < &other; }
 		};
+
 		async_buffer<CogChannel, Msg> _msg_buffer;
 		void reply_handler(const Msg&);
 
@@ -74,7 +79,7 @@ class CogChannel
 		bool connected(void); // connection to DB is alive
 
 		void enqueue(Client*, const std::string&, Data&,
-		             void (Client::*)(const std::string&, Data&));
+		             void (Client::*)(const std::string&, const Data&));
 		void synchro(Client*, const std::string&, Data&,
 		             void (Client::*)(const std::string&, Data&));
 };

@@ -113,7 +113,7 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 	return h;
 }
 
-void CogStorage::decode_atom_list(const std::string& expr, Pkt& pkt)
+void CogStorage::decode_atom_list(const std::string& expr, const Pkt& pkt)
 {
 	// Loop and decode atoms.
 	size_t l = expr.find('(') + 1; // skip the first paren.
@@ -193,13 +193,14 @@ void CogStorage::kill_data(void)
 }
 
 /// Do nothing at all.
-void CogStorage::noop(const std::string& ignore, Pkt& nothing)
+void CogStorage::noop(const std::string& ignore, const Pkt& nothing)
 {
 }
 
 /// Decode a key-value-pair association list.
 /// attach the key-value pairs to the atom in the packet.
-void CogStorage::decode_kvp_list(const std::string& reply, Pkt& pkt)
+void CogStorage::decode_kvp_list(const std::string& reply, const Pkt& pkt)
 {
-	Sexpr::decode_alist(pkt.h, reply);
+	Handle h = pkt.h;
+	Sexpr::decode_alist(h, reply);
 }

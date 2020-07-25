@@ -54,9 +54,10 @@ class CogStorage : public BackingStore
 
 		CogChannel<CogStorage, Pkt> _io_queue;
 
-		void noop(const std::string&, Pkt&);
-		void decode_atom_list(const std::string&, Pkt&);
-		void decode_kvp_list(const std::string&, Pkt&);
+		void noop(const std::string&, const Pkt&);
+		void decode_atom_list(const std::string&, const Pkt&);
+		void decode_kvp_list(const std::string&, const Pkt&);
+		void decode_kvp_list(const std::string& s, Pkt& p) { decode_kvp_list(s, p); }
 		void is_ok(const std::string&, Pkt&);
 
 	public:
