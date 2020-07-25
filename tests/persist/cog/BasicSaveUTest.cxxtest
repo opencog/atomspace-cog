@@ -343,6 +343,7 @@ void BasicSaveUTest::test_fresh_atom(void)
     Handle le(createLink(HandleSeq(), LIST_LINK));
     le->setTruthValue(SimpleTruthValue::createTV(0.1, 0.9));
     store->storeAtom(le, true);
+    store->barrier();
 
     // Now get them back.  Get empty after full.
     Handle hf(store->getLink(LIST_LINK, {ha, hb}));
@@ -406,6 +407,7 @@ void BasicSaveUTest::test_table()
     store->registerWith(as2);
 
     store->loadAtomSpace(*table2);
+    store->barrier();
     // table2->print();
     size_t num_fetched = table2->getSize();
     printf("test_table: Done loading table; fetched %lu, expected %lu\n",

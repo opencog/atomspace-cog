@@ -45,7 +45,7 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " (stv 1 0))\n";
 
 	Pkt pkt;
-	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop);
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
 }
 
 void CogStorage::removeAtom(const Handle& h, bool recursive)
@@ -57,7 +57,7 @@ void CogStorage::removeAtom(const Handle& h, bool recursive)
 		msg = "(cog-extract! " + Sexpr::encode_atom(h) + ")\n";
 
 	Pkt pkt;
-	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop);
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
 }
 
 void CogStorage::is_ok(const std::string& reply, Pkt& pkt)
@@ -183,18 +183,15 @@ void CogStorage::storeAtomSpace(const AtomTable &table)
 	table.getHandleSetByType(all_atoms, ATOM, true);
 	for (const Handle& h : all_atoms)
 		storeAtom(h);
+	barrier();
 }
 
 void CogStorage::kill_data(void)
 {
+	_io_queue.barrier();
 	Pkt pkt;
-	_io_queue.enqueue(this, "(cog-atomspace-clear)\n",
+	_io_queue.synchro(this, "(cog-atomspace-clear)\n",
 		pkt, &CogStorage::noop);
-}
-
-/// Do nothing at all.
-void CogStorage::noop(const std::string& ignore, const Pkt& nothing)
-{
 }
 
 /// Decode a key-value-pair association list.
