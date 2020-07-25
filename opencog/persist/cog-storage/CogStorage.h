@@ -54,12 +54,6 @@ class CogStorage : public BackingStore
 
 		CogChannel<CogStorage, Pkt> _io_queue;
 
-		// Socket API ... is single-threaded.
-		std::mutex _mtx;
-		int _sockfd;
-		void do_send(const std::string&);
-		std::string do_recv(void);
-
 		void noop(const std::string&, Pkt&);
 		void decode_atom_list(const std::string&, Pkt&);
 		void decode_kvp_list(const std::string&, Pkt&);

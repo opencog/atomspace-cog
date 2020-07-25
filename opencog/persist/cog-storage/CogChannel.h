@@ -58,6 +58,7 @@ class CogChannel
 		~CogChannel();
 
 		void open_connection(const std::string& uri);
+		void close_connection(void);
 		bool connected(void); // connection to DB is alive
 
 		void enqueue(Client*, const std::string&, Data&,

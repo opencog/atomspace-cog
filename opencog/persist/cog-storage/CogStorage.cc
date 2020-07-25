@@ -38,9 +38,7 @@
 
 using namespace opencog;
 
-/// This is a cheap, simple, super-low-brow atomspace server
-/// built on the cogserver. Its not special. It's simple.
-/// It is meant to be replaced by something better.
+/// This is a basic atomspace client built on the cogserver.
 
 /* ================================================================ */
 // Constructors
@@ -51,86 +49,10 @@ void CogStorage::init(const char * uri)
 	if (strncmp(uri, "cog://", URIX_LEN))
 		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri);
 
-	std::lock_guard<std::mutex> lck(_mtx);
 	_uri = uri;
-
-	// We expect the URI to be for the form
-	//    cog://ipv4-addr/atomspace-name
-	//    cog://ipv4-addr:port/atomspace-name
-
-	std::string host(uri + URIX_LEN);
-	size_t slash = host.find_first_of(":/");
-	if (std::string::npos != slash)
-		host = host.substr(0, slash);
-
-#define DEFAULT_COGSERVER_PORT "17001"
-	std::string port = DEFAULT_COGSERVER_PORT;
-	size_t colon = _uri.find(':', URIX_LEN + host.length());
-	if (std::string::npos != colon)
-	{
-		port = _uri.substr(colon+1);
-		slash = port.find('/');
-		if (std::string::npos != slash)
-			port = port.substr(0, slash);
-	}
-
-	struct addrinfo hints;
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC; // IPv4 or IPv6
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-
-	struct addrinfo *servinfo;
-	int rc = getaddrinfo(host.c_str(), port.c_str(), &hints, &servinfo);
-	if (rc)
-		throw IOException(TRACE_INFO, "Unknown host %s: %s",
-			host.c_str(), strerror(rc));
-
-	_sockfd = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
-
-	if (0 > _sockfd)
-	{
-		int norr = errno;
-		free(servinfo);
-		throw IOException(TRACE_INFO, "Unable to create socket to host %s: %s",
-			host.c_str(), strerror(norr));
-	}
-
-	rc = connect(_sockfd, servinfo->ai_addr, servinfo->ai_addrlen);
-	if (0 > rc)
-	{
-		int norr = errno;
-		free(servinfo);
-		throw IOException(TRACE_INFO, "Unable to connect to host %s: %s",
-			host.c_str(), strerror(norr));
-	}
-	free(servinfo);
-	if (0 > rc)
-		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
-
-	// We are going to be sending oceans of tiny packets,
-	// and we want the fastest-possible responses.
-	int flags = 1;
-	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
-	flags = 1;
-	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_QUICKACK, &flags, sizeof(flags));
-
-	// Get to the scheme prompt, but make it be silent.
-	std::string eval = "scm hush\n";
-	rc = send(_sockfd, eval.c_str(), eval.size(), 0);
-	if (0 > rc)
-		throw IOException(TRACE_INFO, "Unable to talk to cogserver at host %s: %s",
-			host.c_str(), strerror(errno));
-
-	// Throw away the cogserver prompt.
-	do_recv();
-
-	do_send("(cog-set-server-mode! #t)\n");
-	do_recv();
 }
 
 CogStorage::CogStorage(std::string uri)
-	: _sockfd(-1)
 {
 	init(uri.c_str());
 	_io_queue.open_connection(uri);
@@ -138,72 +60,11 @@ CogStorage::CogStorage(std::string uri)
 
 CogStorage::~CogStorage()
 {
-	if (connected())
-		close(_sockfd);
 }
 
 bool CogStorage::connected(void)
 {
-	return 0 < _sockfd;
-}
-
-/* ================================================================== */
-
-void CogStorage::do_send(const std::string& str)
-{
-	if (not connected())
-		throw IOException(TRACE_INFO, "Not connected to cogserver!");
-
-	int rc = send(_sockfd, str.c_str(), str.size(), 0);
-	if (0 > rc)
-		throw IOException(TRACE_INFO, "Unable to talk to cogserver: %s",
-			strerror(errno));
-}
-
-std::string CogStorage::do_recv()
-{
-	if (not connected())
-		throw IOException(TRACE_INFO, "Not connected to cogserver!");
-
-	// XXX FIXME the strategy below is rather fragile.
-	// I don't think its trustworthy for production use,
-	// but I guess its OK for proof-of-concept.
-	std::string rb;
-	bool first_time = true;
-	while (true)
-	{
-		// Receive 4K bytes of message.
-		char buf[4097];
-		int len = recv(_sockfd, buf, 4096, 0);
-
-		if (0 > len)
-			throw IOException(TRACE_INFO, "Unable to talk to cogserver: %s",
-				strerror(errno));
-		if (0 == len)
-		{
-			close(_sockfd);
-			_sockfd = 0;
-			throw IOException(TRACE_INFO, "Cogserver unexpectedly closed connection");
-		}
-		buf[len] = 0;
-
-		// If we have a short read, assume we are done.
-		if (first_time and len < 4096)
-			return buf;
-
-		first_time = false;
-		if (len < 4096)
-		{
-			rb += buf;
-			return rb;
-		}
-
-		// If we have a long read, assume that there's more.
-		// XXXX FIXME this fails, of course, for buffers of
-		// exactly 4096...
-		rb += buf;
-	}
-	return rb;
+	return _io_queue.connected();
 }
 
 /* ================================================================== */
@@ -225,10 +86,7 @@ void CogStorage::registerWith(AtomSpace* as)
 
 void CogStorage::unregisterWith(AtomSpace* as)
 {
-	if (connected())
-		close(_sockfd);
-	_sockfd = -1;
-
+	_io_queue.close_connection();
 	BackingStore::unregisterWith(as);
 }
 

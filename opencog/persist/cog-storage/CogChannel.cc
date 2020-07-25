@@ -147,6 +147,14 @@ bool CogChannel<Client, Data>::connected(void)
 	return 0 < _sockfd;
 }
 
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::close_connection(void)
+{
+	if (connected())
+		close(_sockfd);
+	_sockfd = -1;
+}
+
 /* ================================================================== */
 
 template<typename Client, typename Data>
