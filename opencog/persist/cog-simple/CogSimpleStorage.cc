@@ -1,6 +1,6 @@
 /*
  * FILE:
- * opencog/persist/cog-storage/CogStorage.cc
+ * opencog/persist/cog-simple/CogSimple/Storage.cc
  *
  * FUNCTION:
  * Simple CogServer-backed persistent storage.
@@ -33,7 +33,7 @@
 #include <netdb.h>
 #include <errno.h>
 
-#include "CogStorage.h"
+#include "CogSimpleStorage.h"
 
 using namespace opencog;
 
@@ -44,7 +44,7 @@ using namespace opencog;
 /* ================================================================ */
 // Constructors
 
-void CogStorage::init(const char * uri)
+void CogSimpleStorage::init(const char * uri)
 {
 #define URIX_LEN (sizeof("cog://") - 1)  // Should be 6
 	if (strncmp(uri, "cog://", URIX_LEN))
@@ -128,26 +128,26 @@ void CogStorage::init(const char * uri)
 	do_recv();
 }
 
-CogStorage::CogStorage(std::string uri)
+CogSimpleStorage::CogSimpleStorage(std::string uri)
 	: _sockfd(-1)
 {
 	init(uri.c_str());
 }
 
-CogStorage::~CogStorage()
+CogSimpleStorage::~CogSimpleStorage()
 {
 	if (connected())
 		close(_sockfd);
 }
 
-bool CogStorage::connected(void)
+bool CogSimpleStorage::connected(void)
 {
 	return 0 < _sockfd;
 }
 
 /* ================================================================== */
 
-void CogStorage::do_send(const std::string& str)
+void CogSimpleStorage::do_send(const std::string& str)
 {
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");
@@ -158,7 +158,7 @@ void CogStorage::do_send(const std::string& str)
 			strerror(errno));
 }
 
-std::string CogStorage::do_recv()
+std::string CogSimpleStorage::do_recv()
 {
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");
@@ -210,18 +210,18 @@ std::string CogStorage::do_recv()
 /// barrier really are performed before before all the writes after
 /// the barrier.
 ///
-void CogStorage::barrier()
+void CogSimpleStorage::barrier()
 {
 }
 
 /* ================================================================ */
 
-void CogStorage::registerWith(AtomSpace* as)
+void CogSimpleStorage::registerWith(AtomSpace* as)
 {
 	BackingStore::registerWith(as);
 }
 
-void CogStorage::unregisterWith(AtomSpace* as)
+void CogSimpleStorage::unregisterWith(AtomSpace* as)
 {
 	if (connected())
 		close(_sockfd);
@@ -232,11 +232,11 @@ void CogStorage::unregisterWith(AtomSpace* as)
 
 /* ================================================================ */
 
-void CogStorage::clear_stats(void)
+void CogSimpleStorage::clear_stats(void)
 {
 }
 
-void CogStorage::print_stats(void)
+void CogSimpleStorage::print_stats(void)
 {
 	printf("Connected to %s\n", _uri.c_str());
 	printf("no stats yet\n");

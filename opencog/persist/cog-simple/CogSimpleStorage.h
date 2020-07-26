@@ -1,6 +1,6 @@
 /*
  * FILE:
- * opencog/persist/cog-storage/CogStorage.h
+ * opencog/persist/cog-simple/CogSimpleStorage.h
  *
  * FUNCTION:
  * Simple CogServer-backed persistent storage.
@@ -27,8 +27,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _OPENCOG_COG_STORAGE_H
-#define _OPENCOG_COG_STORAGE_H
+#ifndef _SIMPLE_COG_STORAGE_H
+#define _SIMPLE_COG_STORAGE_H
 
 #include <opencog/atomspace/AtomTable.h>
 #include <opencog/atomspace/BackingStore.h>
@@ -39,7 +39,7 @@ namespace opencog
  *  @{
  */
 
-class CogStorage : public BackingStore
+class CogSimpleStorage : public BackingStore
 {
 	private:
 		void init(const char *);
@@ -54,10 +54,10 @@ class CogStorage : public BackingStore
 		void decode_atom_list(AtomTable&);
 
 	public:
-		CogStorage(std::string uri);
-		CogStorage(const CogStorage&) = delete; // disable copying
-		CogStorage& operator=(const CogStorage&) = delete; // disable assignment
-		virtual ~CogStorage();
+		CogSimpleStorage(std::string uri);
+		CogSimpleStorage(const CogSimpleStorage&) = delete; // disable copying
+		CogSimpleStorage& operator=(const CogSimpleStorage&) = delete; // disable assignment
+		virtual ~CogSimpleStorage();
 		bool connected(void); // connection to DB is alive
 
 		void kill_data(void); // destroy DB contents
@@ -85,4 +85,4 @@ class CogStorage : public BackingStore
 /** @}*/
 } // namespace opencog
 
-#endif // _OPENCOG_COG_STORAGE_H
+#endif // _SIMPLE_COG_STORAGE_H

@@ -1,2 +1,2 @@
 
-ADD_SUBDIRECTORY (cog)
+ADD_SUBDIRECTORY (cog-simple)

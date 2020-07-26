@@ -1,5 +1,5 @@
 /*
- * CogIO.cc
+ * CogSimpleIO.cc
  * Save/restore of individual atoms.
  *
  * Copyright (c) 2020 Linas Vepstas <linas@linas.org>
@@ -29,7 +29,7 @@
 #include <opencog/atomspace/AtomSpace.h>
 #include <opencog/persist/sexpr/Sexpr.h>
 
-#include "CogStorage.h"
+#include "CogSimpleStorage.h"
 
 using namespace opencog;
 
@@ -39,7 +39,7 @@ using namespace opencog;
 // If you want faster throughput, then open multiple sockets to the
 // cogserver, it can handle that just fine.
 
-void CogStorage::storeAtom(const Handle& h, bool synchronous)
+void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 {
 	// If there are no values, be sure to reset the TV to the default TV.
 	std::string msg;
@@ -56,7 +56,7 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 	do_recv();
 }
 
-void CogStorage::removeAtom(const Handle& h, bool recursive)
+void CogSimpleStorage::removeAtom(const Handle& h, bool recursive)
 {
 	std::string msg;
 	if (recursive)
@@ -71,7 +71,7 @@ void CogStorage::removeAtom(const Handle& h, bool recursive)
 	do_recv();
 }
 
-Handle CogStorage::getNode(Type t, const char * str)
+Handle CogSimpleStorage::getNode(Type t, const char * str)
 {
 	std::string typena = nameserver().getTypeName(t) + " \"" + str + "\"";
 
@@ -94,7 +94,7 @@ Handle CogStorage::getNode(Type t, const char * str)
 	return h;
 }
 
-Handle CogStorage::getLink(Type t, const HandleSeq& hs)
+Handle CogSimpleStorage::getLink(Type t, const HandleSeq& hs)
 {
 	std::string typena = nameserver().getTypeName(t) + " ";
 	for (const Handle& ho: hs)
@@ -119,7 +119,7 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 	return h;
 }
 
-void CogStorage::decode_atom_list(AtomTable& table)
+void CogSimpleStorage::decode_atom_list(AtomTable& table)
 {
 	// XXX FIXME .. this WILL fail if the returned list is large.
 	// Basically, we don't know quite when all the bytes have been
@@ -151,7 +151,7 @@ void CogStorage::decode_atom_list(AtomTable& table)
 	}
 }
 
-void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
+void CogSimpleStorage::getIncomingSet(AtomTable& table, const Handle& h)
 {
 	std::string atom = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
 	std::lock_guard<std::mutex> lck(_mtx);
@@ -159,7 +159,7 @@ void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
 	decode_atom_list(table);
 }
 
-void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
+void CogSimpleStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 {
 	std::string msg = "(cog-incoming-by-type " + Sexpr::encode_atom(h)
 		+ " '" + nameserver().getTypeName(t) + ")\n";
@@ -168,7 +168,7 @@ void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 	decode_atom_list(table);
 }
 
-void CogStorage::loadAtomSpace(AtomTable &table)
+void CogSimpleStorage::loadAtomSpace(AtomTable &table)
 {
 	std::lock_guard<std::mutex> lck(_mtx);
 
@@ -183,7 +183,7 @@ void CogStorage::loadAtomSpace(AtomTable &table)
 	decode_atom_list(table);
 }
 
-void CogStorage::loadType(AtomTable &table, Type t)
+void CogSimpleStorage::loadType(AtomTable &table, Type t)
 {
 	std::string msg = "(cog-get-atoms '" + nameserver().getTypeName(t) + ")\n";
 
@@ -192,7 +192,7 @@ void CogStorage::loadType(AtomTable &table, Type t)
 	decode_atom_list(table);
 }
 
-void CogStorage::storeAtomSpace(const AtomTable &table)
+void CogSimpleStorage::storeAtomSpace(const AtomTable &table)
 {
 	HandleSet all_atoms;
 	table.getHandleSetByType(all_atoms, ATOM, true);
@@ -200,7 +200,7 @@ void CogStorage::storeAtomSpace(const AtomTable &table)
 		storeAtom(h);
 }
 
-void CogStorage::kill_data(void)
+void CogSimpleStorage::kill_data(void)
 {
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send("(cog-atomspace-clear)\n");

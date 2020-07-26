@@ -1,5 +1,5 @@
 /*
- * opencog/persist/cog-storate/CogPersistSCM.h
+ * opencog/persist/cog-simple/CogPersistSCM.h
  *
  * Copyright (c) 20209 Linas Vepstas <linasvepstas@gmail.com>
  *
@@ -22,13 +22,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _OPENCOG_COG_PERSIST_SCM_H
-#define _OPENCOG_COG_PERSIST_SCM_H
+#ifndef _OPENCOG_SIMPLE_COG_PERSIST_SCM_H
+#define _OPENCOG_SIMPLE_COG_PERSIST_SCM_H
 
 #include <string>
 
 #include <opencog/atomspace/AtomSpace.h>
-#include <opencog/persist/cog-storage/CogStorage.h>
+#include <opencog/persist/cog-simple/CogSimpleStorage.h>
 
 namespace opencog
 {
@@ -36,19 +36,19 @@ namespace opencog
  *  @{
  */
 
-class CogPersistSCM
+class CogSimplePersistSCM
 {
 private:
 	static void* init_in_guile(void*);
 	static void init_in_module(void*);
 	void init(void);
 
-	CogStorage *_backing;
+	CogSimpleStorage *_backing;
 	AtomSpace *_as;
 
 public:
-	CogPersistSCM(AtomSpace*);
-	~CogPersistSCM();
+	CogSimplePersistSCM(AtomSpace*);
+	~CogSimplePersistSCM();
 
 	void do_open(const std::string&);
 	void do_close(void);
@@ -66,4 +66,4 @@ extern "C" {
 void opencog_persist_cog_init(void);
 };
 
-#endif // _OPENCOG_COG_PERSIST_SCM_H
+#endif // _OPENCOG_SIMPLE_COG_PERSIST_SCM_H

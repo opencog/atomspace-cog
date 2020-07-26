@@ -1,5 +1,5 @@
 /*
- * opencog/persist/cog-storage/CogPersistSCM.cc
+ * opencog/persist/cog-simple/CogSimplePersistSCM.cc
  * Scheme Guile API wrappers for the backend.
  *
  * Copyright (c) 2020 Linas Vepstas <linasvepstas@gmail.com>
@@ -29,15 +29,15 @@
 #include <opencog/atomspace/BackingStore.h>
 #include <opencog/guile/SchemePrimitive.h>
 
-#include "CogStorage.h"
-#include "CogPersistSCM.h"
+#include "CogSimpleStorage.h"
+#include "CogSimplePersistSCM.h"
 
 using namespace opencog;
 
 
 // =================================================================
 
-CogPersistSCM::CogPersistSCM(AtomSpace *as)
+CogSimplePersistSCM::CogSimplePersistSCM(AtomSpace *as)
 {
     _as = as;
     _backing = nullptr;
@@ -48,33 +48,33 @@ CogPersistSCM::CogPersistSCM(AtomSpace *as)
     scm_with_guile(init_in_guile, this);
 }
 
-void* CogPersistSCM::init_in_guile(void* self)
+void* CogSimplePersistSCM::init_in_guile(void* self)
 {
-    scm_c_define_module("opencog persist-cog", init_in_module, self);
-    scm_c_use_module("opencog persist-cog");
+    scm_c_define_module("opencog persist-cog-simple", init_in_module, self);
+    scm_c_use_module("opencog persist-cog-simple");
     return NULL;
 }
 
-void CogPersistSCM::init_in_module(void* data)
+void CogSimplePersistSCM::init_in_module(void* data)
 {
-   CogPersistSCM* self = (CogPersistSCM*) data;
+   CogSimplePersistSCM* self = (CogSimplePersistSCM*) data;
    self->init();
 }
 
-void CogPersistSCM::init(void)
+void CogSimplePersistSCM::init(void)
 {
-    define_scheme_primitive("cogserver-open", &CogPersistSCM::do_open, this, "persist-cog");
-    define_scheme_primitive("cogserver-close", &CogPersistSCM::do_close, this, "persist-cog");
-    define_scheme_primitive("cogserver-stats", &CogPersistSCM::do_stats, this, "persist-cog");
-    define_scheme_primitive("cogserver-clear-stats", &CogPersistSCM::do_clear_stats, this, "persist-cog");
+    define_scheme_primitive("cog-simple-open", &CogSimplePersistSCM::do_open, this, "persist-cog-simple");
+    define_scheme_primitive("cog-simple-close", &CogSimplePersistSCM::do_close, this, "persist-cog-simple");
+    define_scheme_primitive("cog-simple-stats", &CogSimplePersistSCM::do_stats, this, "persist-cog-simple");
+    define_scheme_primitive("cog-simple-clear-stats", &CogSimplePersistSCM::do_clear_stats, this, "persist-cog-simple");
 }
 
-CogPersistSCM::~CogPersistSCM()
+CogSimplePersistSCM::~CogSimplePersistSCM()
 {
     if (_backing) delete _backing;
 }
 
-void CogPersistSCM::do_open(const std::string& uri)
+void CogSimplePersistSCM::do_open(const std::string& uri)
 {
     if (_backing)
         throw RuntimeException(TRACE_INFO,
@@ -93,7 +93,7 @@ void CogPersistSCM::do_open(const std::string& uri)
         throw RuntimeException(TRACE_INFO,
              "cogserver-open: Error: Atomspace connected to another storage backend!");
     // Use the CogServer driver.
-    CogStorage *store = new CogStorage(uri);
+    CogSimpleStorage *store = new CogSimpleStorage(uri);
     if (!store)
         throw RuntimeException(TRACE_INFO,
             "cogserver-open: Error: Unable to open the database");
@@ -109,13 +109,13 @@ void CogPersistSCM::do_open(const std::string& uri)
     _backing->registerWith(_as);
 }
 
-void CogPersistSCM::do_close(void)
+void CogSimplePersistSCM::do_close(void)
 {
     if (nullptr == _backing)
         throw RuntimeException(TRACE_INFO,
              "cogserver-close: Error: AtomSpace not connected to CogServer!");
 
-    CogStorage *backing = _backing;
+    CogSimpleStorage *backing = _backing;
     _backing = nullptr;
 
     // The destructor might run for a while before its done; it will
@@ -127,7 +127,7 @@ void CogPersistSCM::do_close(void)
     delete backing;
 }
 
-void CogPersistSCM::do_stats(void)
+void CogSimplePersistSCM::do_stats(void)
 {
     if (nullptr == _backing) {
         printf("cogserver-stats: AtomSpace not connected to CogServer!\n");
@@ -138,7 +138,7 @@ void CogPersistSCM::do_stats(void)
     _backing->print_stats();
 }
 
-void CogPersistSCM::do_clear_stats(void)
+void CogSimplePersistSCM::do_clear_stats(void)
 {
     if (nullptr == _backing) {
         printf("cogserver-stats: AtomSpace not connected to CogServer!\n");
@@ -148,7 +148,7 @@ void CogPersistSCM::do_clear_stats(void)
     _backing->clear_stats();
 }
 
-void opencog_persist_cog_init(void)
+void opencog_persist_cog_simple_init(void)
 {
-    static CogPersistSCM patty(NULL);
+    static CogSimplePersistSCM patty(NULL);
 }
