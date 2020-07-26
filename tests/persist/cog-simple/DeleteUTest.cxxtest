@@ -1,5 +1,5 @@
 /*
- * tests/persist/cog/DeleteUTest.cxxtest
+ * tests/persist/cog-simple/DeleteUTest.cxxtest
  *
  * Test deletion from backing store.  Assumes PersistUTest is passing.
  * Ported from tests/persist/sql/multi-driver/DeleteUTest.cxxtest
@@ -32,7 +32,7 @@
 #include <opencog/atoms/base/Link.h>
 #include <opencog/atoms/base/Node.h>
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
-#include <opencog/persist/cog-storage/CogStorage.h>
+#include <opencog/persist/cog-simple/CogSimpleStorage.h>
 #include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
@@ -403,7 +403,7 @@ void DeleteUTest::test_remove(void)
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-    CogStorage *store = new CogStorage("cog://localhost:16005");
+    CogSimpleStorage *store = new CogSimpleStorage("cog://localhost:16005");
     TS_ASSERT(store->connected())
     store->registerWith(_as);
 
@@ -483,7 +483,7 @@ void DeleteUTest::test_recurse(void)
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-    CogStorage *store = new CogStorage("cog://localhost:16005");
+    CogSimpleStorage *store = new CogSimpleStorage("cog://localhost:16005");
     TS_ASSERT(store->connected())
     store->registerWith(_as);
 

@@ -1,5 +1,5 @@
 /*
- * tests/persist/cog/BasicSaveUTest.cxxtest
+ * tests/persist/cog-simple/BasicSaveUTest.cxxtest
  *
  * Most basic, simplest sniff test, saves and restores a few atoms.
  * Copied from tests/persist/sql/BasicSaveUTest.cxxtest and
@@ -34,7 +34,7 @@
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
 #include <opencog/atomspace/AtomSpace.h>
 #include <opencog/cogserver/server/CogServer.h>
-#include <opencog/persist/cog-storage/CogStorage.h>
+#include <opencog/persist/cog-simple/CogSimpleStorage.h>
 
 #include <opencog/util/Logger.h>
 
@@ -177,7 +177,7 @@ static void atomCompare(AtomPtr a, AtomPtr b, const char* where)
  */
 void BasicSaveUTest::single_atom_save_restore(std::string id)
 {
-    CogStorage *store = new CogStorage(uri);
+    CogSimpleStorage *store = new CogSimpleStorage(uri);
     if (!store->connected())
     {
         logger().debug("single_atom_save_restore: cannot connect to db");
@@ -322,7 +322,7 @@ void BasicSaveUTest::test_fresh_atom(void)
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-    CogStorage *store = new CogStorage(uri);
+    CogSimpleStorage *store = new CogSimpleStorage(uri);
     if (!store->connected())
     {
         logger().debug("single_atom_save_restore: cannot connect to db");
@@ -363,7 +363,7 @@ void BasicSaveUTest::test_table()
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-    CogStorage *store = new CogStorage(uri);
+    CogSimpleStorage *store = new CogSimpleStorage(uri);
     if (!store->connected())
     {
         logger().debug("test_table: cannot connect to db");
@@ -396,7 +396,7 @@ void BasicSaveUTest::test_table()
     printf("Done storing table; size=%lu\n", num_stored);
 
     // Reopen connection, and load the atom table.
-    store = new CogStorage(uri);
+    store = new CogSimpleStorage(uri);
     TSM_ASSERT("Not connected to database", store->connected());
 
     AtomSpace *as2 = new AtomSpace();

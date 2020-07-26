@@ -5,9 +5,9 @@
 ; and storing (sending) them to the server for safe-keeping.
 ;
 (use-modules (opencog) (opencog persist))
-(use-modules (opencog persist-cog))
+(use-modules (opencog persist-cog-simple))
 
-(cogserver-open "cog://localhost")
+(cog-simple-open "cog://localhost")
 
 ; On the server, create an atom `(Concept "b" (stv 0.9 0.2))`. That is,
 ; create the ConceptNode with some non-default SimpleTruthValue on it.

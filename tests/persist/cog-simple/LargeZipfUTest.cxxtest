@@ -1,5 +1,5 @@
 /*
- * tests/persist/cog/LargeZipfTest.cxxtest
+ * tests/persist/cog-simple/LargeZipfTest.cxxtest
  *
  * Emulate word-pair dataset with Zipfian incoming sets.
  * This creates nodes with large incoming sets; database should
@@ -31,7 +31,7 @@
 #include <opencog/atoms/base/Link.h>
 #include <opencog/atoms/base/Node.h>
 #include <opencog/atoms/truthvalue/CountTruthValue.h>
-#include <opencog/persist/cog-storage/CogStorage.h>
+#include <opencog/persist/cog-simple/CogSimpleStorage.h>
 #include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
@@ -273,7 +273,7 @@ void LargeZipfUTest::test_atomspace(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-	CogStorage *store = new CogStorage("cog://localhost:16009");
+	CogSimpleStorage *store = new CogSimpleStorage("cog://localhost:16009");
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 

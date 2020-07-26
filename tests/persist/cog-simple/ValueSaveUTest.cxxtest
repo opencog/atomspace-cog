@@ -1,5 +1,5 @@
 /*
- * tests/persist/cog/ValueSaveUTest.cxxtest
+ * tests/persist/cog-simple/ValueSaveUTest.cxxtest
  *
  * Test of save and restore of generic values.
  * Ported from tests/persist/sql/multi-driver/ValueSaveUTest.cxxtest
@@ -39,7 +39,7 @@
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
 #include <opencog/cogserver/server/CogServer.h>
 
-#include <opencog/persist/cog-storage/CogStorage.h>
+#include <opencog/persist/cog-simple/CogSimpleStorage.h>
 
 
 #include <opencog/util/Logger.h>
@@ -111,7 +111,7 @@ void ValueSaveUTest::tearDown(void) {}
  */
 void ValueSaveUTest::test_single_atom_save()
 {
-	CogStorage *store = new CogStorage(uri);
+	CogSimpleStorage *store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -176,7 +176,7 @@ void ValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 
 	// ------
 	// First, save the value
-	CogStorage *store = new CogStorage(uri);
+	CogSimpleStorage *store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -199,7 +199,7 @@ void ValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 
 	// ---------------------------------
 	// Now, fetch the value and compare.
-	store = new CogStorage(uri);
+	store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	as = new AtomSpace();
@@ -223,7 +223,7 @@ void ValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 
 void ValueSaveUTest::test_save_restore(bool fkey)
 {
-	CogStorage *store = new CogStorage(uri);
+	CogSimpleStorage *store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -275,7 +275,7 @@ void ValueSaveUTest::test_save_restore(bool fkey)
 // as well.  This tests the fetching of nodes.
 void ValueSaveUTest::test_load_by_type()
 {
-	CogStorage *store = new CogStorage(uri);
+	CogSimpleStorage *store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -335,7 +335,7 @@ void ValueSaveUTest::test_load_by_type()
 	// --------------------
 	// Start it up again.
 
-	store = new CogStorage(uri);
+	store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	as = new AtomSpace();
@@ -393,7 +393,7 @@ void ValueSaveUTest::test_load_by_type()
 // be fetched.
 void ValueSaveUTest::test_link_by_type()
 {
-	CogStorage *store = new CogStorage(uri);
+	CogSimpleStorage *store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -481,7 +481,7 @@ void ValueSaveUTest::test_link_by_type()
 	// --------------------
 	// Start it up again.
 
-	store = new CogStorage(uri);
+	store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	as = new AtomSpace();
@@ -597,7 +597,7 @@ void ValueSaveUTest::test_link_by_type()
 // as well, but only on the incoming set!
 void ValueSaveUTest::test_incoming()
 {
-	CogStorage *store = new CogStorage(uri);
+	CogSimpleStorage *store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	AtomSpace* as = new AtomSpace();
@@ -685,7 +685,7 @@ void ValueSaveUTest::test_incoming()
 	// --------------------
 	// Start it up again.
 
-	store = new CogStorage(uri);
+	store = new CogSimpleStorage(uri);
 	TS_ASSERT(store->connected())
 
 	as = new AtomSpace();

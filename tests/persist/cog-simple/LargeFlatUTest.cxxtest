@@ -1,5 +1,5 @@
 /*
- * tests/persist/cog/LargeFlatUTest.cxxtest
+ * tests/persist/cog-simple/LargeFlatUTest.cxxtest
  *
  * Test larger AtomSpace persistance.  Assumes PersistUTest is passing.
  *
@@ -29,7 +29,7 @@
 #include <opencog/atoms/base/Link.h>
 #include <opencog/atoms/base/Node.h>
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
-#include <opencog/persist/cog-storage/CogStorage.h>
+#include <opencog/persist/cog-simple/CogSimpleStorage.h>
 #include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
@@ -341,7 +341,7 @@ void LargeFlatUTest::test_atomspace(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-	CogStorage *store = new CogStorage("cog://localhost:16008");
+	CogSimpleStorage *store = new CogSimpleStorage("cog://localhost:16008");
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 

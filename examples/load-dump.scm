@@ -14,9 +14,9 @@
 ; store-atomspace -- store everything.
 ;
 (use-modules (opencog) (opencog persist))
-(use-modules (opencog persist-cog))
+(use-modules (opencog persist-cog-simple))
 
-(cogserver-open "cog://localhost")
+(cog-simple-open "cog://localhost")
 
 ; Start by assuming the remote server has some content. If not, then
 ; create some. If unsure how, re-read the `fetch-store.scm` demo.

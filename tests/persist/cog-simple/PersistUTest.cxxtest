@@ -1,5 +1,5 @@
 /*
- * tests/persist/cog/PersistUTest.cxxtest
+ * tests/persist/cog-simple/PersistUTest.cxxtest
  *
  * Test AtomSpace persistance.  Assumes BasicSaveUTest is passing.
  * Ported from tests/persist/sql/multi-driver/PersistUTest.cxxtest
@@ -33,7 +33,7 @@
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
 #include <opencog/cogserver/server/CogServer.h>
 
-#include <opencog/persist/cog-storage/CogStorage.h>
+#include <opencog/persist/cog-simple/CogSimpleStorage.h>
 
 #include <opencog/util/Logger.h>
 
@@ -313,7 +313,7 @@ void PersistUTest::test_atomspace(void)
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-    CogStorage *store = new CogStorage("cog://localhost:16003");
+    CogSimpleStorage *store = new CogSimpleStorage("cog://localhost:16003");
     TS_ASSERT(store->connected())
     store->registerWith(_as);
 
