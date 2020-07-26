@@ -63,7 +63,7 @@ public:
 }  // namespace
 
 extern "C" {
-void opencog_persist_cog_init(void);
+void opencog_persist_cog_simple_init(void);
 };
 
 #endif // _OPENCOG_SIMPLE_COG_PERSIST_SCM_H

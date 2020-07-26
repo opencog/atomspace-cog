@@ -46,8 +46,8 @@ Then create some atoms (if desired)
 $ guile
 scheme@(guile-user)> (use-modules (opencog))
 scheme@(guile-user)> (use-modules (opencog persist))
-scheme@(guile-user)> (use-modules (opencog persist-cog))
-scheme@(guile-user)> (cogserver-open "cog://example.com/")
+scheme@(guile-user)> (use-modules (opencog persist-cog-simple))
+scheme@(guile-user)> (cog-simple-open "cog://example.com/")
 scheme@(guile-user)> (load-atomspace)
 ```
 
@@ -59,7 +59,7 @@ granular load and store is possible; see the
 
 Status
 ------
-This is Version 0.5.1. All nine unit tests consistently pass.
+This is Version 0.5.2. All nine unit tests consistently pass.
 Performance looks good. Two of the unit tests take about a minute
 to run; this is intentional, they are pounding the server with
 large datasets.
@@ -69,8 +69,8 @@ Design
 ------
 The grand-total size of the implementation is less than 500 lines of
 code. Seriously! This is really a very simple system!  Take a look at
-[CogStorage.h](opencog/persist/cog-storage/CogStorage.h) first, and
-then take a look at [CogIO.cc](opencog/persist/cog-storage/CogIO.cc)
+[CogSimpleStorage.h](opencog/persist/cog-simple/CogSimpleStorage.h) first, and
+then take a look at [CogSimpleIO.cc](opencog/persist/cog-simple/CogSimpleIO.cc)
 which does all of the data transfer to/from the cogserver. Finally,
-[CogStorage.cc](opencog/persist/cog-storage/CogStorage.cc) provides
+[CogSimpleStorage.cc](opencog/persist/cog-simple/CogSimpleStorage.cc) provides
 init and socket I/O.
