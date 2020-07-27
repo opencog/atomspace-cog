@@ -78,7 +78,8 @@ class FetchUTest :  public CxxTest::TestSuite
 
 FetchUTest::FetchUTest(void)
 {
-	logger().set_level(Logger::DEBUG);
+	logger().set_level(Logger::INFO);
+	// logger().set_level(Logger::DEBUG);
 	logger().set_print_to_stdout_flag(true);
 
 	uri = "cog://localhost:16004";
