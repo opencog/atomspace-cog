@@ -104,15 +104,17 @@ void CogSimpleStorage::init(const char * uri)
 			host.c_str(), strerror(norr));
 	}
 	free(servinfo);
-	if (0 > rc)
-		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 
 	// We are going to be sending oceans of tiny packets,
 	// and we want the fastest-possible responses.
 	int flags = 1;
 	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
+	if (0 > rc)
+		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 	flags = 1;
 	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_QUICKACK, &flags, sizeof(flags));
+	if (0 > rc)
+		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 
 	// Get to the scheme prompt, but make it be silent.
 	std::string eval = "scm hush\n";
