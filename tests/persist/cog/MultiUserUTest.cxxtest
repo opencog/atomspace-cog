@@ -311,6 +311,7 @@ void MultiUserUTest::add_to_space(int idx, AtomSpace *as, std::string id)
     as->store_atom(hl[idx]);
     as->store_atom(hl2[idx]);
     as->store_atom(hl3[idx]);
+    as->barrier();
 
     // printf("Added for idx=%d\n", idx);
     fflush(stdout);
@@ -353,6 +354,7 @@ void MultiUserUTest::fetch_space(int idx, AtomSpace *space)
     AtomPtr alb3 = createLink(hv3, hl3[idx]->get_type());
     Handle hlb3(alb3->get_handle());
     space->fetch_atom(hlb3);
+    space->barrier();
 }
 
 void MultiUserUTest::check_space(int idx, AtomSpace *space, std::string dbgmsg)
@@ -436,7 +438,7 @@ void MultiUserUTest::run_user_test(int thread_id)
 		std::this_thread::yield();
 	}
 	time_t end = time(0);
-	TSM_ASSERT("Took too long to connect", 10 < end - start);
+	TSM_ASSERT("Took too long to connect", end - start < 10);
 
 	add_atoms(thread_id);
 	_store[thread_id]->unregisterWith(_as[thread_id]);
