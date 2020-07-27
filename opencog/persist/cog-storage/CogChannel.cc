@@ -293,25 +293,25 @@ std::string CogChannel<Client, Data>::print_stats()
 {
 	std::string rs =
 		"Queue size: " + std::to_string(_msg_buffer.get_size()) +
-		" Busy: " + std::to_string(_msg_buffer.get_busy_writers()) +
-		" out of " + std::to_string(NTHREADS) +
+		"  Busy: " + std::to_string(_msg_buffer.get_busy_writers()) +
+		"/" + std::to_string(NTHREADS) +
 		(_msg_buffer._in_drain ? " Draining now" : "") +
 		"\n" +
 		"Messages: " + std::to_string(_msg_buffer._item_count) +
-		" Duplicates: " + std::to_string(_msg_buffer._duplicate_count) +
+		"  Duplicates: " + std::to_string(_msg_buffer._duplicate_count) +
 		"\n" +
 		"Flush count: " + std::to_string(_msg_buffer._flush_count) +
-		" Drains: " + std::to_string(_msg_buffer._drain_count) +
+		"  Drains: " + std::to_string(_msg_buffer._drain_count) +
 		"\n" +
 		"Drain time (msec): " + std::to_string(_msg_buffer._drain_msec) +
-		" Slowest (msec): " + std::to_string(_msg_buffer._drain_count) +
-		" Concurrent: " + std::to_string(_msg_buffer._drain_concurrent) +
+		"  Slowest (msec): " + std::to_string(_msg_buffer._drain_count) +
+		"  Concurrent: " + std::to_string(_msg_buffer._drain_concurrent) +
 		"\n" +
-		"High/Low watermarks: " +
-		std::to_string(_msg_buffer.get_high_watermark()) +
-		"/" +
+		"Low/High watermarks: " +
 		std::to_string(_msg_buffer.get_low_watermark()) +
-		" Stalled: " + std::to_string(_msg_buffer.stalling()) +
+		"/" +
+		std::to_string(_msg_buffer.get_high_watermark()) +
+		"  Stalled: " + std::to_string(_msg_buffer.stalling()) +
 		"\n";
 
 	return rs;
