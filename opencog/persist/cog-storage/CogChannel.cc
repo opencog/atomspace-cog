@@ -145,6 +145,7 @@ int CogChannel<Client, Data>::open_sock()
 			_host.c_str(), strerror(errno));
 
 	// Throw away the cogserver prompt.
+	s._sockfd = sockfd;
 	do_recv();
 
 	do_send("(cog-set-server-mode! #t)\n");
