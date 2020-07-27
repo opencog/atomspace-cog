@@ -1,9 +1,9 @@
 /*
- * tests/persist/cog-simple/FetchUTest.cxxtest
+ * tests/persist/cog-simple/SimpleFetchUTest.cxxtest
  *
  * Test atom fetch semantics.  Assumes PersistUTest is passing.
  * Ported over from original unit test at
- * tests/persist/sql/multi-driver/FetchUTest.cxxtest
+ * tests/persist/sql/multi-driver/SimpleFetchUTest.cxxtest
  *
  * Copyright (C) 2017,2019 Linas Vepstas <linasvepstas@gmail.com>
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -40,7 +40,7 @@
 
 using namespace opencog;
 
-class FetchUTest :  public CxxTest::TestSuite
+class SimpleFetchUTest :  public CxxTest::TestSuite
 {
 	private:
 		std::string uri;
@@ -53,8 +53,8 @@ class FetchUTest :  public CxxTest::TestSuite
 
 	public:
 
-		FetchUTest(void);
-		~FetchUTest()
+		SimpleFetchUTest(void);
+		~SimpleFetchUTest()
 		{
 			srvr->stop();
 			main_loop->join();
@@ -76,14 +76,16 @@ class FetchUTest :  public CxxTest::TestSuite
 		void test_readonly(void);
 };
 
-FetchUTest::FetchUTest(void)
+SimpleFetchUTest::SimpleFetchUTest(void)
 {
-	logger().set_level(Logger::DEBUG);
+	logger().set_level(Logger::INFO);
+	// logger().set_level(Logger::DEBUG);
 	logger().set_print_to_stdout_flag(true);
+	// logger().set_sync_flag(true);
 
 	uri = "cog://localhost:16004";
 
-	srv_open = "(cogserver-open \"" + uri + "\")\n";
+	srv_open = "(cog-simple-open \"" + uri + "\")\n";
 
 	// Create a single cogserver node that will act as
 	// as the repo for the duration of the test.
@@ -97,20 +99,20 @@ FetchUTest::FetchUTest(void)
 /*
  * This is called once before each test, for each test (!!)
  */
-void FetchUTest::setUp(void)
+void SimpleFetchUTest::setUp(void)
 {
 	_as = new AtomSpace();
 	eval = SchemeEval::get_evaluator(_as);
 }
 
-void FetchUTest::tearDown(void)
+void SimpleFetchUTest::tearDown(void)
 {
 	delete _as;
 }
 
 // ============================================================
 
-void FetchUTest::atomCompare(AtomPtr a, AtomPtr b, std::string where)
+void SimpleFetchUTest::atomCompare(AtomPtr a, AtomPtr b, std::string where)
 {
 	printf("Check %s expect %s\n", where.c_str(), a->to_string().c_str());
 	TSM_ASSERT("No atom found", b != nullptr);
@@ -161,17 +163,17 @@ void FetchUTest::atomCompare(AtomPtr a, AtomPtr b, std::string where)
 
 // ============================================================
 
-void FetchUTest::test_stuff(void)
+void SimpleFetchUTest::test_stuff(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
 	// First, initialize the database
-	eval->eval("(use-modules (opencog persist) (opencog persist-cog))");
+	eval->eval("(use-modules (opencog persist) (opencog persist-cog-simple))");
 	eval->eval(srv_open);
 	eval->eval(R"((cog-set-tv! (Concept "AAA") (stv 0.1 0.11)))");
 	eval->eval(R"((cog-set-tv! (Concept "BBB") (stv 0.2 0.22)))");
 	eval->eval("(store-atomspace)");
-	eval->eval("(cogserver-close)");
+	eval->eval("(cog-simple-close)");
 
 	delete _as;
 	_as = new AtomSpace();
@@ -200,7 +202,7 @@ void FetchUTest::test_stuff(void)
 	// Saving everything should not crash.  It should, however,
 	// change the TV on (Concept "BBB") back to DEFAULT_TV.
 	eval->eval("(store-atomspace)");
-	eval->eval("(cogserver-close)");
+	eval->eval("(cog-simple-close)");
 
 	delete _as;
 	_as = new AtomSpace();
@@ -222,24 +224,24 @@ void FetchUTest::test_stuff(void)
 	printf("Expecting %s\n", dtv->to_string().c_str());
 	printf("Got %s\n", tv->to_string().c_str());
 
-	eval->eval("(cogserver-close)");
+	eval->eval("(cog-simple-close)");
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
 
 // ============================================================
 
-void FetchUTest::test_readonly(void)
+void SimpleFetchUTest::test_readonly(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
 	// First, initialize the database
-	eval->eval("(use-modules (opencog persist) (opencog persist-cog))");
+	eval->eval("(use-modules (opencog persist) (opencog persist-cog-simple))");
 	eval->eval(srv_open);
 	eval->eval(R"((cog-set-tv! (Concept "AAA") (stv 0.1 0.11)))");
 	eval->eval(R"((cog-set-tv! (Concept "BBB") (stv 0.2 0.22)))");
 	eval->eval(R"((List (Concept "AAA") (Concept "BBB")))");
 	eval->eval("(store-atomspace)");
-	eval->eval("(cogserver-close)");
+	eval->eval("(cog-simple-close)");
 
 	delete _as;
 	_as = new AtomSpace();
