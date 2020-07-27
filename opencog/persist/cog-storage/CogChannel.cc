@@ -169,8 +169,11 @@ void CogChannel<Client, Data>::close_connection(void)
 
 /* ================================================================== */
 
-//template<typename Client, typename Data>
-//CogChannel<Client, Data>::s;
+template<typename Client, typename Data>
+std::atomic_int CogChannel<Client, Data>::_nsocks = 0;
+
+template<typename Client, typename Data>
+thread_local typename CogChannel<Client, Data>::tlso CogChannel<Client, Data>::s;
 
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::do_send(const std::string& str)
@@ -288,6 +291,9 @@ template<typename Client, typename Data>
 std::string CogChannel<Client, Data>::print_stats()
 {
 	std::string rs =
+		"Open socks: " + std::to_string(_nsocks.load()) +
+		"  Connected to: " + _uri +
+		"\n" +
 		"Queue size: " + std::to_string(_msg_buffer.get_size()) +
 		"  Busy: " + std::to_string(_msg_buffer.get_busy_writers()) +
 		"/" + std::to_string(NTHREADS) +

@@ -49,7 +49,7 @@ class CogChannel
 		std::string _host;
 		std::string _port;
 		void* _servinfo;
-		std::atomic_int _nsocks;
+		static std::atomic_int _nsocks;
 
 		// Socket API.
 		static thread_local struct tlso {
