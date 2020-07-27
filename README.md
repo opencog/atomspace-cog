@@ -46,8 +46,8 @@ Then create some atoms (if desired)
 $ guile
 scheme@(guile-user)> (use-modules (opencog))
 scheme@(guile-user)> (use-modules (opencog persist))
-scheme@(guile-user)> (use-modules (opencog persist-cog-simple))
-scheme@(guile-user)> (cog-simple-open "cog://example.com/")
+scheme@(guile-user)> (use-modules (opencog persist-cog))
+scheme@(guile-user)> (cogserver-open "cog://example.com/")
 scheme@(guile-user)> (load-atomspace)
 ```
 
@@ -59,18 +59,42 @@ granular load and store is possible; see the
 
 Status
 ------
-This is Version 0.5.2. All nine unit tests consistently pass.
-Performance looks good. Two of the unit tests take about a minute
-to run; this is intentional, they are pounding the server with
+This is Version 0.6. All eighteen (nine+nine) unit tests consistently
+pass(***).  Performance looks good. Four of the unit tests take about
+a minute to run; this is intentional, they are pounding the server with
 large datasets.
 
+Note: (***) There is a bug in the cogutils logger shutdown sequence,
+which sometimes causes it to crash after a unit test has finished,
+and after `main()` has exited(!). This bug will show up here as a test
+failure, even though the test itself passed. The bug is reported in the
+[cogserver repo, issue #34](https://github.com/opencog/cogserver/issues/34),
 
 Design
 ------
-The grand-total size of the implementation is less than 500 lines of
-code. Seriously! This is really a very simple system!  Take a look at
-[CogSimpleStorage.h](opencog/persist/cog-simple/CogSimpleStorage.h) first, and
-then take a look at [CogSimpleIO.cc](opencog/persist/cog-simple/CogSimpleIO.cc)
+There are actually two implementations in this repo. One that is
+"simple", and one that is multi-threaded and concurrent (and so
+should have a higher throughput). Both "do the same thing",
+functionally, but differ in network usage, concurrecncy, etc.
+
+=== The Simple Backend
+This can be found in the [opencog/persist/cog-simple](opencog/persist/cog-simple)
+directory.  The grand-total size of this implementation is less than 500
+lines of code. Seriously! This is really a very simple system!  Take a
+look at [CogSimpleStorage.h](opencog/persist/cog-simple/CogSimpleStorage.h)
+first, and then take a look at
+[CogSimpleIO.cc](opencog/persist/cog-simple/CogSimpleIO.cc)
 which does all of the data transfer to/from the cogserver. Finally,
-[CogSimpleStorage.cc](opencog/persist/cog-simple/CogSimpleStorage.cc) provides
-init and socket I/O.
+[CogSimpleStorage.cc](opencog/persist/cog-simple/CogSimpleStorage.cc)
+provides init and socket I/O.
+
+This backend can be accessed via:
+```
+scheme@(guile-user)> (use-modules (opencog persist-cog-simple))
+scheme@(guile-user)> (cog-simple-open "cog://example.com/")
+```
+
+=== The Production Backend
+This backend opens four sockets to the cogserver, and handles requests
+asynchronously. Be sure to pepper your code with `(barrier)` to flush
+the network buffers, else you might get unexpected behavior.
