@@ -102,6 +102,7 @@ DeleteUTest:: DeleteUTest(void)
     // logger().set_level(Logger::DEBUG);
     logger().set_level(Logger::INFO);
     logger().set_print_to_stdout_flag(true);
+    // logger().set_sync_flag(true);
 
     // Create a single cogserver node that will act as
     // as the repo for the duration of the test.
@@ -381,7 +382,9 @@ void DeleteUTest::extract_links(int idx, AtomSpace *as)
 void DeleteUTest::delete_links(int idx, AtomSpace *as)
 {
 	as->remove_atom(hl3[idx]);
+	as->barrier();
 	as->remove_atom(hl2[idx]);
+	as->barrier();
 	as->remove_atom(hl[idx]);
 	as->barrier();
 }
