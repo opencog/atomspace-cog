@@ -87,6 +87,7 @@ void CogStorage::registerWith(AtomSpace* as)
 
 void CogStorage::unregisterWith(AtomSpace* as)
 {
+	_io_queue.barrier();
 	_io_queue.close_connection();
 	BackingStore::unregisterWith(as);
 }
@@ -95,12 +96,13 @@ void CogStorage::unregisterWith(AtomSpace* as)
 
 void CogStorage::clear_stats(void)
 {
+	_io_queue.clear_stats();
 }
 
 void CogStorage::print_stats(void)
 {
 	printf("Connected to %s\n", _uri.c_str());
-	printf("no stats yet\n");
+	printf("%s", _io_queue.print_stats().c_str());
 }
 
 /* ============================= END OF FILE ================= */

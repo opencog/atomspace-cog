@@ -85,6 +85,9 @@ class CogChannel
 
 		void barrier();
 		void flush();
+
+		void clear_stats();
+		std::string print_stats();
 };
 
 /** @}*/

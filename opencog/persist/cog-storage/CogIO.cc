@@ -168,7 +168,7 @@ void CogStorage::loadAtomSpace(AtomTable &table)
 	msg = "(cog-get-atoms 'Link #t)\n";
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 
-	_io_queue.flush();
+	_io_queue.barrier();
 }
 
 void CogStorage::loadType(AtomTable &table, Type t)
@@ -185,7 +185,7 @@ void CogStorage::storeAtomSpace(const AtomTable &table)
 	table.getHandleSetByType(all_atoms, ATOM, true);
 	for (const Handle& h : all_atoms)
 		storeAtom(h);
-	_io_queue.flush();
+	_io_queue.barrier();
 }
 
 void CogStorage::kill_data(void)

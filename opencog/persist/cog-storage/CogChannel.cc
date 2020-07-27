@@ -282,4 +282,39 @@ void CogChannel<Client, Data>::flush()
 	_msg_buffer.flush();
 }
 
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::clear_stats()
+{
+	_msg_buffer.clear_stats();
+}
+
+template<typename Client, typename Data>
+std::string CogChannel<Client, Data>::print_stats()
+{
+	std::string rs =
+		"Queue size: " + std::to_string(_msg_buffer.get_size()) +
+		" Busy: " + std::to_string(_msg_buffer.get_busy_writers()) +
+		" out of " + std::to_string(NTHREADS) +
+		(_msg_buffer._in_drain ? " Draining now" : "") +
+		"\n" +
+		"Messages: " + std::to_string(_msg_buffer._item_count) +
+		" Duplicates: " + std::to_string(_msg_buffer._duplicate_count) +
+		"\n" +
+		"Flush count: " + std::to_string(_msg_buffer._flush_count) +
+		" Drains: " + std::to_string(_msg_buffer._drain_count) +
+		"\n" +
+		"Drain time (msec): " + std::to_string(_msg_buffer._drain_msec) +
+		" Slowest (msec): " + std::to_string(_msg_buffer._drain_count) +
+		" Concurrent: " + std::to_string(_msg_buffer._drain_concurrent) +
+		"\n" +
+		"High/Low watermarks: " +
+		std::to_string(_msg_buffer.get_high_watermark()) +
+		"/" +
+		std::to_string(_msg_buffer.get_low_watermark()) +
+		" Stalled: " + std::to_string(_msg_buffer.stalling()) +
+		"\n";
+
+	return rs;
+}
+
 /* ============================= END OF FILE ================= */
