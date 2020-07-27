@@ -48,17 +48,15 @@ using namespace opencog;
 
 template<typename Client, typename Data>
 CogChannel<Client, Data>::CogChannel(void)
-	: _sockfd(-1),
-	_msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
+	: _msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
 {
 }
 
 template<typename Client, typename Data>
 CogChannel<Client, Data>::~CogChannel()
 {
-	_msg_buffer.barrier();
-	if (connected())
-		close(_sockfd);
+	close_connection();
+	free(_servinfo);
 }
 
 /* ================================================================ */
@@ -70,27 +68,26 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	if (strncmp(uri.c_str(), "cog://", URIX_LEN))
 		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri);
 
-	std::lock_guard<std::mutex> lck(_mtx);
 	_uri = uri;
 
 	// We expect the URI to be for the form
 	//    cog://ipv4-addr/atomspace-name
 	//    cog://ipv4-addr:port/atomspace-name
 
-	std::string host(uri.substr(URIX_LEN));
-	size_t slash = host.find_first_of(":/");
+	_host = uri.substr(URIX_LEN);
+	size_t slash = _host.find_first_of(":/");
 	if (std::string::npos != slash)
-		host = host.substr(0, slash);
+		_host = _host.substr(0, slash);
 
 #define DEFAULT_COGSERVER_PORT "17001"
-	std::string port = DEFAULT_COGSERVER_PORT;
-	size_t colon = _uri.find(':', URIX_LEN + host.length());
+	_port = DEFAULT_COGSERVER_PORT;
+	size_t colon = _uri.find(':', URIX_LEN + _host.length());
 	if (std::string::npos != colon)
 	{
-		port = _uri.substr(colon+1);
-		slash = port.find('/');
+		_port = _uri.substr(colon+1);
+		slash = _port.find('/');
 		if (std::string::npos != slash)
-			port = port.substr(0, slash);
+			_port = _port.substr(0, slash);
 	}
 
 	struct addrinfo hints;
@@ -99,78 +96,87 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	struct addrinfo *servinfo;
-	int rc = getaddrinfo(host.c_str(), port.c_str(), &hints, &servinfo);
+	struct addrinfo *srvinfo;
+	int rc = getaddrinfo(_host.c_str(), _port.c_str(), &hints, &srvinfo);
 	if (rc)
 		throw IOException(TRACE_INFO, "Unknown host %s: %s",
-			host.c_str(), strerror(rc));
+			_host.c_str(), strerror(rc));
+	_servinfo = srvinfo;;
+}
 
-	_sockfd = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+template<typename Client, typename Data>
+int CogChannel<Client, Data>::open_sock()
+{
+	struct addrinfo *srvinfo = (struct addrinfo *) _servinfo;
+	int sockfd = socket(srvinfo->ai_family, srvinfo->ai_socktype, srvinfo->ai_protocol);
 
-	if (0 > _sockfd)
+	if (0 > sockfd)
 	{
 		int norr = errno;
-		free(servinfo);
 		throw IOException(TRACE_INFO, "Unable to create socket to host %s: %s",
-			host.c_str(), strerror(norr));
+			_host.c_str(), strerror(norr));
 	}
 
-	rc = connect(_sockfd, servinfo->ai_addr, servinfo->ai_addrlen);
+	int rc = connect(sockfd, srvinfo->ai_addr, srvinfo->ai_addrlen);
 	if (0 > rc)
 	{
 		int norr = errno;
-		free(servinfo);
 		throw IOException(TRACE_INFO, "Unable to connect to host %s: %s",
-			host.c_str(), strerror(norr));
+			_host.c_str(), strerror(norr));
 	}
-	free(servinfo);
-	if (0 > rc)
-		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 
 	// We are going to be sending oceans of tiny packets,
 	// and we want the fastest-possible responses.
 	int flags = 1;
-	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
+	rc = setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
+	if (0 > rc)
+		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 	flags = 1;
-	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_QUICKACK, &flags, sizeof(flags));
+	rc = setsockopt(sockfd, IPPROTO_TCP, TCP_QUICKACK, &flags, sizeof(flags));
+	if (0 > rc)
+		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 
 	// Get to the scheme prompt, but make it be silent.
 	std::string eval = "scm hush\n";
-	rc = send(_sockfd, eval.c_str(), eval.size(), 0);
+	rc = send(sockfd, eval.c_str(), eval.size(), 0);
 	if (0 > rc)
 		throw IOException(TRACE_INFO, "Unable to talk to cogserver at host %s: %s",
-			host.c_str(), strerror(errno));
+			_host.c_str(), strerror(errno));
 
 	// Throw away the cogserver prompt.
 	do_recv();
 
 	do_send("(cog-set-server-mode! #t)\n");
 	do_recv();
+
+	_nsocks++;
+	return sockfd;
 }
 
 template<typename Client, typename Data>
 bool CogChannel<Client, Data>::connected(void)
 {
-	return 0 < _sockfd;
+	return 0 < _nsocks;
 }
 
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::close_connection(void)
 {
-	if (connected())
-		close(_sockfd);
-	_sockfd = -1;
+	if (not connected()) return;
+
+	_msg_buffer.barrier();
 }
 
 /* ================================================================== */
 
+//template<typename Client, typename Data>
+//CogChannel<Client, Data>::s;
+
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::do_send(const std::string& str)
 {
-	if (not connected())
-		throw IOException(TRACE_INFO, "Not connected to cogserver!");
-
-	int rc = send(_sockfd, str.c_str(), str.size(), MSG_NOSIGNAL);
+	if (0 == s._sockfd) s._sockfd = open_sock();
+	int rc = send(s._sockfd, str.c_str(), str.size(), MSG_NOSIGNAL);
 	if (0 > rc)
 		throw IOException(TRACE_INFO, "Unable to talk to cogserver: %s",
 			strerror(errno));
@@ -179,8 +185,7 @@ void CogChannel<Client, Data>::do_send(const std::string& str)
 template<typename Client, typename Data>
 std::string CogChannel<Client, Data>::do_recv()
 {
-	if (not connected())
-		throw IOException(TRACE_INFO, "Not connected to cogserver!");
+	if (0 == s._sockfd) s._sockfd = open_sock();
 
 	// XXX FIXME the strategy below is rather fragile.
 	// I don't think its trustworthy for production use,
@@ -191,15 +196,14 @@ std::string CogChannel<Client, Data>::do_recv()
 	{
 		// Receive 4K bytes of message.
 		char buf[4097];
-		int len = recv(_sockfd, buf, 4096, 0);
+		int len = recv(s._sockfd, buf, 4096, 0);
 
 		if (0 > len)
 			throw IOException(TRACE_INFO, "Unable to talk to cogserver: %s",
 				strerror(errno));
 		if (0 == len)
 		{
-			close(_sockfd);
-			_sockfd = 0;
+			close(s._sockfd);
 			throw IOException(TRACE_INFO, "Cogserver unexpectedly closed connection");
 		}
 		buf[len] = 0;
@@ -231,12 +235,8 @@ void CogChannel<Client, Data>::synchro(Client* client,
                                        Data& data,
                   void (Client::*handler)(const std::string&, Data&))
 {
-	std::string reply;
-	{
-		std::lock_guard<std::mutex> lck(_mtx);
-		do_send(msg);
-		reply = do_recv();
-	}
+	do_send(msg);
+	std::string reply = do_recv();
 
 	// Client is called unlocked.
 	(client->*handler)(reply, data);
@@ -259,12 +259,8 @@ void CogChannel<Client, Data>::enqueue(Client* client,
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::reply_handler(const Msg& msg)
 {
-	std::string reply;
-	{
-		std::lock_guard<std::mutex> lck(_mtx);
-		do_send(msg.str_to_send);
-		reply = do_recv();
-	}
+	do_send(msg.str_to_send);
+	std::string reply = do_recv();
 
 	// Client is called unlocked.
 	(msg.client->*msg.callback)(reply, msg.data);

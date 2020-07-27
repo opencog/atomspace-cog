@@ -30,7 +30,7 @@
 #ifndef _OPENCOG_COG_CHANNEL_H
 #define _OPENCOG_COG_CHANNEL_H
 
-#include <mutex>
+#include <atomic>
 #include <string>
 
 #include <opencog/util/async_buffer.h>
@@ -46,12 +46,20 @@ class CogChannel
 {
 	private:
 		std::string _uri;
+		std::string _host;
+		std::string _port;
+		void* _servinfo;
+		std::atomic_int _nsocks;
 
-		// Socket API ... is single-threaded.
-		std::mutex _mtx;
-		int _sockfd;
+		// Socket API.
+		static thread_local struct tlso {
+			int _sockfd;
+			tlso() { _sockfd = 0; }
+			~tlso() { if (_sockfd) { close(_sockfd); _nsocks--; }}
+		} s;
+		int open_sock();
 		void do_send(const std::string&);
-		std::string do_recv(void);
+		std::string do_recv();
 
 		struct Msg
 		{
