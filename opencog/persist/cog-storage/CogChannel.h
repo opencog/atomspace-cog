@@ -84,6 +84,7 @@ class CogChannel
 		             void (Client::*)(const std::string&, Data&));
 
 		void barrier();
+		void flush();
 };
 
 /** @}*/

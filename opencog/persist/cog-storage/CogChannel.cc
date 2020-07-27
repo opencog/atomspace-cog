@@ -48,7 +48,8 @@ using namespace opencog;
 
 template<typename Client, typename Data>
 CogChannel<Client, Data>::CogChannel(void)
-	: _sockfd(-1), _msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
+	: _sockfd(-1),
+	_msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
 {
 }
 
@@ -169,7 +170,7 @@ void CogChannel<Client, Data>::do_send(const std::string& str)
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");
 
-	int rc = send(_sockfd, str.c_str(), str.size(), 0);
+	int rc = send(_sockfd, str.c_str(), str.size(), MSG_NOSIGNAL);
 	if (0 > rc)
 		throw IOException(TRACE_INFO, "Unable to talk to cogserver: %s",
 			strerror(errno));
@@ -273,6 +274,12 @@ template<typename Client, typename Data>
 void CogChannel<Client, Data>::barrier()
 {
 	_msg_buffer.barrier();
+}
+
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::flush()
+{
+	_msg_buffer.flush();
 }
 
 /* ============================= END OF FILE ================= */

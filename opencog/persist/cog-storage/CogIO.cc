@@ -164,9 +164,11 @@ void CogStorage::loadAtomSpace(AtomTable &table)
 	std::string msg = "(cog-get-atoms 'Node #t)\n";
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 
-	barrier();
+	_io_queue.flush();
 	msg = "(cog-get-atoms 'Link #t)\n";
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
+
+	_io_queue.flush();
 }
 
 void CogStorage::loadType(AtomTable &table, Type t)
@@ -183,7 +185,7 @@ void CogStorage::storeAtomSpace(const AtomTable &table)
 	table.getHandleSetByType(all_atoms, ATOM, true);
 	for (const Handle& h : all_atoms)
 		storeAtom(h);
-	barrier();
+	_io_queue.flush();
 }
 
 void CogStorage::kill_data(void)
