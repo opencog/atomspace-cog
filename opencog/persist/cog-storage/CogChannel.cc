@@ -47,8 +47,9 @@ using namespace opencog;
 #define NTHREADS 4
 
 template<typename Client, typename Data>
-CogChannel<Client, Data>::CogChannel(void)
-	: _msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
+CogChannel<Client, Data>::CogChannel(void) :
+	_servinfo(nullptr),
+	_msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
 {
 }
 
@@ -156,14 +157,12 @@ int CogChannel<Client, Data>::open_sock()
 template<typename Client, typename Data>
 bool CogChannel<Client, Data>::connected(void)
 {
-	return 0 < _nsocks;
+	return nullptr != _servinfo;
 }
 
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::close_connection(void)
 {
-	if (not connected()) return;
-
 	_msg_buffer.barrier();
 }
 
