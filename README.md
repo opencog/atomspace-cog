@@ -59,16 +59,10 @@ granular load and store is possible; see the
 
 Status
 ------
-This is ***Version 0.6***. All eighteen (nine+nine) unit tests consistently
-pass(*).  Performance looks good. Four of the unit tests take about
+This is **Version 0.6**. All eighteen (nine+nine) unit tests consistently
+pass.  Performance looks good. Four of the unit tests take about
 a minute to run; this is intentional, they are pounding the server with
 large datasets.
-
-Note: (*) There is a bug in the cogutils logger shutdown sequence,
-which sometimes causes it to crash after a unit test has finished,
-and after `main()` has exited(!). This bug will show up here as a test
-failure, even though the test itself passed. The bug is reported in the
-[cogserver repo, issue #34](https://github.com/opencog/cogserver/issues/34).
 
 Design
 ------
