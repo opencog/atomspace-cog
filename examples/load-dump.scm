@@ -20,6 +20,9 @@
 
 ; Start by assuming the remote server has some content. If not, then
 ; create some. If unsure how, re-read the `fetch-store.scm` demo.
+; This demo works best if you run it after the `fetch-store.scm` demo,
+; and leave the cogserver running. That way, you'll be familiar with
+; what is being held there, and what theexamples below will be fetching.
 ;
 ; Lets get only those atoms that make use of `(Concept "a")`
 (load-referers (Concept "a"))

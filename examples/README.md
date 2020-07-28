@@ -40,3 +40,16 @@ The examples go through some simple usage scenarios.
 
 * [fetch-store.scm](fetch-store.scm) -- Basic fetch and store of single atoms.
 * [load-dump.scm](load-dump.scm) -- Loading and saving entire AtomSpaces.
+
+Using the Simple Client
+-----------------------
+The examples should work equally well with the simple client.
+Use
+```
+(use-modules (opencog persist-cog-simple))
+```
+to load the correct API, and then use
+```
+(cog-simple-open "cog://localhost")
+```
+to use the simple API.
