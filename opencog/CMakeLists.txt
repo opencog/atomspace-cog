@@ -8,6 +8,7 @@ ADD_SUBDIRECTORY (persist)
 
 ADD_GUILE_MODULE (FILES
    scm/persist-cog.scm
+   scm/persist-cog-simple.scm
    MODULE_DESTINATION "${GUILE_SITE_DIR}/opencog"
 )
 

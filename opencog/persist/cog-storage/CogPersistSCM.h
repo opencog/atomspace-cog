@@ -1,7 +1,7 @@
 /*
- * opencog/persist/cog-storate/CogPersistSCM.h
+ * opencog/persist/cog-storage/CogPersistSCM.h
  *
- * Copyright (c) 20209 Linas Vepstas <linasvepstas@gmail.com>
+ * Copyright (c) 2020 Linas Vepstas <linasvepstas@gmail.com>
  *
  * LICENSE:
  * SPDX-License-Identifier: AGPL-3.0-or-later
