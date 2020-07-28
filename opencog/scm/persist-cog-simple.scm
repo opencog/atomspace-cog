@@ -7,7 +7,7 @@
 (use-modules (opencog))
 (use-modules (opencog cog-config))
 (load-extension
-	(string-append opencog-ext-path-persist-cog "libpersist-cog-simple")
+	(string-append opencog-ext-path-persist-cog-simple "libpersist-cog-simple")
 	"opencog_persist_cog_simple_init")
 
 (export cog-simple-clear-stats cog-simple-close cog-simple-open
