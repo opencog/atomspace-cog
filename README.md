@@ -59,16 +59,16 @@ granular load and store is possible; see the
 
 Status
 ------
-This is Version 0.6. All eighteen (nine+nine) unit tests consistently
-pass(***).  Performance looks good. Four of the unit tests take about
+This is ***Version 0.6***. All eighteen (nine+nine) unit tests consistently
+pass(*).  Performance looks good. Four of the unit tests take about
 a minute to run; this is intentional, they are pounding the server with
 large datasets.
 
-Note: (***) There is a bug in the cogutils logger shutdown sequence,
+Note: (*) There is a bug in the cogutils logger shutdown sequence,
 which sometimes causes it to crash after a unit test has finished,
 and after `main()` has exited(!). This bug will show up here as a test
 failure, even though the test itself passed. The bug is reported in the
-[cogserver repo, issue #34](https://github.com/opencog/cogserver/issues/34),
+[cogserver repo, issue #34](https://github.com/opencog/cogserver/issues/34).
 
 Design
 ------
@@ -77,7 +77,7 @@ There are actually two implementations in this repo. One that is
 should have a higher throughput). Both "do the same thing",
 functionally, but differ in network usage, concurrecncy, etc.
 
-=== The Simple Backend
+### The Simple Backend
 This can be found in the [opencog/persist/cog-simple](opencog/persist/cog-simple)
 directory.  The grand-total size of this implementation is less than 500
 lines of code. Seriously! This is really a very simple system!  Take a
@@ -94,7 +94,7 @@ scheme@(guile-user)> (use-modules (opencog persist-cog-simple))
 scheme@(guile-user)> (cog-simple-open "cog://example.com/")
 ```
 
-=== The Production Backend
+### The Production Backend
 This backend opens four sockets to the cogserver, and handles requests
 asynchronously. Be sure to pepper your code with `(barrier)` to flush
 the network buffers, else you might get unexpected behavior.
