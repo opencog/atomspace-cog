@@ -52,7 +52,7 @@
 ; Verify that the current AtomSpace is indeed empty.
 (cog-get-all-roots)
 
-; --------------
+; -------------------------
 ; Querying with Meet links.
 ;
 ; The (List (Concept "A") (Concept "B")) can be thought of as a directed
@@ -68,6 +68,37 @@
 ; Find and fetch all tails at the remote server.
 (fetch-query get-tail results-key)
 
+; Take a look at what was found.
+(cog-value get-tail results-key)
+
+; -------------
+; Query caching
+;
+; By default, the results of the query are cached at the server end.
+; This is because queries can be CPU-intensive, and it's pointless to
+; keep running them over and over. Of course, this can result in stale
+; data. Try it ...
+;
+; Add some more data, push it out to the server, and delete it locally.
+(List (Concept "A") (Concept "F"))
+(store-atomspace)
+(cog-extract-recursive! (Concept "F"))
+
+; Verify that (Concept "F") is gone
+(cog-get-all-roots)
+
+; Re-run the query
+(fetch-query get-tail results-key)
+
+; Take a look at what was found. ... oh no, its the old cached result!
+(cog-value get-tail results-key)
+
+; There are two ways of handling this. One is to brute-force kill
+; the cache. The can be done as so:
+(cog-set-value! get-tail results-key #f)
+
+; Now brute-force kill it in the server:
+(store-value get-tail results-key)
 
 ; That's all! Thanks for paying attention!
 ; ----------------------------------------
