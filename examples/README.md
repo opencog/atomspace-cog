@@ -36,10 +36,13 @@ python).  If you don't have the cogserver, well:
 
 Run the Demos
 -------------
-The examples go through some simple usage scenarios.
+The first two examples go through some simple usage scenarios. The third
+example shows how to make fine-tuned, narrow and precise fetches of
+data from the remote server.
 
 * [fetch-store.scm](fetch-store.scm) -- Basic fetch and store of single atoms.
 * [load-dump.scm](load-dump.scm) -- Loading and saving entire AtomSpaces.
+* [remote-query.scm](remote-query.scm) -- Precisely-specified fetches.
 
 Using the Simple Client
 -----------------------
