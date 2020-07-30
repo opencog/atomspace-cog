@@ -4,11 +4,25 @@
 ; Demo of basic fetching individual atoms from the remote server,
 ; and storing (sending) them to the server for safe-keeping.
 ;
+; ----------------------------------------------
+; Getting started, making the intial connection.
+;
 (use-modules (opencog) (opencog persist))
 (use-modules (opencog persist-cog))
 
+(use-modules (opencog persist-cog))
+
+; Or, instead, for the simple client, say
+; (use-modules (opencog persist-cog-simple))
+
 (cogserver-open "cog://localhost")
 
+; Or instead, for the simple client, say
+; (cog-simple-open "cog://localhost")
+
+; --------------
+; Fetching Atoms
+;
 ; On the server, create an atom `(Concept "b" (stv 0.9 0.2))`. That is,
 ; create the ConceptNode with some non-default SimpleTruthValue on it.
 ; Then locally, we can fetch it, and verify we got the right TV.
@@ -43,7 +57,34 @@
 (cog-keys (Concept "a"))
 (cog-keys->alist (Concept "a"))
 ;
-; -----------------------------------------------------------
+; --------------------------
+; Fetching Individual Values
+;
+; Another possibility is to work with specific values.
+; Let's erase the keys again:
+(cog-set-value! (Concept "a") (Predicate "flo") #f)
+(cog-set-value! (Concept "a") (Predicate "blo") #f)
+
+; Now get just one of them, and take a look:
+(fetch-value (Concept "a") (Predicate "flo"))
+(cog-keys->alist (Concept "a"))
+
+; Set the other one, and push it out:
+(cog-set-value! (Concept "a") (Predicate "blo") (StringValue "a" "b" "c"))
+(store-value (Concept "a") (Predicate "blo"))
+
+; Erase, and re-fetch:
+(cog-set-value! (Concept "a") (Predicate "flo") #f)
+(cog-set-value! (Concept "a") (Predicate "blo") #f)
+(cog-keys->alist (Concept "a"))
+(fetch-value (Concept "a") (Predicate "blo"))
+(cog-keys->alist (Concept "a"))
+
+; "flo blo" is how they pronounce "flow blue" in Texas.
+; Or some crochet pattern. Or something.
+; -----------------------------------------------------
+; Fetching Incoming Sets
+;
 ; One can get just the incoming set in a similar fashion.
 ; Assume that, for example, the remote server contains
 ;    (List (Concept "a")(Concept "b"))
@@ -55,9 +96,16 @@
 (store-atom (List (Concept "a")(Concept "b")))
 (store-atom (Set (Concept "a")(Concept "b")))
 
+; Examine the entire contents of the AtomSpace
+(cog-get-all-roots)
+
 ; Erase both of them locally. This also erases `(Concept "a")` in the
 ; local atomspace.
 (cog-extract-recursive! (Concept "a"))
+
+; Verify that `(Concept "a")` is gone, and, of course,
+; everything that containied it:
+(cog-get-all-roots)
 
 ; Recreate `(Concept "a")` but verify that nothing contains it:
 (cog-incoming-set (Concept "a"))
@@ -69,3 +117,9 @@
 ; Fetch everything
 (fetch-incoming-set (Concept "a"))
 (cog-incoming-set (Concept "a"))
+
+; Take one last look at everything in the AtomSpace:
+(cog-get-all-roots)
+
+; That's all! Thanks for paying attention!
+; ----------------------------------------
