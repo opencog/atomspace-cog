@@ -60,6 +60,34 @@ void CogStorage::removeAtom(const Handle& h, bool recursive)
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
 }
 
+void CogStorage::storeValue(const Handle& h, const Handle& key)
+{
+	std::string msg;
+	msg = "(cog-set-value! " + Sexpr::encode_atom(h) +
+	      Sexpr::encode_atom(key) +
+	      Sexpr::encode_value(h->getValue(key)) + ")\n";
+
+	Pkt pkt;
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
+}
+
+void CogStorage::loadValue(const Handle& h, const Handle& key)
+{
+	std::string msg;
+	msg = "(cog-value " + Sexpr::encode_atom(h) +
+	      Sexpr::encode_atom(key) + ")\n";
+
+	Pkt pkta{nullptr, h, key};
+	_io_queue.enqueue(this, msg, pkta, &CogStorage::decode_value);
+}
+
+void CogStorage::decode_value(const std::string& reply, const Pkt& pkt)
+{
+	size_t pos = 0;
+	ValuePtr vp = Sexpr::decode_value(reply, pos);
+	pkt.h->setValue(pkt.key, vp);
+}
+
 void CogStorage::is_ok(const std::string& reply, Pkt& pkt)
 {
 	if (reply.compare(0, 2, "()"))
@@ -71,7 +99,7 @@ Handle CogStorage::getNode(Type t, const char * str)
 	std::string typena = nameserver().getTypeName(t) + " \"" + str + "\"";
 
 	// Does the cogserver even know about this atom?
-	Pkt pkt{nullptr, Handle::UNDEFINED};
+	Pkt pkt;
 	_io_queue.synchro(this,"(cog-node '" + typena + ")\n",
 	                  pkt, &CogStorage::is_ok);
 	if (nullptr == pkt.table)
@@ -83,7 +111,7 @@ Handle CogStorage::getNode(Type t, const char * str)
 	// Get all of the keys.
 	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
 
-	Pkt pkta{nullptr, h};
+	Pkt pkta{nullptr, h, Handle::UNDEFINED};
 	_io_queue.synchro(this, get_keys, pkta, &CogStorage::decode_kvp_list);
 
 	return h;
@@ -96,7 +124,7 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 		typena += Sexpr::encode_atom(ho);
 
 	// Does the cogserver even know about this atom?
-	Pkt pkt{nullptr, Handle::UNDEFINED};
+	Pkt pkt;
 	_io_queue.synchro(this,"(cog-link '" + typena + ")\n",
 	                  pkt, &CogStorage::is_ok);
 	if (nullptr == pkt.table)
@@ -107,7 +135,7 @@ Handle CogStorage::getLink(Type t, const HandleSeq& hs)
 
 	// Get all of the keys.
 	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
-	Pkt pkta{nullptr, h};
+	Pkt pkta{nullptr, h, Handle::UNDEFINED};
 	_io_queue.synchro(this, get_keys, pkta, &CogStorage::decode_kvp_list);
 
 	return h;
@@ -130,7 +158,7 @@ void CogStorage::decode_atom_list(const std::string& expr, const Pkt& pkt)
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
-		Pkt pkt{nullptr, h};
+		Pkt pkt{nullptr, h, Handle::UNDEFINED};
 		_io_queue.enqueue(this, get_keys, pkt, &CogStorage::decode_kvp_list_const);
 
 		// advance to next.
@@ -143,7 +171,7 @@ void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
 {
 	std::string msg = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
 
-	Pkt pkt{&table, Handle::UNDEFINED};
+	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED,};
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
@@ -152,7 +180,7 @@ void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 	std::string msg = "(cog-incoming-by-type " + Sexpr::encode_atom(h)
 		+ " '" + nameserver().getTypeName(t) + ")\n";
 
-	Pkt pkt{&table, Handle::UNDEFINED};
+	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED,};
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
@@ -160,7 +188,7 @@ void CogStorage::loadAtomSpace(AtomTable &table)
 {
 	// Get nodes and links separately, in an effort to get
 	// smaller replies.
-	Pkt pkt{&table, Handle::UNDEFINED};
+	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED};
 	std::string msg = "(cog-get-atoms 'Node #t)\n";
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 
@@ -175,7 +203,7 @@ void CogStorage::loadType(AtomTable &table, Type t)
 {
 	std::string msg = "(cog-get-atoms '" + nameserver().getTypeName(t) + ")\n";
 
-	Pkt pkt{&table, Handle::UNDEFINED};
+	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED,};
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
@@ -202,4 +230,9 @@ void CogStorage::decode_kvp_list_const(const std::string& reply, const Pkt& pkt)
 {
 	Handle h = pkt.h;
 	Sexpr::decode_alist(h, reply);
+}
+
+void CogStorage::runQuery(const Handle& query, const Handle& key,
+                          const Handle& meta, bool fresh)
+{
 }
