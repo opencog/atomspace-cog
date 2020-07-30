@@ -23,7 +23,7 @@ All of the examples assume you have a cogserver started. This can be
 done as (for example):
 ```
 $ guile
-scheme@(guile-user)> (use-modules (opencog))
+scheme@(guile-user)> (use-modules (opencog) (opencog exec))
 scheme@(guile-user)> (use-modules (opencog cogserver))
 scheme@(guile-user)> (start-cogserver)
 $1 = "Started CogServer"

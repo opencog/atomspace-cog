@@ -313,7 +313,7 @@ std::string CogChannel<Client, Data>::print_stats()
 		std::to_string(_msg_buffer.get_low_watermark()) +
 		"/" +
 		std::to_string(_msg_buffer.get_high_watermark()) +
-		"  Stalled: " + std::to_string(_msg_buffer.stalling()) +
+		"  Stalled: " + (_msg_buffer.stalling() ? "true" : "false") +
 		"\n";
 
 	return rs;
