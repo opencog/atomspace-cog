@@ -41,7 +41,10 @@
 ; The demo needs to have some Atoms over at the remote server
 ; so that they can be fetched. Set that up here.
 (List (Concept "A") (Concept "B"))
-(Set (Concept "A") (Concept "C"))
+(Set (Concept "A") (Concept "B"))
+(Set (Concept "A") (Concept "B") (Concept "C"))
+(Evaluation (Predicate "foo")
+	(List (Concept "B") (Concept "C") (Concept "oh boy!")))
 
 ; Push the entire atomspace out to the remote server.
 (store-atomspace)
@@ -104,7 +107,7 @@
 (fetch-query get-tail results-key)
 (cog-value get-tail results-key)
 
-; -------------
+; --------------
 ; Query metadata
 ;
 ; Caches have a basic problem: one does not know if they are expired,
@@ -135,6 +138,7 @@
 (cog-value get-tail results-key)
 
 ; Tell us more!
+(fetch-value get-tail metadata)
 (cog-value get-tail metadata)
 
 ; Currently, the above returns seconds since January 1, 1970
@@ -145,6 +149,23 @@
 	(cog-value->list (cog-value get-tail metadata))))))
 
 ; Again, the format of the metadata is subject to change.
+
+; ------------------------
+; Generalized Incoming Set
+;
+; One of the most important queries is to fetch every graph containg
+; a given Atom. This can be done with the JoinLink. The below fetches
+; the entire incoming set of (Concept "B").  More info about JoinLinks
+; can be found on the wiki page https://wiki.opencog.org/w/JoinLink
+
+(define b-holders (MaximalJoin (Present (Concept "B"))))
+
+: Just like before...
+(fetch-query b-holders results-key)
+(cog-value b-holders results-key)
+
+; Verify that everything landed in the AtomSpace.
+(cog-get-all-roots)
 
 ; That's all! Thanks for paying attention!
 ; ----------------------------------------
