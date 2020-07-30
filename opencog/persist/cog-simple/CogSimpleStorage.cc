@@ -126,6 +126,10 @@ void CogSimpleStorage::init(const char * uri)
 	// Throw away the cogserver prompt.
 	do_recv();
 
+	// Just in case...
+	do_send("(use-modules (opencog exec))\n");
+	do_recv();
+
 	do_send("(cog-set-server-mode! #t)\n");
 	do_recv();
 }

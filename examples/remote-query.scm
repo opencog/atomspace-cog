@@ -35,10 +35,39 @@
 ; (use-modules (opencog persist-cog-simple))
 ; (cog-simple-open "cog://localhost")
 
-; --------------
-; Populate the Atmspace.
+; -----------------------
+; Populate the Atomspace.
 ;
+; The demo needs to have some Atoms over at the remote server
+; so that they can be fetched. Set that up here.
+(List (Concept "A") (Concept "B"))
+(Set (Concept "A") (Concept "C"))
+
+; Push the entire atomspace out to the remote server.
+(store-atomspace)
+
+; Clear the local AtomSpace.
+(cog-atomspace-clear)
+
+; Verify that the current AtomSpace is indeed empty.
 (cog-get-all-roots)
+
+; --------------
+; Querying with Meet links.
+;
+; The (List (Concept "A") (Concept "B")) can be thought of as a directed
+; arrow from head to tail. Write a query, that, given the head finds the
+; tail.
+(define get-tail (Meet (List (Concept "A") (Variable "tail"))))
+
+; Define a key where the results will be placed. This allows the query
+; to run asynchronously; the results will be located at the key when
+; they are finally available.
+(define results-key (Predicate "results"))
+
+; Find and fetch all tails at the remote server.
+(fetch-query get-tail results-key)
+
 
 ; That's all! Thanks for paying attention!
 ; ----------------------------------------
