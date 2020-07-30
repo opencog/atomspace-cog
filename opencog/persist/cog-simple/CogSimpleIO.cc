@@ -239,4 +239,31 @@ void CogSimpleStorage::kill_data(void)
 void CogSimpleStorage::runQuery(const Handle& query, const Handle& key,
                                 const Handle& meta, bool fresh)
 {
+	std::string msg = "(cog-execute-cache! " +
+		Sexpr::encode_atom(query) +
+		Sexpr::encode_atom(key);
+
+	if (meta)
+	{
+		msg += Sexpr::encode_atom(meta);
+
+		if (fresh) msg += " #t";
+	}
+	msg += ")\n";
+
+	std::string rply;
+	{
+		std::lock_guard<std::mutex> lck(_mtx);
+		do_send(msg);
+		rply = do_recv();
+	}
+
+	size_t pos = 0;
+	ValuePtr vp = Sexpr::decode_value(rply, pos);
+	query->setValue(key, vp);
+
+	if (meta)
+	{
+		loadValue(query, meta);
+	}
 }
