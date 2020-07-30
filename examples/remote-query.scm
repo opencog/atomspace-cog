@@ -100,5 +100,51 @@
 ; Now brute-force kill it in the server:
 (store-value get-tail results-key)
 
+; ... and rerun the query. This time, we expect all the results.
+(fetch-query get-tail results-key)
+(cog-value get-tail results-key)
+
+; -------------
+; Query metadata
+;
+; Caches have a basic problem: one does not know if they are expired,
+; or fresh, or quite what is going on with them.  So its safe to always
+; clobber the cache ... but that defeats the whole purpose of caching.
+; One way to address this issue is to provide meta-data about the cache.
+; The most important meta-data is the age of the cache. It can be gotten
+; as shown below.
+;
+; query-cache metadata is curently a highly-experimental, and subject to
+; change. The format of the meta-data in particular is not yet fixed.
+; Don't be surprised if this part of the demo works strangely.
+;
+; Let's repeat some of the above.
+(List (Concept "A") (Concept "G"))
+(store-atomspace)
+(cog-extract-recursive! (Concept "G"))
+
+; Oh no! The cache is stale! Missing (Concept "G")!
+(fetch-query get-tail results-key)
+(cog-value get-tail results-key)
+
+; We want meta-data, and we want a fresh recomputation.
+(define metadata (Predicate "my metadata"))
+(fetch-query get-tail results-key metadata #t)
+
+; Yay! it worked!
+(cog-value get-tail results-key)
+
+; Tell us more!
+(cog-value get-tail metadata)
+
+; Currently, the above returns seconds since January 1, 1970
+(cog-value->list (cog-value get-tail metadata))
+
+; Print the time-string... a bit verbose, but whatever.
+(strftime "%c" (localtime  (inexact->exact (car
+	(cog-value->list (cog-value get-tail metadata))))))
+
+; Again, the format of the metadata is subject to change.
+
 ; That's all! Thanks for paying attention!
 ; ----------------------------------------
