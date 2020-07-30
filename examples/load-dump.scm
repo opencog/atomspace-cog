@@ -9,6 +9,7 @@
 ; load-referers ATOM -- to load only those graphs containing ATOM
 ; load-atoms-of-type TYPE -- to load only atoms of type TYPE
 ; load-atomspace -- load everything.
+; fetch-query QUERY -- load all Atoms satisfying QUERY.
 ;
 ; store-referers ATOM -- store all graphs that contain ATOM
 ; store-atomspace -- store everything.

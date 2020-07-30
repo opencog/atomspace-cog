@@ -10,8 +10,6 @@
 (use-modules (opencog) (opencog persist))
 (use-modules (opencog persist-cog))
 
-(use-modules (opencog persist-cog))
-
 ; Or, instead, for the simple client, say
 ; (use-modules (opencog persist-cog-simple))
 
