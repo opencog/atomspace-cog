@@ -56,6 +56,36 @@ void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 	do_recv();
 }
 
+void CogSimpleStorage::storeValue(const Handle& h, const Handle& key)
+{
+	std::string msg;
+	msg = "(cog-set-value! " + Sexpr::encode_atom(h) +
+	      Sexpr::encode_atom(key) +
+	      Sexpr::encode_value(h->getValue(key)) + ")\n";
+
+	std::lock_guard<std::mutex> lck(_mtx);
+	do_send(msg);
+
+	// Flush the response.
+	do_recv();
+}
+
+ValuePtr CogSimpleStorage::loadValue(const Handle& h, const Handle& key)
+{
+	std::string msg;
+	msg = "(cog-value " + Sexpr::encode_atom(h) +
+	      Sexpr::encode_atom(key) + ")\n";
+
+	std::lock_guard<std::mutex> lck(_mtx);
+	do_send(msg);
+
+	std::string rply = do_recv();
+	size_t pos = 0;
+	ValuePtr vp = Sexpr::decode_value(rply, pos);
+	h->setValue(key, vp);
+	return vp;
+}
+
 void CogSimpleStorage::removeAtom(const Handle& h, bool recursive)
 {
 	std::string msg;

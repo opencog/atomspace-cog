@@ -72,6 +72,10 @@ class CogSimpleStorage : public BackingStore
 		void getIncomingByType(AtomTable&, const Handle&, Type t);
 		void storeAtom(const Handle&, bool synchronous = false);
 		void removeAtom(const Handle&, bool recursive);
+		void storeValue(const Handle& atom, const Handle& key);
+		ValuePtr loadValue(const Handle& atom, const Handle& key);
+		ValuePtr runQuery(const Handle&, const Handle&,
+		                  const Handle&, bool);
 		void loadType(AtomTable&, Type);
 		void loadAtomSpace(AtomTable&); // Load entire contents
 		void storeAtomSpace(const AtomTable&); // Store entire contents
