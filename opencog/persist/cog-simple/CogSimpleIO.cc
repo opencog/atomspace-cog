@@ -261,9 +261,4 @@ void CogSimpleStorage::runQuery(const Handle& query, const Handle& key,
 	size_t pos = 0;
 	ValuePtr vp = Sexpr::decode_value(rply, pos);
 	query->setValue(key, vp);
-
-	if (meta)
-	{
-		loadValue(query, meta);
-	}
 }

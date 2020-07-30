@@ -235,4 +235,17 @@ void CogStorage::decode_kvp_list_const(const std::string& reply, const Pkt& pkt)
 void CogStorage::runQuery(const Handle& query, const Handle& key,
                           const Handle& meta, bool fresh)
 {
+	std::string msg = "(cog-execute-cache! " +
+		Sexpr::encode_atom(query) +
+		Sexpr::encode_atom(key);
+
+	if (meta)
+	{
+		msg += Sexpr::encode_atom(meta);
+		if (fresh) msg += " #t";
+	}
+	msg += ")\n";
+
+	Pkt pkta{nullptr, query, key};
+	_io_queue.enqueue(this, msg, pkta, &CogStorage::decode_value);
 }
