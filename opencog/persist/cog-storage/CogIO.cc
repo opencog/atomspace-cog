@@ -85,6 +85,13 @@ void CogStorage::decode_value(const std::string& reply, const Pkt& pkt)
 {
 	size_t pos = 0;
 	ValuePtr vp = Sexpr::decode_value(reply, pos);
+
+	// If the Value has Atoms inside of it, make sure they
+	// live in an AtomSpace.
+	AtomSpace* as = pkt.h->getAtomSpace();
+	if (as)
+		vp = Sexpr::add_atoms(as, vp);
+
 	pkt.h->setValue(pkt.key, vp);
 }
 

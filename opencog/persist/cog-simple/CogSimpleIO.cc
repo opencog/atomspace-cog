@@ -82,6 +82,12 @@ void CogSimpleStorage::loadValue(const Handle& h, const Handle& key)
 	std::string rply = do_recv();
 	size_t pos = 0;
 	ValuePtr vp = Sexpr::decode_value(rply, pos);
+
+	// If the Value has Atoms inside of it, make sure they
+	// live in an AtomSpace.
+	AtomSpace* as = h->getAtomSpace();
+	if (as)
+		vp = Sexpr::add_atoms(as, vp);
 	h->setValue(key, vp);
 }
 
@@ -260,5 +266,12 @@ void CogSimpleStorage::runQuery(const Handle& query, const Handle& key,
 
 	size_t pos = 0;
 	ValuePtr vp = Sexpr::decode_value(rply, pos);
+
+	// If the Value has Atoms inside of it, make sure they
+	// live in an AtomSpace.
+	AtomSpace* as = query->getAtomSpace();
+	if (as)
+		vp = Sexpr::add_atoms(as, vp);
+
 	query->setValue(key, vp);
 }
