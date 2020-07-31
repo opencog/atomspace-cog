@@ -112,6 +112,8 @@ void ValueSaveUTest::tearDown(void) {}
  */
 void ValueSaveUTest::test_single_atom_save()
 {
+	logger().info("BEGIN TEST: %s", __FUNCTION__);
+
 	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 
@@ -163,6 +165,8 @@ void ValueSaveUTest::test_single_atom_save()
 
 	delete as;
 	delete store;
+
+	logger().info("END TEST: %s", __FUNCTION__);
 }
 
 // ============================================================
@@ -224,6 +228,8 @@ void ValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 
 void ValueSaveUTest::test_save_restore(bool fkey)
 {
+	logger().info("BEGIN TEST: %s", __FUNCTION__);
+
 	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 
@@ -268,6 +274,8 @@ void ValueSaveUTest::test_save_restore(bool fkey)
 	store->kill_data();
 	delete as;
 	delete store;
+
+	logger().info("END TEST: %s", __FUNCTION__);
 }
 
 // ============================================================
@@ -277,6 +285,8 @@ void ValueSaveUTest::test_save_restore(bool fkey)
 // as well.  This tests the fetching of nodes.
 void ValueSaveUTest::test_load_by_type()
 {
+	logger().info("BEGIN TEST: %s", __FUNCTION__);
+
 	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 
@@ -391,6 +401,8 @@ void ValueSaveUTest::test_load_by_type()
 	// --------------------
 	delete as;
 	delete store;
+
+	logger().info("END TEST: %s", __FUNCTION__);
 }
 
 // ============================================================
@@ -402,6 +414,8 @@ void ValueSaveUTest::test_load_by_type()
 // be fetched.
 void ValueSaveUTest::test_link_by_type()
 {
+	logger().info("BEGIN TEST: %s", __FUNCTION__);
+
 	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 
@@ -598,6 +612,8 @@ void ValueSaveUTest::test_link_by_type()
 	// --------------------
 	delete as;
 	delete store;
+
+	logger().info("END TEST: %s", __FUNCTION__);
 }
 
 // ============================================================
@@ -607,6 +623,8 @@ void ValueSaveUTest::test_link_by_type()
 // as well, but only on the incoming set!
 void ValueSaveUTest::test_incoming()
 {
+	logger().info("BEGIN TEST: %s", __FUNCTION__);
+
 	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 
@@ -806,6 +824,8 @@ void ValueSaveUTest::test_incoming()
 	// --------------------
 	delete as;
 	delete store;
+
+	logger().info("END TEST: %s", __FUNCTION__);
 }
 
 /* ============================= END OF FILE ================= */
