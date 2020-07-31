@@ -117,7 +117,7 @@
 ; The most important meta-data is the age of the cache. It can be gotten
 ; as shown below.
 ;
-; query-cache metadata is curently a highly-experimental, and subject to
+; query-cache metadata is currently a highly-experimental, and subject to
 ; change. The format of the meta-data in particular is not yet fixed.
 ; Don't be surprised if this part of the demo works strangely.
 ;
@@ -130,7 +130,7 @@
 (fetch-query get-tail results-key)
 (cog-value get-tail results-key)
 
-; We want meta-data, and we want a fresh recomputation.
+; We want meta-data, and we want a fresh re-computation.
 (define metadata (Predicate "my metadata"))
 (fetch-query get-tail results-key metadata #t)
 
@@ -153,7 +153,7 @@
 ; ------------------------
 ; Generalized Incoming Set
 ;
-; One of the most important queries is to fetch every graph containg
+; One of the most important queries is to fetch every graph containing
 ; a given Atom. This can be done with the JoinLink. The below fetches
 ; the entire incoming set of (Concept "B").  More info about JoinLinks
 ; can be found on the wiki page https://wiki.opencog.org/w/JoinLink

@@ -69,7 +69,7 @@ Design
 There are actually two implementations in this repo. One that is
 "simple", and one that is multi-threaded and concurrent (and so
 should have a higher throughput). Both "do the same thing",
-functionally, but differ in network usage, concurrecncy, etc.
+functionally, but differ in network usage, concurrency, etc.
 
 ### The Simple Backend
 This can be found in the [opencog/persist/cog-simple](opencog/persist/cog-simple)

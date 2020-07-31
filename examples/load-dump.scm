@@ -2,7 +2,7 @@
 ; load-dump.scm
 ;
 ; Demo showing how to load, or dump, large segments of the AtomSpace,
-; including the ENTIRE AtomSpace. Caution: for large AtomSpaces, laoding
+; including the ENTIRE AtomSpace. Caution: for large AtomSpaces, loading
 ; everything is painfully slow, and probably not needed. Thus, one can
 ; load portions:
 ;
@@ -29,7 +29,7 @@
 ; create some. If unsure how, re-read the `fetch-store.scm` demo.
 ; This demo works best if you run it after the `fetch-store.scm` demo,
 ; and leave the cogserver running. That way, you'll be familiar with
-; what is being held there, and what theexamples below will be fetching.
+; what is being held there, and what the examples below will be fetching.
 ;
 ; Lets get only those atoms that make use of `(Concept "a")`
 (load-referers (Concept "a"))

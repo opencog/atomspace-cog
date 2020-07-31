@@ -5,7 +5,7 @@
 ; and storing (sending) them to the server for safe-keeping.
 ;
 ; ----------------------------------------------
-; Getting started, making the intial connection.
+; Getting started, making the initial connection.
 ;
 (use-modules (opencog) (opencog persist))
 (use-modules (opencog persist-cog))
@@ -27,7 +27,7 @@
 (fetch-atom (Concept "b"))
 
 ; Create `(Concept "a")` locally, and set several values on it,
-; and theen push the result out to the server.
+; and then push the result out to the server.
 (cog-set-value! (Concept "a") (Predicate "flo") (FloatValue 1 2 3))
 (cog-set-value! (Concept "a") (Predicate "blo") (FloatValue 4 5 6))
 (store-atom (Concept "a"))
@@ -98,11 +98,11 @@
 (cog-get-all-roots)
 
 ; Erase both of them locally. This also erases `(Concept "a")` in the
-; local atomspace.
+; local AtomSpace.
 (cog-extract-recursive! (Concept "a"))
 
 ; Verify that `(Concept "a")` is gone, and, of course,
-; everything that containied it:
+; everything that contained it:
 (cog-get-all-roots)
 
 ; Recreate `(Concept "a")` but verify that nothing contains it:
