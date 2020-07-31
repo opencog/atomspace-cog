@@ -164,7 +164,8 @@ static void atomCompare(AtomPtr a, AtomPtr b, const char* where)
                     ta->get_mean(), tb->get_mean(),
                     ta->get_mean() - tb->get_mean(),
                     ta->get_confidence(), tb->get_confidence());
-                fprintf(stderr, "Above is for %s\n\n", a->to_string().c_str());
+                fprintf(stderr, "Above is for a=%s\n\n", a->to_string().c_str());
+                fprintf(stderr, "Above is for b=%s\n\n", b->to_string().c_str());
             }
         }
     }
