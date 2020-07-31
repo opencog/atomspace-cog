@@ -283,6 +283,9 @@ void ValueSaveUTest::test_load_by_type()
 	AtomSpace* as = new AtomSpace();
 	store->registerWith(as);
 
+	// Clear out left-over junk, just in case.
+	store->kill_data();
+
 	Handle key = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle af = as->add_node(CONCEPT_NODE, "float node");
 	Handle at = as->add_node(CONCEPT_NODE, "string node");
@@ -346,7 +349,11 @@ void ValueSaveUTest::test_load_by_type()
 	// Fetch by type. This is what we are testing.
 	as->fetch_all_atoms_of_type(CONCEPT_NODE);
 	as->barrier();
-	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 5);
+
+	// Six: 4 ConceptNodes, the PredicateNode "*-TruthValueKey-*"
+	// and PredicateNode "some pred key" -- the two preds show up
+	// when the attached values are fetched.
+	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 6);
 
 	Handle gkey = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle gaf = as->add_node(CONCEPT_NODE, "float node");
