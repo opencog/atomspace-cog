@@ -344,7 +344,13 @@ void ValueSaveUTest::test_load_by_type()
 	// --------------------
 	// Fetch by type. This is what we are testing.
 	as->fetch_all_atoms_of_type(CONCEPT_NODE);
-	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 5);
+	TSM_ASSERT_EQUALS("Wrong number of Atoms fetched!", as->get_size(), 5);
+
+	printf("Got %lu Atoms\n", as->get_size());
+	HandleSet hset;
+	as->get_rootset_by_type(hset, ATOM, true);
+	for (const Handle& h : hset)
+		printf("%s\n", h->to_string().c_str());
 
 	Handle gkey = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle gaf = as->add_node(CONCEPT_NODE, "float node");
