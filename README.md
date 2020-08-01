@@ -59,10 +59,14 @@ granular load and store is possible; see the
 
 Status
 ------
-This is **Version 0.7.0**. All eighteen (nine+nine) unit tests consistently
-pass.  Performance looks good. Four of the unit tests take about
-a minute to run; this is intentional, they are pounding the server with
-large datasets.
+This is **Version 0.8.0**. All eighteen (nine+nine) unit tests
+consistently pass.  Performance looks good. Four of the unit tests
+take about 20 seconds each to run; this is intentional, they are
+pounding the server with large datasets.
+
+This is effectively "done"; there are no known bugs or missing
+features at this time. Waiting on user feedback before declaring
+version 1.0.
 
 Design
 ------
