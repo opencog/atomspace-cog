@@ -116,8 +116,17 @@ void CogSimpleStorage::init(const char * uri)
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 
+	// Get the s-expression shell.
+	std::string eval = "sexpr\n";
+
+#if USE_GUILE_INSTEAD
+	// Instead of using the s-expression shell, one can use the guile
+	// shell. Everything should work just as well; two unit tests are
+	// slower.
+
 	// Get to the scheme prompt, but make it be silent.
 	std::string eval = "scm hush\n";
+#endif
 	rc = send(_sockfd, eval.c_str(), eval.size(), 0);
 	if (0 > rc)
 		throw IOException(TRACE_INFO, "Unable to talk to cogserver at host %s: %s",
@@ -126,12 +135,13 @@ void CogSimpleStorage::init(const char * uri)
 	// Throw away the cogserver prompt.
 	do_recv();
 
-	// Just in case...
+#if USE_GUILE_INSTEAD
+	// See above.
 	do_send("(use-modules (opencog exec))\n");
 	do_recv();
-
 	do_send("(cog-set-server-mode! #t)\n");
 	do_recv();
+#endif
 }
 
 CogSimpleStorage::CogSimpleStorage(std::string uri)
