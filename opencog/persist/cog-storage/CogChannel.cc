@@ -137,8 +137,8 @@ int CogChannel<Client, Data>::open_sock()
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 
-	// Get to the scheme prompt, but make it be silent.
-	std::string eval = "scm hush\n";
+	// Get the s-expression shell.
+	std::string eval = "sexpr\n";
 	rc = send(sockfd, eval.c_str(), eval.size(), 0);
 	if (0 > rc)
 		throw IOException(TRACE_INFO, "Unable to talk to cogserver at host %s: %s",
@@ -146,9 +146,6 @@ int CogChannel<Client, Data>::open_sock()
 
 	// Throw away the cogserver prompt.
 	s._sockfd = sockfd;
-	do_recv();
-
-	do_send("(cog-set-server-mode! #t)\n");
 	do_recv();
 
 	_nsocks++;
