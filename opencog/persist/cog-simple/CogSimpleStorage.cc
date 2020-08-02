@@ -1,6 +1,6 @@
 /*
  * FILE:
- * opencog/persist/cog-simple/CogSimple/Storage.cc
+ * opencog/persist/cog-simple/CogSimpleStorage.cc
  *
  * FUNCTION:
  * Simple CogServer-backed persistent storage.
