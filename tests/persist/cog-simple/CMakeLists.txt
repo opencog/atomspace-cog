@@ -6,9 +6,10 @@ LINK_LIBRARIES(
 	atomspace
 )
 
-# The seven unit tests, ported over from the
+# The nine unit tests, ported over from the
 # atomspace/persist/sql/multi-driver unit tests.
-# Same as the atomspace/persist/ipfs unit tests.
+# Same as the atomspace/persist/cog-storage unit tests.
+# (But with a different name to avoid CMake collisions)
 ADD_CXXTEST(SimpleBasicSaveUTest)
 ADD_CXXTEST(SimpleValueSaveUTest)
 ADD_CXXTEST(SimplePersistUTest)
@@ -18,7 +19,5 @@ ADD_CXXTEST(SimpleDeleteUTest)
 ADD_CXXTEST(SimpleMultiPersistUTest)
 ADD_CXXTEST(SimpleMultiUserUTest)
 
-# XXX FIXME Disable these two tests for now;
-# they take half an hour to run!
 ADD_CXXTEST(SimpleLargeFlatUTest)
 ADD_CXXTEST(SimpleLargeZipfUTest)
