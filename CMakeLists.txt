@@ -19,7 +19,7 @@ IF(CMAKE_VERSION VERSION_GREATER 3.0.2)
 	CMAKE_POLICY(SET CMP0037 OLD)
 ENDIF(CMAKE_VERSION VERSION_GREATER 3.0.2)
 
-PROJECT(cogserver)
+PROJECT(cogclient)
 
 # ----------------------------------------------------------
 # User-modifiable options. Feel free to change these!
@@ -239,7 +239,7 @@ FIND_PACKAGE(Doxygen)
 # ===================================================================
 # Show a summary of what we found, what we will do.
 
-SUMMARY_ADD("Atomspace-Cog" "CogServer client" HAVE_ATOMSPACE)
+SUMMARY_ADD("AtomSpace-Cog" "AtomSpace CogServer Network Client" HAVE_ATOMSPACE)
 SUMMARY_ADD("Doxygen" "Code documentation" DOXYGEN_FOUND)
 SUMMARY_ADD("Unit tests" "Unit tests" CXXTEST_FOUND)
 
