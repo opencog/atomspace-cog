@@ -26,9 +26,9 @@ cog-simple-stats cog-simple-load-atomspace)
 (set-procedure-property! cog-simple-close 'documentation
 "
  cog-simple-close - close the currently open CogServer backend.
-    Close open connections to the currently-open backend, after flushing
+    Close open connections to the currently-open CogServer, after flushing
     any pending writes in the write queues. After the close, atoms can
-    no longer be stored to or fetched from the database.
+    no longer be stored to or fetched from the CogServer.
 ")
 
 (set-procedure-property! cog-simple-open 'documentation
@@ -50,7 +50,7 @@ cog-simple-stats cog-simple-load-atomspace)
 (set-procedure-property! cog-simple-stats 'documentation
 "
  cog-simple-stats - report performance statistics.
-    This will cause some database performance statistics to be printed
-    to the stdout of the server. These statistics can be quite arcane
-    and are useful primarily to the developers of the server.
+    This will cause some performance statistics to be printed to stdout.
+    These statistics can be quite arcane and are useful primarily to
+    the developers of the server.
 ")
