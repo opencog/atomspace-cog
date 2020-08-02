@@ -78,31 +78,31 @@ void CogSimplePersistSCM::do_open(const std::string& uri)
 {
     if (_backing)
         throw RuntimeException(TRACE_INFO,
-             "cogserver-open: Error: Already connected to a database!");
+             "cog-simple-open: Error: Already connected to a database!");
 
     // Unconditionally use the current atomspace, until the next close.
-    AtomSpace *as = SchemeSmob::ss_get_env_as("cogserver-open");
+    AtomSpace *as = SchemeSmob::ss_get_env_as("cog-simple-open");
     if (nullptr != as) _as = as;
 
     if (nullptr == _as)
         throw RuntimeException(TRACE_INFO,
-             "cogserver-open: Error: Can't find the atomspace!");
+             "cog-simple-open: Error: Can't find the atomspace!");
 
     // Allow only one connection at a time.
     if (_as->isAttachedToBackingStore())
         throw RuntimeException(TRACE_INFO,
-             "cogserver-open: Error: Atomspace connected to another storage backend!");
+             "cog-simple-open: Error: Atomspace connected to another storage backend!");
     // Use the CogServer driver.
     CogSimpleStorage *store = new CogSimpleStorage(uri);
     if (!store)
         throw RuntimeException(TRACE_INFO,
-            "cogserver-open: Error: Unable to open the database");
+            "cog-simple-open: Error: Unable to open the database");
 
     if (!store->connected())
     {
         delete store;
         throw RuntimeException(TRACE_INFO,
-            "cogserver-open: Error: Unable to connect to the database");
+            "cog-simple-open: Error: Unable to connect to the database");
     }
 
     _backing = store;
@@ -113,7 +113,7 @@ void CogSimplePersistSCM::do_close(void)
 {
     if (nullptr == _backing)
         throw RuntimeException(TRACE_INFO,
-             "cogserver-close: Error: AtomSpace not connected to CogServer!");
+             "cog-simple-close: Error: AtomSpace not connected to CogServer!");
 
     CogSimpleStorage *backing = _backing;
     _backing = nullptr;
@@ -130,18 +130,18 @@ void CogSimplePersistSCM::do_close(void)
 void CogSimplePersistSCM::do_stats(void)
 {
     if (nullptr == _backing) {
-        printf("cogserver-stats: AtomSpace not connected to CogServer!\n");
+        printf("cog-simple-stats: AtomSpace not connected to CogServer!\n");
         return;
     }
 
-    printf("cogserver-stats: Atomspace holds %lu atoms\n", _as->get_size());
+    printf("cog-simple-stats: Atomspace holds %lu atoms\n", _as->get_size());
     _backing->print_stats();
 }
 
 void CogSimplePersistSCM::do_clear_stats(void)
 {
     if (nullptr == _backing) {
-        printf("cogserver-stats: AtomSpace not connected to CogServer!\n");
+        printf("cog-simple-stats: AtomSpace not connected to CogServer!\n");
         return;
     }
 
