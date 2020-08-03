@@ -181,7 +181,7 @@ void BasicSaveUTest::single_atom_save_restore(std::string id)
     CogSimpleStorage *store = new CogSimpleStorage(uri);
     if (!store->connected())
     {
-        logger().debug("single_atom_save_restore: cannot connect to db");
+        logger().debug("single_atom_save_restore: cannot connect to cogserver");
         return;
     }
 
