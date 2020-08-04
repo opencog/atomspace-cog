@@ -315,6 +315,7 @@ void LargeZipfUTest::test_atomspace(void)
 
 	/* Verify that the atoms can still be fetched from storage. */
 	fetch_space(_as);
+	_as->barrier();
 	check_space(_as, "verify-fetch");
 
 	/* Do it again, for good luck.  */
@@ -323,6 +324,7 @@ void LargeZipfUTest::test_atomspace(void)
 
 	/* Verify that the atoms can still be fetched from storage. */
 	fetch_space(_as);
+	_as->barrier();
 	check_space(_as, "ver-again");
 
 	/* Kill data for good */
