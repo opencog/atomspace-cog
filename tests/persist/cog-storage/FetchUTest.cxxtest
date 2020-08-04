@@ -62,6 +62,8 @@ class FetchUTest :  public CxxTest::TestSuite
 			delete main_loop;
 			delete srvr;
 
+			logger().flush();
+
 			// erase the log file if no assertions failed
 			if (!CxxTest::TestTracker::tracker().suiteFailed())
 				std::remove(logger().get_filename().c_str());

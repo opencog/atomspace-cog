@@ -92,6 +92,7 @@ LargeZipfUTest::~LargeZipfUTest()
 	srvr->disableNetworkServer();
 	delete main_loop;
 	delete srvr;
+	logger().flush();
 
 	// erase the log file if no assertions failed
 	if (!CxxTest::TestTracker::tracker().suiteFailed())
