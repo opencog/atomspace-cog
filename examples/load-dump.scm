@@ -31,7 +31,7 @@
 ; and leave the cogserver running. That way, you'll be familiar with
 ; what is being held there, and what the examples below will be fetching.
 ;
-; Lets get only those atoms that make use of `(Concept "a")`
+; Let's get only those atoms that make use of `(Concept "a")`
 (load-referers (Concept "a"))
 
 ; Print the atomspace contents, and look what we got.
@@ -52,7 +52,7 @@
 ; ---------------------------------
 ; Store Atoms to the remote server.
 ;
-; Lets create some more atoms, and the store everything.
+; Let's create some Atoms, and then store everything.
 (Concept "foo" (stv 0.1 0.2))
 (Concept "bar" (stv 0.3 0.4))
 (Set (List (Set (List (Concept "bazzzz" (stv 0.5 0.6))))))
