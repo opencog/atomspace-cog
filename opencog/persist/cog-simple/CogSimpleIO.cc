@@ -106,52 +106,34 @@ void CogSimpleStorage::removeAtom(const Handle& h, bool recursive)
 	do_recv();
 }
 
-Handle CogSimpleStorage::getNode(Type t, const char * str)
+void CogSimpleStorage::getAtom(const Handle& h)
 {
-	std::string typena = nameserver().getTypeName(t) + " \"" + str + "\"";
+	std::string typena = nameserver().getTypeName(h->get_type()) + " ";
+	std::string iknow;
+	if (h->is_node())
+	{
+		typena += "\"" + h->get_name() + "\"";
+		iknow = "(cog-node '" + typena + ")\n";
+	}
+	else
+	{
+		for (const Handle& ho: h->getOutgoingSet())
+			typena += Sexpr::encode_atom(ho);
+		iknow = "(cog-link '" + typena + ")\n";
+	}
 
 	// Does the cogserver even know about this atom?
 	std::lock_guard<std::mutex> lck(_mtx);
-	do_send("(cog-node '" + typena + ")\n");
+	do_send(iknow);
 	std::string msg = do_recv();
-	if (0 == msg.compare(0, 2, "()"))
-		return Handle();
+	if (0 == msg.compare(0, 2, "()")) return;
 
 	// Yes, the cogserver knows about this atom
-	Handle h = createNode(t, str);
-
 	// Get all of the keys.
 	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
 	do_send(get_keys);
 	msg = do_recv();
 	Sexpr::decode_alist(h, msg);
-
-	return h;
-}
-
-Handle CogSimpleStorage::getLink(Type t, const HandleSeq& hs)
-{
-	std::string typena = nameserver().getTypeName(t) + " ";
-	for (const Handle& ho: hs)
-		typena += Sexpr::encode_atom(ho);
-
-	// Does the cogserver even know about this atom?
-	std::lock_guard<std::mutex> lck(_mtx);
-	do_send("(cog-link '" + typena + ")\n");
-	std::string msg = do_recv();
-	if (0 == msg.compare(0, 2, "()"))
-		return Handle();
-
-	// Yes, the cogserver knows about this atom
-	Handle h = createLink(hs, t);
-
-	// Get all of the keys.
-	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
-	do_send(get_keys);
-	msg = do_recv();
-	Sexpr::decode_alist(h, msg);
-
-	return h;
 }
 
 void CogSimpleStorage::decode_atom_list(AtomTable& table)

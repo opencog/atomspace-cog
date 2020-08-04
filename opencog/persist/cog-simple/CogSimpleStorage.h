@@ -66,8 +66,7 @@ class CogSimpleStorage : public BackingStore
 		void unregisterWith(AtomSpace*);
 
 		// AtomStorage interface
-		Handle getNode(Type, const char *);
-		Handle getLink(Type, const HandleSeq&);
+		void getAtom(const Handle&);
 		void getIncomingSet(AtomTable&, const Handle&);
 		void getIncomingByType(AtomTable&, const Handle&, Type t);
 		void storeAtom(const Handle&, bool synchronous = false);
