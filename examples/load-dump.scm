@@ -3,8 +3,8 @@
 ;
 ; Demo showing how to load, or dump, large segments of the AtomSpace,
 ; including the ENTIRE AtomSpace. Caution: for large AtomSpaces, loading
-; everything is painfully slow, and probably not needed. Thus, one can
-; load portions:
+; everything can be slow, and is generally not needed. Thus, one can
+; load portions of the AtomSpace:
 ;
 ; load-referers ATOM -- to load only those graphs containing ATOM
 ; load-atoms-of-type TYPE -- to load only atoms of type TYPE
