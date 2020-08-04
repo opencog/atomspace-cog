@@ -45,9 +45,9 @@ class LargeZipfUTest :  public CxxTest::TestSuite
 		CogServer* srvr = NULL;
 		std::thread * main_loop = NULL;
 
-#define NWORDS 5000
+#define NWORDS 35000
 		Handle hword[NWORDS];
-#define NPAIRS 45000
+#define NPAIRS 257000
 		Handle hpair[NPAIRS];
 		int npairs; // actual number of pairs created.
 
