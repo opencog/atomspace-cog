@@ -60,7 +60,7 @@ granular load and store is possible; see the
 
 Status
 ------
-This is **Version 0.8.1**. All eighteen (nine+nine) unit tests
+This is **Version 0.8.2**. All eighteen (nine+nine) unit tests
 consistently pass.  Performance looks good. Two of the unit tests
 take about 20 seconds each to run; two more take a few minutes.
 This is intentional, they are pounding the server with large datasets.
