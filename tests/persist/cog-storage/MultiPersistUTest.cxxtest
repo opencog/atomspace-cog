@@ -432,6 +432,7 @@ void MultiPersistUTest::test_atomspace(void)
    for (off=0; off<n_threads; off++)
         for (i=0; i<NATS; i++) {
             fetch_space(NHACK*off+i, _as);
+            _as->barrier();
             check_space(NHACK*off+i, _as, "verify-fetch-idx=" + std::to_string(i));
         }
 
@@ -443,6 +444,7 @@ void MultiPersistUTest::test_atomspace(void)
     for (off=0; off<n_threads; off++)
         for (i=0; i<NATS; i++) {
             fetch_space(NHACK*off+i, _as);
+            _as->barrier();
             check_space(NHACK*off+i, _as, "verify-again");
         }
 
