@@ -19,12 +19,13 @@ Here, AtomSpace A can load/store Atoms (and Values) to the CogServer,
 as can AtomSpace B, and so these two can share AtomSpace contents
 however desired.
 
-This provides a simple, unsophisticated backend for AtomSpace storage
-via the CogServer. At this time, it is ... not optimized for speed,
-and is super-simplistic.  It is meant as a proof-of-concept for
-a scalable distributed network of AtomSpaces; one possible design being
-explored is the
-[AtomSpace OpenDHT backend](https://github.com/opencog/atomspace-dht).
+This provides a simple, straight-forward backend for networking
+together multiple AtomSpaces so that they can share data. This
+backend, together with the file-based (RocksDB-based) backend
+at [atomspace-rocks](https://github.com/opencog/atomspace-rocks)
+is meant to provide a building-block out of which more complex
+distributed and/or decentralized AtomSpaces can be built.
+
 
 Example Usage
 -------------
