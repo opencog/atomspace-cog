@@ -69,6 +69,7 @@ class LargeFlatUTest :  public CxxTest::TestSuite
 
 		void setUp(void);
 		void tearDown(void);
+		void kill_data(void);
 
 		int filler_up(AtomSpace *);
 		void add_to_space(int, AtomSpace *, std::string id);
@@ -119,6 +120,25 @@ void LargeFlatUTest::setUp(void)
 void LargeFlatUTest::tearDown(void)
 {
 	delete _as;
+	kill_data();
+}
+
+// ============================================================
+
+void LargeFlatUTest::kill_data(void)
+{
+	CogSimpleStorage *astore = new CogSimpleStorage("cog://localhost:16008");
+	if (!astore->connected())
+	{
+		logger().info("setUp: CogSimpleStorage cannot connect to server");
+		exit(1);
+	}
+
+	// Trash the contents of the database.
+	astore->kill_data();
+
+	// Destructor also logs out
+	delete astore;
 }
 
 // ============================================================
