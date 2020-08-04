@@ -58,6 +58,7 @@ class LargeZipfUTest :  public CxxTest::TestSuite
 
 		void setUp(void);
 		void tearDown(void);
+		void kill_data(void);
 
 		int filler_up(AtomSpace *);
 		void fetch_space(AtomSpace *);
@@ -73,7 +74,6 @@ LargeZipfUTest:: LargeZipfUTest(void)
 	// logger().set_level(Logger::DEBUG);
 	logger().set_level(Logger::INFO);
 	logger().set_print_to_stdout_flag(true);
-
 
 	// Create a single cogserver node that will act as
 	// as the repo for the duration of the test.
@@ -108,6 +108,25 @@ void LargeZipfUTest::setUp(void)
 void LargeZipfUTest::tearDown(void)
 {
 	delete _as;
+	kill_data();
+}
+
+// ============================================================
+
+void LargeZipfUTest::kill_data(void)
+{
+	CogStorage *astore = new CogStorage("cog://localhost:16009");
+	if (!astore->connected())
+	{
+		logger().info("setUp: CogStorage cannot connect to server");
+		exit(1);
+	}
+
+	// Trash the contents of the database.
+	astore->kill_data();
+
+	// Destructor also logs out
+	delete astore;
 }
 
 // ============================================================
