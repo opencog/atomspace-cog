@@ -202,7 +202,9 @@ void BasicSaveUTest::single_atom_save_restore(std::string id)
 
     // Fetch it back ...
     std::string nam = id + "someNode";
-    Handle b = store->getNode(SCHEMA_NODE, nam.c_str());
+    Handle b = createNode(SCHEMA_NODE, nam.c_str());
+    store->getAtom(b);
+    store->barrier();
     printf("Done fetching single node\n");
 
     // Are they equal ??
@@ -222,7 +224,9 @@ void BasicSaveUTest::single_atom_save_restore(std::string id)
     store->barrier();
     printf("Done storing single link\n");
 
-    Handle hl = store->getLink(LIST_LINK, hvec);
+    Handle hl = createLink(LIST_LINK, a->get_handle(), a2->get_handle());
+    store->getAtom(hl);
+    store->barrier();
     atomCompare(l, hl, "Single link save-restore");
     printf("Done fetching single link\n");
 
@@ -348,10 +352,14 @@ void BasicSaveUTest::test_fresh_atom(void)
     store->barrier();
 
     // Now get them back.  Get empty after full.
-    Handle hf(store->getLink(LIST_LINK, {ha, hb}));
+    Handle hf(createLink(LIST_LINK, ha, hb));
+    store->getAtom(hf);
+    store->barrier();
     atomCompare(lf, hf, "Fully Fresh");
 
-    Handle he(store->getLink(LIST_LINK, HandleSeq()));
+    Handle he(createLink(LIST_LINK));
+    store->getAtom(he);
+    store->barrier();
 
     printf("Expecting %s\n", le->to_string().c_str());
 

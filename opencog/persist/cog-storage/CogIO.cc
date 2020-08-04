@@ -101,51 +101,34 @@ void CogStorage::is_ok(const std::string& reply, Pkt& pkt)
 		pkt.table = (AtomTable *) -1;
 }
 
-Handle CogStorage::getNode(Type t, const char * str)
+void CogStorage::getAtom(const Handle& h)
 {
-	std::string typena = nameserver().getTypeName(t) + " \"" + str + "\"";
+	std::string typena = nameserver().getTypeName(h->get_type()) + " ";
+	std::string iknow;
+	if (h->is_node())
+	{
+		typena += "\"" + h->get_name() + "\"";
+		iknow = "(cog-node '" + typena + ")\n";
+	}
+	else
+	{
+		for (const Handle& ho: h->getOutgoingSet())
+			typena += Sexpr::encode_atom(ho);
+		iknow = "(cog-link '" + typena + ")\n";
+	}
 
 	// Does the cogserver even know about this atom?
 	Pkt pkt;
-	_io_queue.synchro(this,"(cog-node '" + typena + ")\n",
-	                  pkt, &CogStorage::is_ok);
-	if (nullptr == pkt.table)
-		return Handle::UNDEFINED;
+	_io_queue.synchro(this, iknow, pkt, &CogStorage::is_ok);
+	if (nullptr == pkt.table) return;
 
 	// Yes, the cogserver knows about this atom
-	Handle h = createNode(t, str);
-
 	// Get all of the keys.
 	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
 
 	Pkt pkta{nullptr, h, Handle::UNDEFINED};
-	_io_queue.synchro(this, get_keys, pkta, &CogStorage::decode_kvp_list);
-
-	return h;
-}
-
-Handle CogStorage::getLink(Type t, const HandleSeq& hs)
-{
-	std::string typena = nameserver().getTypeName(t) + " ";
-	for (const Handle& ho: hs)
-		typena += Sexpr::encode_atom(ho);
-
-	// Does the cogserver even know about this atom?
-	Pkt pkt;
-	_io_queue.synchro(this,"(cog-link '" + typena + ")\n",
-	                  pkt, &CogStorage::is_ok);
-	if (nullptr == pkt.table)
-		return Handle::UNDEFINED;
-
-	// Yes, the cogserver knows about this atom
-	Handle h = createLink(hs, t);
-
-	// Get all of the keys.
-	std::string get_keys = "(cog-keys->alist (" + typena + "))\n";
-	Pkt pkta{nullptr, h, Handle::UNDEFINED};
-	_io_queue.synchro(this, get_keys, pkta, &CogStorage::decode_kvp_list);
-
-	return h;
+	// _io_queue.synchro(this, get_keys, pkta, &CogStorage::decode_kvp_list);
+	_io_queue.enqueue(this, get_keys, pkta, &CogStorage::decode_kvp_list_const);
 }
 
 void CogStorage::decode_atom_list(const std::string& expr, const Pkt& pkt)
