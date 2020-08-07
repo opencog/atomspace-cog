@@ -1,5 +1,5 @@
 /*
- * tests/persist/cog-simple/SimpleQueryPersistUTest.cxxtest
+ * tests/persist/cog-storage/QueryPersistUTest.cxxtest
  *
  * Test persistance queries.  Assumes PerisistUTest and ValueSaveUTest
  * are passing.
@@ -32,7 +32,7 @@
 #include <opencog/atomspace/AtomSpace.h>
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
 #include <opencog/atoms/value/LinkValue.h>
-#include <opencog/persist/cog-simple/CogSimpleStorage.h>
+#include <opencog/persist/cog-storage/CogStorage.h>
 #include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
@@ -109,7 +109,7 @@ void QueryPersistUTest::tearDown(void)
 
 void QueryPersistUTest::kill_data(void)
 {
-	CogSimpleStorage *astore = new CogSimpleStorage(uri);
+	CogStorage *astore = new CogStorage(uri);
 	TS_ASSERT(astore->connected())
 
 	// Trash the contents of the database.
@@ -131,7 +131,7 @@ void QueryPersistUTest::setup_data(void)
 
 	_as = new AtomSpace();
 
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
+	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 
@@ -182,7 +182,7 @@ void QueryPersistUTest::test_meet(void)
 
 	_as = new AtomSpace();
 
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
+	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 
@@ -246,7 +246,7 @@ void QueryPersistUTest::test_join(void)
 
 	_as = new AtomSpace();
 
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
+	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 
