@@ -18,6 +18,7 @@ TARGET_LINK_LIBRARIES(SimpleFetchUTest execution)
 ADD_CXXTEST(SimpleDeleteUTest)
 ADD_CXXTEST(SimpleMultiPersistUTest)
 ADD_CXXTEST(SimpleMultiUserUTest)
+ADD_CXXTEST(SimpleQueryPersistUTest)
 
 ADD_CXXTEST(SimpleLargeFlatUTest)
 ADD_CXXTEST(SimpleLargeZipfUTest)
