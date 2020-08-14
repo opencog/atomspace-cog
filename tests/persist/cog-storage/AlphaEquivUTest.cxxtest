@@ -113,7 +113,7 @@ void AlphaEquivUTest::kill_data(void)
 	CogStorage *astore = new CogStorage(uri);
 	if (!astore->connected())
 	{
-		logger().info("setUp: RocksStorage cannot connect to database");
+		logger().info("setUp: CogStorage cannot connect to server.");
 		exit(1);
 	}
 
