@@ -1,5 +1,5 @@
 /*
- * tests/persist/cog-simple/SimpleAlphaEquivUTest.cxxtest
+ * tests/persist/cog-storage/AlphaEquivUTest.cxxtest
  *
  * Test alpha-equivalence.  Assumes PerisistUTest and ValueSaveUTest
  * are passing.
@@ -32,7 +32,7 @@
 #include <opencog/atomspace/AtomSpace.h>
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
 #include <opencog/atoms/value/FloatValue.h>
-#include <opencog/persist/cog-simple/CogSimpleStorage.h>
+#include <opencog/persist/cog-storage/CogStorage.h>
 #include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
@@ -110,7 +110,7 @@ void AlphaEquivUTest::tearDown(void)
 
 void AlphaEquivUTest::kill_data(void)
 {
-	CogSimpleStorage *astore = new CogSimpleStorage(uri);
+	CogStorage *astore = new CogStorage(uri);
 	if (!astore->connected())
 	{
 		logger().info("setUp: RocksStorage cannot connect to database");
@@ -137,7 +137,7 @@ void AlphaEquivUTest::setup_data(void)
 
 	_as = new AtomSpace();
 
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
+	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 
@@ -166,7 +166,7 @@ void AlphaEquivUTest::test_fetch(void)
 	setup_data();
 
 	_as = new AtomSpace();
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
+	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 
@@ -210,7 +210,7 @@ void AlphaEquivUTest::test_remove(void)
 	setup_data();
 
 	_as = new AtomSpace();
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
+	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 
@@ -250,7 +250,7 @@ void AlphaEquivUTest::test_recursive_remove(void)
 	setup_data();
 
 	_as = new AtomSpace();
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
+	CogStorage *store = new CogStorage(uri);
 	TS_ASSERT(store->connected())
 	store->registerWith(_as);
 
