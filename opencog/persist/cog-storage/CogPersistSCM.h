@@ -43,7 +43,7 @@ private:
 	static void init_in_module(void*);
 	void init(void);
 
-	CogStorage *_backing;
+	CogStorageNodePtr _storage;
 	AtomSpace *_as;
 
 public:
