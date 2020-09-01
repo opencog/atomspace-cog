@@ -412,6 +412,7 @@ void BasicSaveUTest::test_table()
 
     // Reopen connection, and load the atom table.
     store = new CogStorage(uri);
+    store->open();
     TSM_ASSERT("Not connected to database", store->connected());
 
     AtomSpace *as2 = new AtomSpace();
