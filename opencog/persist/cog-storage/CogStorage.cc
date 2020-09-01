@@ -82,14 +82,12 @@ void CogStorage::barrier()
 
 void CogStorage::registerWith(AtomSpace* as)
 {
-	BackingStore::registerWith(as);
 }
 
 void CogStorage::unregisterWith(AtomSpace* as)
 {
 	_io_queue.barrier();
 	_io_queue.close_connection();
-	BackingStore::unregisterWith(as);
 }
 
 /* ================================================================ */

@@ -234,7 +234,6 @@ void CogSimpleStorage::barrier()
 
 void CogSimpleStorage::registerWith(AtomSpace* as)
 {
-	BackingStore::registerWith(as);
 }
 
 void CogSimpleStorage::unregisterWith(AtomSpace* as)
@@ -242,8 +241,6 @@ void CogSimpleStorage::unregisterWith(AtomSpace* as)
 	if (connected())
 		close(_sockfd);
 	_sockfd = -1;
-
-	BackingStore::unregisterWith(as);
 }
 
 /* ================================================================ */

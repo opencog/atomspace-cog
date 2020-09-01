@@ -31,7 +31,7 @@
 #define _SIMPLE_COG_STORAGE_H
 
 #include <opencog/atomspace/AtomTable.h>
-#include <opencog/atomspace/BackingStore.h>
+#include <opencog/persist/api/BackingStore.h>
 
 namespace opencog
 {
