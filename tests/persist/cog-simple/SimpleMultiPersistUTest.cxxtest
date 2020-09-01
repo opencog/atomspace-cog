@@ -455,7 +455,7 @@ void MultiPersistUTest::test_atomspace(void)
     /* Verify that the atoms can still be fetched from storage. */
     for (off=0; off<n_threads; off++)
         for (i=0; i<NATS; i++) {
-            fetch_space(NHACK*off+i, barrier);
+            fetch_space(NHACK*off+i, store);
             check_space(NHACK*off+i, _as, "verify-again");
         }
 
