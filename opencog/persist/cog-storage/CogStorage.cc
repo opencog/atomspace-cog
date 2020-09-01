@@ -105,4 +105,6 @@ void CogStorage::print_stats(void)
 	printf("%s", _io_queue.print_stats().c_str());
 }
 
+DEFINE_NODE_FACTORY(CogStorageNode, COG_STORAGE_NODE)
+
 /* ============================= END OF FILE ================= */

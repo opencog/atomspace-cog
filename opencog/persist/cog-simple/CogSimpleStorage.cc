@@ -259,4 +259,6 @@ void CogSimpleStorage::print_stats(void)
 	printf("no stats yet\n");
 }
 
+DEFINE_NODE_FACTORY(CogSimpleStorageNode, COG_SIMPLE_STORAGE_NODE)
+
 /* ============================= END OF FILE ================= */
