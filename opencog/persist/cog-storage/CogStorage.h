@@ -31,7 +31,7 @@
 #define _OPENCOG_COG_STORAGE_H
 
 #include <opencog/atomspace/AtomTable.h>
-#include <opencog/persist/api/BackingStore.h>
+#include <opencog/persist/api/StorageNode.h>
 #include <opencog/persist/cog-storage/CogChannel.h>
 
 namespace opencog
@@ -40,7 +40,7 @@ namespace opencog
  *  @{
  */
 
-class CogStorage : public BackingStore
+class CogStorage : public StorageNode
 {
 	private:
 		void init(const char *);
@@ -69,12 +69,16 @@ class CogStorage : public BackingStore
 		CogStorage(const CogStorage&) = delete; // disable copying
 		CogStorage& operator=(const CogStorage&) = delete; // disable assignment
 		virtual ~CogStorage();
+
+		void open(void);
+		void close(void);
 		bool connected(void); // connection to DB is alive
 
-		void kill_data(void); // destroy DB contents
+		void create(void) {}
+		void destroy(void) { kill_data(); }
+		void erase(void) { kill_data(); }
 
-		void registerWith(AtomSpace*);
-		void unregisterWith(AtomSpace*);
+		void kill_data(void); // destroy DB contents
 
 		// AtomStorage interface
 		void getAtom(const Handle&);
@@ -95,6 +99,25 @@ class CogStorage : public BackingStore
 		void print_stats(void);
 		void clear_stats(void); // reset stats counters.
 };
+
+class CogStorageNode : public CogStorage
+{
+	public:
+		CogStorageNode(Type t, const std::string&& uri) :
+			CogStorage(std::move(uri))
+		{}
+		CogStorageNode(const std::string&& uri) :
+			CogStorage(std::move(uri))
+		{}
+		static Handle factory(const Handle&);
+};
+
+typedef std::shared_ptr<CogStorageNode> CogStorageNodePtr;
+static inline CogStorageNodePtr CogStorageNodeCast(const Handle& h)
+	{ return std::dynamic_pointer_cast<CogStorageNode>(h); }
+
+#define createCogStorageNode std::make_shared<CogStorageNode>
+
 
 /** @}*/
 } // namespace opencog

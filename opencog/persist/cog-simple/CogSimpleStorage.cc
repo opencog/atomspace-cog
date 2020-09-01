@@ -32,6 +32,9 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 #include <errno.h>
+#include <unistd.h>
+
+static int unistd_close(int fd) { return close(fd); }
 
 #include "CogSimpleStorage.h"
 
@@ -49,13 +52,32 @@ void CogSimpleStorage::init(const char * uri)
 #define URIX_LEN (sizeof("cog://") - 1)  // Should be 6
 	if (strncmp(uri, "cog://", URIX_LEN))
 		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri);
+	_uri = uri;
+}
+
+CogSimpleStorage::CogSimpleStorage(std::string uri) :
+	StorageNode(COG_SIMPLE_STORAGE_NODE, std::move(uri)),
+	_sockfd(-1)
+{
+	init(_name.c_str());
+}
+
+CogSimpleStorage::~CogSimpleStorage()
+{
+	close();
+}
+
+void CogSimpleStorage::open(void)
+{
+	if (connected()) return;
 
 	std::lock_guard<std::mutex> lck(_mtx);
-	_uri = uri;
 
 	// We expect the URI to be for the form
 	//    cog://ipv4-addr/atomspace-name
 	//    cog://ipv4-addr:port/atomspace-name
+
+	const char* uri = _uri.c_str();
 
 	std::string host(uri + URIX_LEN);
 	size_t slash = host.find_first_of(":/");
@@ -144,21 +166,16 @@ void CogSimpleStorage::init(const char * uri)
 #endif
 }
 
-CogSimpleStorage::CogSimpleStorage(std::string uri)
-	: _sockfd(-1)
-{
-	init(uri.c_str());
-}
-
-CogSimpleStorage::~CogSimpleStorage()
-{
-	if (connected())
-		close(_sockfd);
-}
-
 bool CogSimpleStorage::connected(void)
 {
 	return 0 < _sockfd;
+}
+
+void CogSimpleStorage::close(void)
+{
+	if (connected())
+		unistd_close(_sockfd);
+	_sockfd = -1;
 }
 
 /* ================================================================== */
@@ -195,7 +212,7 @@ std::string CogSimpleStorage::do_recv()
 				strerror(errno));
 		if (0 == len)
 		{
-			close(_sockfd);
+			unistd_close(_sockfd);
 			_sockfd = 0;
 			throw IOException(TRACE_INFO, "Cogserver unexpectedly closed connection");
 		}
@@ -228,19 +245,6 @@ std::string CogSimpleStorage::do_recv()
 ///
 void CogSimpleStorage::barrier()
 {
-}
-
-/* ================================================================ */
-
-void CogSimpleStorage::registerWith(AtomSpace* as)
-{
-}
-
-void CogSimpleStorage::unregisterWith(AtomSpace* as)
-{
-	if (connected())
-		close(_sockfd);
-	_sockfd = -1;
 }
 
 /* ================================================================ */
