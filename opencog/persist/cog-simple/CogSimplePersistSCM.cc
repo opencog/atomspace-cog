@@ -26,7 +26,8 @@
 #include <libguile.h>
 
 #include <opencog/atomspace/AtomSpace.h>
-#include <opencog/atomspace/BackingStore.h>
+#include <opencog/persist/api/PersistSCM.h>
+#include <opencog/persist/api/StorageNode.h>
 #include <opencog/guile/SchemePrimitive.h>
 
 #include "CogSimpleStorage.h"
@@ -40,7 +41,6 @@ using namespace opencog;
 CogSimplePersistSCM::CogSimplePersistSCM(AtomSpace *as)
 {
     _as = as;
-    _backing = nullptr;
 
     static bool is_init = false;
     if (is_init) return;
@@ -71,12 +71,12 @@ void CogSimplePersistSCM::init(void)
 
 CogSimplePersistSCM::~CogSimplePersistSCM()
 {
-    if (_backing) delete _backing;
+    _storage = nullptr;
 }
 
 void CogSimplePersistSCM::do_open(const std::string& uri)
 {
-    if (_backing)
+    if (_storage)
         throw RuntimeException(TRACE_INFO,
              "cog-simple-open: Error: Already connected to a database!");
 
@@ -88,64 +88,64 @@ void CogSimplePersistSCM::do_open(const std::string& uri)
         throw RuntimeException(TRACE_INFO,
              "cog-simple-open: Error: Can't find the atomspace!");
 
-    // Allow only one connection at a time.
-    if (_as->isAttachedToBackingStore())
+    // Adding the CogSimpleStorageNode to the atomspace will fail on
+    // read-only atomspaces.
+    if (_as->get_read_only())
         throw RuntimeException(TRACE_INFO,
-             "cog-simple-open: Error: Atomspace connected to another storage backend!");
-    // Use the CogServer driver.
-    CogSimpleStorage *store = new CogSimpleStorage(uri);
-    if (!store)
-        throw RuntimeException(TRACE_INFO,
-            "cog-simple-open: Error: Unable to open the database");
+             "cog-simple-open: Error: AtomSpace is read-only!");
 
-    if (!store->connected())
+    // Use the CogServer driver.
+    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+    _storage = CogSimpleStorageNodeCast(hsn);
+    _storage->open();
+
+    if (!_storage->connected())
     {
-        delete store;
+        _as->extract_atom(hsn);
+        _storage = nullptr;
         throw RuntimeException(TRACE_INFO,
             "cog-simple-open: Error: Unable to connect to the database");
     }
 
-    _backing = store;
-    _backing->registerWith(_as);
+    PersistSCM::set_connection(_storage);
 }
 
 void CogSimplePersistSCM::do_close(void)
 {
-    if (nullptr == _backing)
+    if (nullptr == _storage)
         throw RuntimeException(TRACE_INFO,
              "cog-simple-close: Error: AtomSpace not connected to CogServer!");
-
-    CogSimpleStorage *backing = _backing;
-    _backing = nullptr;
 
     // The destructor might run for a while before its done; it will
     // be emptying the pending store queues, which might take a while.
     // So unhook the atomspace first -- this will prevent new writes
     // from accidentally being queued. (It will also drain the queues)
     // Only then actually call the dtor.
-    backing->unregisterWith(_as);
-    delete backing;
+    _storage->close();
+    _as->extract_atom(HandleCast(_storage));
+    PersistSCM::set_connection(nullptr);
+    _storage = nullptr;
 }
 
 void CogSimplePersistSCM::do_stats(void)
 {
-    if (nullptr == _backing) {
+    if (nullptr == _storage) {
         printf("cog-simple-stats: AtomSpace not connected to CogServer!\n");
         return;
     }
 
     printf("cog-simple-stats: Atomspace holds %lu atoms\n", _as->get_size());
-    _backing->print_stats();
+    _storage->print_stats();
 }
 
 void CogSimplePersistSCM::do_clear_stats(void)
 {
-    if (nullptr == _backing) {
+    if (nullptr == _storage) {
         printf("cog-simple-stats: AtomSpace not connected to CogServer!\n");
         return;
     }
 
-    _backing->clear_stats();
+    _storage->clear_stats();
 }
 
 void opencog_persist_cog_simple_init(void)

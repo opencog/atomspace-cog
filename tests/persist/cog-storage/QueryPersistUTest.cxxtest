@@ -110,6 +110,7 @@ void QueryPersistUTest::tearDown(void)
 void QueryPersistUTest::kill_data(void)
 {
 	CogStorage *astore = new CogStorage(uri);
+	astore->open();
 	TS_ASSERT(astore->connected())
 
 	// Trash the contents of the database.
@@ -130,10 +131,10 @@ void QueryPersistUTest::setup_data(void)
 	kill_data();
 
 	_as = new AtomSpace();
-
-	CogStorage *store = new CogStorage(uri);
+	Handle hsn = _as->add_node(COG_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
 	TS_ASSERT(store->connected())
-	store->registerWith(_as);
 
 	/* Populate the Storage with stuff that we will later query. */
 	al(EVALUATION_LINK, an(PREDICATE_NODE, "is-a"),
@@ -166,11 +167,9 @@ void QueryPersistUTest::setup_data(void)
 		setTruthValue(SimpleTruthValue::createTV(0.33, 300));
 
 	/* Push all atoms out to the server */
-	_as->store_atomspace();
-	_as->barrier();
+	store->store_atomspace();
+	store->barrier();
 
-	store->unregisterWith(_as);
-	delete store;
 	delete _as;
 }
 
@@ -181,10 +180,10 @@ void QueryPersistUTest::test_meet(void)
 	setup_data();
 
 	_as = new AtomSpace();
-
-	CogStorage *store = new CogStorage(uri);
+	Handle hsn = _as->add_node(COG_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
 	TS_ASSERT(store->connected())
-	store->registerWith(_as);
 
 	// Create a query to find all things that have wheels.
 	// We expect cars and bicycles, only.
@@ -199,8 +198,8 @@ void QueryPersistUTest::test_meet(void)
 	Handle key = an(PREDICATE_NODE, "qkey");
 
 	// Run the query
-	_as->fetch_query(qry, key);
-	_as->barrier();
+	store->fetch_query(qry, key);
+	store->barrier();
 
 	// Verify that only bicycles and cars were fetched
 	ValuePtr results = qry->getValue(key);
@@ -220,13 +219,13 @@ void QueryPersistUTest::test_meet(void)
 
 	// Test key deletion.  Lack of a crash is a good thing.
 	qry->setValue(key, nullptr);
-	_as->store_value(qry, key);
+	store->store_value(qry, key);
 	ValuePtr nada = qry->getValue(key);
 	TS_ASSERT(nullptr == nada);
 
 	// Should get back the same results.
-	_as->fetch_query(qry, key);
-	_as->barrier();
+	store->fetch_query(qry, key);
+	store->barrier();
 	ValuePtr rtoo = qry->getValue(key);
 	printf("Re-got: %s\n", rtoo->to_string().c_str());
 
@@ -234,8 +233,6 @@ void QueryPersistUTest::test_meet(void)
 	HandleSet htoo = lvp->to_handle_set();
 	TSM_ASSERT("Expect same results as before", hset == htoo);
 
-	store->unregisterWith(_as);
-	delete store;
 	delete _as;
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -247,10 +244,10 @@ void QueryPersistUTest::test_join(void)
 	setup_data();
 
 	_as = new AtomSpace();
-
-	CogStorage *store = new CogStorage(uri);
+	Handle hsn = _as->add_node(COG_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
 	TS_ASSERT(store->connected())
-	store->registerWith(_as);
 
 	// Create a join to find all vehicles.
 	Handle join =
@@ -260,8 +257,8 @@ void QueryPersistUTest::test_join(void)
 	Handle key = an(PREDICATE_NODE, "qkey");
 
 	// Run the join
-	_as->fetch_query(join, key);
-	_as->barrier();
+	store->fetch_query(join, key);
+	store->barrier();
 
 	// Verify that vehicles were fetched
 	ValuePtr results = join->getValue(key);
@@ -287,8 +284,6 @@ void QueryPersistUTest::test_join(void)
 
 	TSM_ASSERT_EQUALS("Expecting airplane, bicycle and car", hset, expect);
 
-	store->unregisterWith(_as);
-	delete store;
 	delete _as;
 	logger().info("END TEST: %s", __FUNCTION__);
 }

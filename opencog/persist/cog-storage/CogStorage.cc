@@ -52,19 +52,34 @@ void CogStorage::init(const char * uri)
 	_uri = uri;
 }
 
-CogStorage::CogStorage(std::string uri)
+CogStorage::CogStorage(std::string uri) :
+	StorageNode(COG_STORAGE_NODE, std::move(uri))
 {
-	init(uri.c_str());
-	_io_queue.open_connection(uri);
+	init(_name.c_str());
 }
 
 CogStorage::~CogStorage()
 {
+	close();
+}
+
+void CogStorage::open(void)
+{
+	if (connected()) return;
+	_io_queue.open_connection(_uri.c_str());
 }
 
 bool CogStorage::connected(void)
 {
 	return _io_queue.connected();
+}
+
+void CogStorage::close(void)
+{
+	if (not connected()) return;
+
+	_io_queue.barrier();
+	_io_queue.close_connection();
 }
 
 /* ================================================================== */
@@ -80,20 +95,6 @@ void CogStorage::barrier()
 
 /* ================================================================ */
 
-void CogStorage::registerWith(AtomSpace* as)
-{
-	BackingStore::registerWith(as);
-}
-
-void CogStorage::unregisterWith(AtomSpace* as)
-{
-	_io_queue.barrier();
-	_io_queue.close_connection();
-	BackingStore::unregisterWith(as);
-}
-
-/* ================================================================ */
-
 void CogStorage::clear_stats(void)
 {
 	_io_queue.clear_stats();
@@ -103,5 +104,7 @@ void CogStorage::print_stats(void)
 {
 	printf("%s", _io_queue.print_stats().c_str());
 }
+
+DEFINE_NODE_FACTORY(CogStorageNode, COG_STORAGE_NODE)
 
 /* ============================= END OF FILE ================= */
