@@ -250,6 +250,7 @@ void PersistUTest::fetch_space(int idx, StorageNodePtr space)
     AtomPtr alb3 = createLink(hv3, hl3[idx]->get_type());
     Handle hlb3(alb3->get_handle());
     space->fetch_atom(hlb3);
+    space->barrier();
 }
 
 void PersistUTest::check_space(int idx, AtomSpace *space, std::string dbgmsg)
@@ -351,6 +352,7 @@ void PersistUTest::test_atomspace(void)
     hsn = _as->add_node(COG_STORAGE_NODE, "cog://localhost:16003");
     store = StorageNodeCast(hsn);
     store->open();
+    TS_ASSERT(store->connected())
 
     /* Verify that the atoms can still be fetched from storage. */
     for (i=0; i<idx; i++) {
@@ -366,6 +368,7 @@ void PersistUTest::test_atomspace(void)
     hsn = _as->add_node(COG_STORAGE_NODE, "cog://localhost:16003");
     store = StorageNodeCast(hsn);
     store->open();
+    TS_ASSERT(store->connected())
 
     /* Verify that the atoms can still be fetched from storage. */
     for (i=0; i<idx; i++) {
