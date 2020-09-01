@@ -221,27 +221,26 @@ void SimpleValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 	TS_ASSERT(*pap == *fap);
 
 	delete as;
-	delete store;
 }
 
 void SimpleValueSaveUTest::test_save_restore(bool fkey)
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
-	TS_ASSERT(store->connected())
-
 	AtomSpace* as = new AtomSpace();
-	store->registerWith(as);
+	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
+	TS_ASSERT(store->connected())
 
 	Handle key = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle atom = as->add_node(CONCEPT_NODE, "some node");
 
 	// Store the key and the atom, so as to avoid any UUID
 	// confusions.
-	as->store_atom(key);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(key);
+	store->store_atom(atom);
+	store->barrier();
 
 	// --------------------
 	// Now set some values
@@ -270,7 +269,6 @@ void SimpleValueSaveUTest::test_save_restore(bool fkey)
 	check_one(pvl2, fkey);
 
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -335,33 +333,32 @@ void SimpleValueSaveUTest::test_load_by_type()
 
 	// --------------------
 	// Save, and close things down.
-	as->store_atom(af);
-	as->store_atom(at);
-	as->store_atom(al);
-	as->store_atom(av);
-	as->barrier();
+	store->store_atom(af);
+	store->store_atom(at);
+	store->store_atom(al);
+	store->store_atom(av);
+	store->barrier();
 
 	delete as;
-	delete store;
 
 	// --------------------
 	// Start it up again.
 
-	store = new CogSimpleStorage(uri);
-	TS_ASSERT(store->connected())
-
 	as = new AtomSpace();
-	store->registerWith(as);
+	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	store = StorageNodeCast(hsn);
+	store->open();
+	TS_ASSERT(store->connected())
 
 	// --------------------
 	// Fetch by type. This is what we are testing.
-	as->fetch_all_atoms_of_type(CONCEPT_NODE);
-	as->barrier();
+	store->fetch_all_atoms_of_type(CONCEPT_NODE);
+	store->barrier();
 
 	// Six: 4 ConceptNodes, the PredicateNode "*-TruthValueKey-*"
 	// and PredicateNode "some pred key" -- the two preds show up
 	// when the attached values are fetched.
-	TSM_ASSERT_EQUALS("Wrong number of Atoms fetched!", as->get_size(), 6);
+	TSM_ASSERT_EQUALS("Wrong number of Atoms fetched!", as->get_size(), 7);
 
 	printf("Got %lu Atoms\n", as->get_size());
 	HandleSet hset;
@@ -738,11 +735,11 @@ void SimpleValueSaveUTest::test_incoming()
 	// The B-nodes are added after the fetch. In either case,
 	// there should not be any values fetched for either A or B;
 	// only the values on the C-links should be fetched.
-	as->fetch_incoming_set(gaf, false);
-	as->fetch_incoming_set(gat, false);
-	as->fetch_incoming_set(gal, false);
-	as->fetch_incoming_set(gav, false);
-	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 14);
+	store->fetch_incoming_set(gaf, false);
+	store->fetch_incoming_set(gat, false);
+	store->fetch_incoming_set(gal, false);
+	store->fetch_incoming_set(gav, false);
+	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 15);
 
 	Handle gbf = as->add_node(CONCEPT_NODE, "b float node");
 	Handle gbt = as->add_node(CONCEPT_NODE, "b string node");

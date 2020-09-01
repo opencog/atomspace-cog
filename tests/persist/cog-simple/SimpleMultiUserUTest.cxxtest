@@ -296,27 +296,27 @@ void MultiUserUTest::add_to_space(int idx, AtomSpace *as,
 
     // Note that SetLink is an unordered link.
     hl[idx] = as->add_link(SET_LINK, std::move(hvec));
-    as->store_atom(hl[idx]);
+    store->store_atom(hl[idx]);
     l[idx] = LinkCast(hl[idx]);
 
     hl2[idx] = as->add_link(LIST_LINK, hl[idx], h2[idx]);
-    as->store_atom(hl2[idx]);
+    store->store_atom(hl2[idx]);
     l2[idx] = LinkCast(hl2[idx]);
 
     hl3[idx] = as->add_link(EVALUATION_LINK, h1[idx], hl2[idx], h3[idx]);
-    as->store_atom(hl3[idx]);
+    store->store_atom(hl3[idx]);
     l3[idx] = LinkCast(hl3[idx]);
 
     // Do it again, just for good measure.
-    as->store_atom(hl[idx]);
-    as->store_atom(hl2[idx]);
-    as->store_atom(hl3[idx]);
+    store->store_atom(hl[idx]);
+    store->store_atom(hl2[idx]);
+    store->store_atom(hl3[idx]);
 
     // printf("Added for idx=%d\n", idx);
     fflush(stdout);
 }
 
-void MultiUserUTest::fetch_space(int idx, AtomSpace *space)
+void MultiUserUTest::fetch_space(int idx, StorageNodePtr space)
 {
     AtomPtr ab1 = createNode(n1[idx]->get_type(), n1[idx]->get_name());
     Handle hb1(ab1->get_handle());

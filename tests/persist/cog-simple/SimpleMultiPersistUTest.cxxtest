@@ -421,18 +421,24 @@ void MultiPersistUTest::test_atomspace(void)
      * the cogserver storage, though; to do that, they must be deleted,
      * not extracted.
      */
-    _as->barrier();
+    store->barrier();
     _as->clear();
     TSM_ASSERT("Non-empty atomspace", 0 == _as->get_size());
 
     printf("===============================================\n");
+
+    /* The clear above nuked the storage, so restart */
+    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16006");
+    store = StorageNodeCast(hsn);
+    store->open();
+    TS_ASSERT(store->connected())
 
     int i, off;
 #define NATS 8
     /* Verify that the atoms can still be fetched from storage. */
    for (off=0; off<n_threads; off++)
         for (i=0; i<NATS; i++) {
-            fetch_space(NHACK*off+i, _as);
+            fetch_space(NHACK*off+i, store);
             check_space(NHACK*off+i, _as, "verify-fetch-idx=" + std::to_string(i));
         }
 
@@ -440,10 +446,16 @@ void MultiPersistUTest::test_atomspace(void)
     _as->clear();
     TSM_ASSERT("Non-empty atomspace", 0 == _as->get_size());
 
+    /* The clear above nuked the storage, so restart */
+    hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16006");
+    store = StorageNodeCast(hsn);
+    store->open();
+    TS_ASSERT(store->connected())
+
     /* Verify that the atoms can still be fetched from storage. */
     for (off=0; off<n_threads; off++)
         for (i=0; i<NATS; i++) {
-            fetch_space(NHACK*off+i, _as);
+            fetch_space(NHACK*off+i, barrier);
             check_space(NHACK*off+i, _as, "verify-again");
         }
 
