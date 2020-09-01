@@ -318,7 +318,7 @@ void LargeZipfUTest::test_atomspace(void)
 	TSM_ASSERT("Non-empty atomspace", 0 == _as->get_size());
 
 	/* The clear above nuked the storage, so restart */
-	hsn = _as->add_node(ROCKS_STORAGE_NODE, "rocks:///tmp/cog-rocks-unit-test");
+	hsn = _as->add_node(COG_STORAGE_NODE, "cog://localhost:16009");
 	store = StorageNodeCast(hsn);
 	store->open();
 	TS_ASSERT(store->connected())
@@ -333,7 +333,7 @@ void LargeZipfUTest::test_atomspace(void)
 	TSM_ASSERT("Non-empty atomspace", 0 == _as->get_size());
 
 	/* The clear above nuked the storage, so restart */
-	hsn = _as->add_node(ROCKS_STORAGE_NODE, "rocks:///tmp/cog-rocks-unit-test");
+	hsn = _as->add_node(COG_STORAGE_NODE, "cog://localhost:16009");
 	store = StorageNodeCast(hsn);
 	store->open();
 	TS_ASSERT(store->connected())
