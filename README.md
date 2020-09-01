@@ -26,6 +26,23 @@ at [atomspace-rocks](https://github.com/opencog/atomspace-rocks)
 is meant to provide a building-block out of which more complex
 distributed and/or decentralized AtomSpaces can be built.
 
+This really is decentralized: you can talk to multiple servers at once.
+There is no particular limit, other than that of bandwidth,
+response-time, etc.  In ASCII-art:
+
+```
+ +-----------+
+ |           |  <---internet--> My AtomSpace
+ |  Server A |                      ^  ^
+ |           |        +-------------+  |
+ +-----------+        v                v
+                 +----------+   +-----------+
+                 |          |   |           |
+                 | Server B |   |  Server C |
+                 |          |   |           |
+                 +----------+   +-----------+
+```
+
 
 Example Usage
 -------------

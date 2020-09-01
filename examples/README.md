@@ -59,7 +59,7 @@ to multiple servers at the same time, trading data between each of them.
 * [fetch-store.scm](fetch-store.scm) -- Basic fetch and store of single atoms.
 * [load-dump.scm](load-dump.scm) -- Loading and saving entire AtomSpaces.
 * [remote-query.scm](remote-query.scm) -- Precisely-specified fetches.
-* [distributed.scm](distributed.scm) -- Using several servers at the same time.
+* [decentralized.scm](decentralized.scm) -- Using several servers at the same time.
 
 Using the Simple Client
 -----------------------

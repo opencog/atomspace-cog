@@ -1,10 +1,12 @@
 ;
-; distributed.scm
+; decentralized.scm
 ;
-; Demo of distibuted operation, where the local AtomSpace is connected
-; to two or more cogservers. This demo requires the user to configure
-; at least two cogservers on different machines, or to run two
-; cogservers on the same machine, with different port numbers.
+; Demo of decentralized operation, where the local AtomSpace is
+; connected to two or more cogservers, trading data with each of them.
+; This demo requires you to configure at least two cogservers on
+; different machines, or to run two cogservers on the same machine,
+; with different port numbers. See the cogserver docs for how to do
+; this.
 ;
 ; ----------------------------------------------
 ; Getting started, making the initial connection.
@@ -73,3 +75,5 @@
 ; We can be nice and shutdown cleanly:
 (cog-close csna)
 (cog-close csnb)
+
+; --- The end. That's all folks! ----
