@@ -136,35 +136,34 @@ void ValueSaveUTest::test_single_atom_save()
 		                     3.09876543210987654e200}));
 
 	atom->setValue(key, pvf);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(atom);
+	store->barrier();
 
 	// --------------------
 	ValuePtr pvs = createStringValue(
 		std::vector<std::string>({"aaa", "bb bb bb", "ccc ccc ccc"}));
 
 	atom->setValue(key, pvs);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(atom);
+	store->barrier();
 
 	// --------------------
 	ValuePtr pvl = createLinkValue(
 		std::vector<ValuePtr>({pvf, pvs}));
 
 	atom->setValue(key, pvl);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(atom);
+	store->barrier();
 
 	// --------------------
 	ValuePtr pvl2 = createLinkValue(
 		std::vector<ValuePtr>({pvl, pvl, pvf, pvs}));
 
 	atom->setValue(key, pvl2);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(atom);
+	store->barrier();
 
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -271,9 +270,8 @@ void ValueSaveUTest::test_save_restore(bool fkey)
 
 	check_one(pvl2, fkey);
 
-	store->kill_data();
+	store->erase();
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -400,7 +398,6 @@ void ValueSaveUTest::test_load_by_type()
 
 	// --------------------
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -611,7 +608,6 @@ void ValueSaveUTest::test_link_by_type()
 
 	// --------------------
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -823,7 +819,6 @@ void ValueSaveUTest::test_incoming()
 
 	// --------------------
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
