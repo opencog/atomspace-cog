@@ -113,20 +113,20 @@ void SimpleValueSaveUTest::test_single_atom_save()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
-	TS_ASSERT(store->connected())
-
 	AtomSpace* as = new AtomSpace();
-	store->registerWith(as);
+	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
+	TS_ASSERT(store->connected())
 
 	Handle key = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle atom = as->add_node(CONCEPT_NODE, "some node");
 
 	// Store the key and the atom, so as to avoid any UUID
 	// confusions.
-	as->store_atom(key);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(key);
+	store->store_atom(atom);
+	store->barrier();
 
 	// --------------------
 	// Now set some values
@@ -135,35 +135,34 @@ void SimpleValueSaveUTest::test_single_atom_save()
 		                     3.09876543210987654e200}));
 
 	atom->setValue(key, pvf);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(atom);
+	store->barrier();
 
 	// --------------------
 	ValuePtr pvs = createStringValue(
 		std::vector<std::string>({"aaa", "bb bb bb", "ccc ccc ccc"}));
 
 	atom->setValue(key, pvs);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(atom);
+	store->barrier();
 
 	// --------------------
 	ValuePtr pvl = createLinkValue(
 		std::vector<ValuePtr>({pvf, pvs}));
 
 	atom->setValue(key, pvl);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(atom);
+	store->barrier();
 
 	// --------------------
 	ValuePtr pvl2 = createLinkValue(
 		std::vector<ValuePtr>({pvl, pvl, pvf, pvs}));
 
 	atom->setValue(key, pvl2);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(atom);
+	store->barrier();
 
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -180,39 +179,39 @@ void SimpleValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 
 	// ------
 	// First, save the value
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
+	AtomSpace* as = new AtomSpace();
+	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
 	TS_ASSERT(store->connected())
 
-	AtomSpace* as = new AtomSpace();
-	store->registerWith(as);
-
-	Handle key = as->fetch_atom(bkey);
-	Handle atom = as->fetch_atom(batom);
+	Handle key = store->fetch_atom(bkey);
+	Handle atom = store->fetch_atom(batom);
 	printf ("Setup atom %s\n", atom->to_string().c_str());
 	printf ("Vals %s\n", atom->valuesToString().c_str());
 
 	atom->setValue(key, pap);
-	as->store_atom(atom);
-	as->barrier();
+	store->store_atom(atom);
+	store->barrier();
 
 	printf ("Stored atom %s\n", atom->to_string().c_str());
 	printf ("Stored vals %s\n", atom->valuesToString().c_str());
 
 	delete as;
-	delete store;
 
 	// ---------------------------------
 	// Now, fetch the value and compare.
-	store = new CogSimpleStorage(uri);
-	TS_ASSERT(store->connected())
 
 	as = new AtomSpace();
-	store->registerWith(as);
+	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	store = StorageNodeCast(hsn);
+	store->open();
+	TS_ASSERT(store->connected())
 
 	// Storage uses a different code path if the key is not yet
 	// known when the values are fetched.  Test this code path.
-	if (fetchkey) key = as->fetch_atom(bkey);
-	atom = as->fetch_atom(batom);
+	if (fetchkey) key = store->fetch_atom(bkey);
+	atom = store->fetch_atom(batom);
 
 	printf("Got atom %s\n", atom->to_string().c_str());
 	printf("Got vals %s\n", atom->valuesToString().c_str());
@@ -285,14 +284,14 @@ void SimpleValueSaveUTest::test_load_by_type()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
+	AtomSpace* as = new AtomSpace();
+	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
 	TS_ASSERT(store->connected())
 
-	AtomSpace* as = new AtomSpace();
-	store->registerWith(as);
-
 	// Clear out left-over junk, just in case.
-	store->kill_data();
+	store->erase();
 
 	Handle key = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle af = as->add_node(CONCEPT_NODE, "float node");
@@ -405,7 +404,6 @@ void SimpleValueSaveUTest::test_load_by_type()
 
 	// --------------------
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -421,11 +419,11 @@ void SimpleValueSaveUTest::test_link_by_type()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
-	TS_ASSERT(store->connected())
-
 	AtomSpace* as = new AtomSpace();
-	store->registerWith(as);
+	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
+	TS_ASSERT(store->connected())
 
 	Handle key = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle af = as->add_node(CONCEPT_NODE, "a float node");
@@ -497,23 +495,22 @@ void SimpleValueSaveUTest::test_link_by_type()
 	// Save, and close things down.
 	// Note that this store will also *recursively* store the
 	// values on the outgoing atoms, as well.
-	as->store_atom(cf);
-	as->store_atom(ct);
-	as->store_atom(cl);
-	as->store_atom(cv);
-	as->barrier();
+	store->store_atom(cf);
+	store->store_atom(ct);
+	store->store_atom(cl);
+	store->store_atom(cv);
+	store->barrier();
 
 	delete as;
-	delete store;
 
 	// --------------------
 	// Start it up again.
 
-	store = new CogSimpleStorage(uri);
-	TS_ASSERT(store->connected())
-
 	as = new AtomSpace();
-	store->registerWith(as);
+	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	store = StorageNodeCast(hsn);
+	store->open();
+	TS_ASSERT(store->connected())
 
 	// --------------------
 	// Fetch by type. This is what we are testing.
@@ -528,9 +525,9 @@ void SimpleValueSaveUTest::test_link_by_type()
 	// The B-nodes are added after the fetch. In either case,
 	// there should not be any values fetched for either A or B;
 	// only the values on the C-links should be fetched.
-	as->fetch_all_atoms_of_type(LIST_LINK);
-	as->barrier();
-	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 14);
+	store->fetch_all_atoms_of_type(LIST_LINK);
+	store->barrier();
+	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 15);
 
 	printf("Got %lu Atoms\n", as->get_size());
 	HandleSet hset;
@@ -622,7 +619,6 @@ void SimpleValueSaveUTest::test_link_by_type()
 
 	// --------------------
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -636,11 +632,11 @@ void SimpleValueSaveUTest::test_incoming()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	CogSimpleStorage *store = new CogSimpleStorage(uri);
-	TS_ASSERT(store->connected())
-
 	AtomSpace* as = new AtomSpace();
-	store->registerWith(as);
+	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
+	TS_ASSERT(store->connected())
 
 	Handle key = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle af = as->add_node(CONCEPT_NODE, "a float node");
@@ -712,23 +708,22 @@ void SimpleValueSaveUTest::test_incoming()
 	// Save, and close things down.
 	// Note that this store will also *recursively* store the
 	// values on the outgoing atoms, as well.
-	as->store_atom(cf);
-	as->store_atom(ct);
-	as->store_atom(cl);
-	as->store_atom(cv);
-	as->barrier();
+	store->store_atom(cf);
+	store->store_atom(ct);
+	store->store_atom(cl);
+	store->store_atom(cv);
+	store->barrier();
 
 	delete as;
-	delete store;
 
 	// --------------------
 	// Start it up again.
 
-	store = new CogSimpleStorage(uri);
-	TS_ASSERT(store->connected())
-
 	as = new AtomSpace();
-	store->registerWith(as);
+	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	store = StorageNodeCast(hsn);
+	store->open();
+	TS_ASSERT(store->connected())
 
 	// --------------------
 	// Fetch incoming set. This is what we are testing.
@@ -833,7 +828,6 @@ void SimpleValueSaveUTest::test_incoming()
 
 	// --------------------
 	delete as;
-	delete store;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
