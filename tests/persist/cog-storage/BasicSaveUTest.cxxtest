@@ -43,7 +43,6 @@ using namespace opencog;
 class BasicSaveUTest :  public CxxTest::TestSuite
 {
     private:
-        AtomSpace *as;
         std::string uri;
         CogServer* srvr = NULL;
         std::thread * main_loop = NULL;
@@ -108,12 +107,10 @@ class BasicSaveUTest :  public CxxTest::TestSuite
  */
 void BasicSaveUTest::setUp(void)
 {
-    as = new AtomSpace();
 }
 
 void BasicSaveUTest::tearDown(void)
 {
-    delete as;
 }
 
 // ============================================================

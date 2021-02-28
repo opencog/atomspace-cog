@@ -43,7 +43,6 @@ using namespace opencog;
 class BasicSaveUTest :  public CxxTest::TestSuite
 {
     private:
-        AtomSpace *as;
         std::string uri;
         CogServer* srvr = NULL;
         std::thread * main_loop = NULL;
@@ -107,12 +106,10 @@ class BasicSaveUTest :  public CxxTest::TestSuite
  */
 void BasicSaveUTest::setUp(void)
 {
-    as = new AtomSpace();
 }
 
 void BasicSaveUTest::tearDown(void)
 {
-    delete as;
 }
 
 // ============================================================
@@ -332,7 +329,7 @@ void BasicSaveUTest::test_fresh_atom(void)
     store->open();
     if (!store->connected())
     {
-        logger().debug("single_atom_save_restore: cannot connect to db");
+        logger().debug("test_fresh_atom: cannot connect to db");
         return;
     }
 
