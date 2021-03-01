@@ -77,10 +77,15 @@ granular load and store is possible; see the
 
 Status
 ------
-This is **Version 0.9.0**. All 22 (11+11) unit tests
-consistently pass.  Performance looks good. Two of the unit tests
-take about 20 seconds each to run; two more take a few minutes.
-This is intentional, they are pounding the server with large datasets.
+This is **Version 0.9.0**. All 24 (12+12) unit tests consistently
+pass. (*) (There are occassional crashes during shutdown, in the
+shared-library dtor, after the unit tests have passed. See
+[cogutil issue #247](https://github.com/opencog/cogutil/issues/247)
+for details.)
+
+Performance looks good. Two of the unit tests take about 20 seconds
+each to run; two more take a few minutes.  This is intentional,
+they are pounding the server with large datasets.
 
 This is effectively "done"; there are no known bugs or missing
 features at this time. Waiting on user feedback before declaring
