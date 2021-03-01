@@ -168,12 +168,22 @@ void BasicDeleteUTest::test_key_deletion(void)
 	store->load_atomspace();
 	TS_ASSERT_EQUALS(as->get_size(), 5);
 
-	// Verify that there are only two keys
+	// Verify that there are only two keys .. haha no, three.
+	// That is because the deleted key gets restored when the
+	// values on (Concept "a") are fetched.
+	// Try this:
+	// (cog-set-values! (ConceptNode "a")(list (cons (PredicateNode "key-b")(FloatValue 4 5 6))(cons (PredicateNode "key-c")(FloatValue 7 8 9))(cons (PredicateNode "key-a")(FloatValue 1 2 3))))
+	// (cog-extract! (PredicateNode "key-b"))
+	// (cog-get-atoms 'Node #t)
+	// ; Excellent! key-b is gone!
+	// (cog-keys->alist (ConceptNode "a"))
+	// ; Oh hey, key-b is back!
+	//
 	ha = as->add_node(CONCEPT_NODE, "a");
 	hs = ha->getKeys();
 	for (const Handle& k : hs)
 		printf("key=%s\n", k->get_name().c_str());
-	TS_ASSERT_EQUALS(hs.size(), 2);
+	TS_ASSERT_EQUALS(hs.size(), 3);
 
 	// Verify that none of the keys are key-b
 	kb = as->add_node(PREDICATE_NODE, "key-b");
