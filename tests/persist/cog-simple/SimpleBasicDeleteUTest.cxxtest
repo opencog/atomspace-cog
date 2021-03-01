@@ -41,7 +41,7 @@
 
 using namespace opencog;
 
-class BasicDeleteUTest :  public CxxTest::TestSuite
+class SimpleBasicDeleteUTest :  public CxxTest::TestSuite
 {
 	private:
 		std::string uri;
@@ -50,7 +50,7 @@ class BasicDeleteUTest :  public CxxTest::TestSuite
 
 	public:
 
-		BasicDeleteUTest(void)
+		SimpleBasicDeleteUTest(void)
 		{
 			logger().set_level(Logger::INFO);
 			// logger().set_level(Logger::DEBUG);
@@ -67,7 +67,7 @@ class BasicDeleteUTest :  public CxxTest::TestSuite
 			printf("Started CogServer\n");
 		}
 
-		~BasicDeleteUTest()
+		~SimpleBasicDeleteUTest()
 		{
 			srvr->stop();
 			main_loop->join();
@@ -90,17 +90,17 @@ class BasicDeleteUTest :  public CxxTest::TestSuite
 /*
  * This is called once before each test, for each test (!!)
  */
-void BasicDeleteUTest::setUp(void)
+void SimpleBasicDeleteUTest::setUp(void)
 {
 }
 
-void BasicDeleteUTest::tearDown(void)
+void SimpleBasicDeleteUTest::tearDown(void)
 {
 }
 
 // ============================================================
 
-void BasicDeleteUTest::test_key_deletion(void)
+void SimpleBasicDeleteUTest::test_key_deletion(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
@@ -196,7 +196,7 @@ void BasicDeleteUTest::test_key_deletion(void)
 
 // This tests for a nasty off-by-one bug that showed up
 // in RocksDB. Make sure it never happens again.
-void BasicDeleteUTest::test_key_corruption(void)
+void SimpleBasicDeleteUTest::test_key_corruption(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
