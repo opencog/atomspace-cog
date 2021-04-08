@@ -20,6 +20,7 @@ ADD_CXXTEST(AlphaEquivUTest)
 ADD_CXXTEST(QueryPersistUTest)
 ADD_CXXTEST(MultiPersistUTest)
 ADD_CXXTEST(MultiUserUTest)
+ADD_CXXTEST(MultiDeleteUTest)
 
 # XXX FIXME Disable these two tests for now;
 # they take half an hour to run!
