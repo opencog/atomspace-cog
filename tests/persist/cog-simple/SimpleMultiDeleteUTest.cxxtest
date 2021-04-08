@@ -125,7 +125,6 @@ void SimpleMultiDeleteUTest::worker(int thread_id)
 
 			// Store the link.
 			store->store_atom(li);
-			store->barrier();
 		}
 
 		for (int i=0; i<nloops; i++)
@@ -140,9 +139,11 @@ void SimpleMultiDeleteUTest::worker(int thread_id)
 			// Remove the link.
 			store->remove_atom(li);
 			as->extract_atom(li);
-			store->barrier();
 		}
 	}
+
+	// Just one barrier, at the end.
+	store->barrier();
 }
 
 // ============================================================
