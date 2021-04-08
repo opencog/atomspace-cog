@@ -81,7 +81,8 @@ This is **Version 0.9.0**. All 26 (13+13) unit tests consistently
 pass. (*) (There are occassional crashes during shutdown, in the
 shared-library dtor, after the unit tests have passed. See
 [cogutil issue #247](https://github.com/opencog/cogutil/issues/247)
-for details.)
+for details. Tracked locally as
+[atomspace-cog issue #2](https://github.com/opencog/atomspace-cog/issues/2).)
 
 Performance looks good. Two of the unit tests take about 20 seconds
 each to run; two more take a few minutes.  This is intentional,
