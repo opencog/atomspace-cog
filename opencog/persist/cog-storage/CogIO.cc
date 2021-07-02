@@ -34,8 +34,14 @@
 
 using namespace opencog;
 
+#define CHECK_OPEN \
+	if (not connected()) \
+		throw IOException(TRACE_INFO, "CogStorageNode is not open!  '%s'\n", \
+			_name.c_str());
+
 void CogStorage::storeAtom(const Handle& h, bool synchronous)
 {
+	CHECK_OPEN;
 	// If there are no values, be sure to reset the TV to the default TV.
 	std::string msg;
 	if (h->haveValues())
@@ -50,6 +56,7 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 
 void CogStorage::removeAtom(const Handle& h, bool recursive)
 {
+	CHECK_OPEN;
 	std::string msg;
 	if (recursive)
 		msg = "(cog-extract-recursive! " + Sexpr::encode_atom(h) + ")\n";
@@ -62,6 +69,7 @@ void CogStorage::removeAtom(const Handle& h, bool recursive)
 
 void CogStorage::storeValue(const Handle& h, const Handle& key)
 {
+	CHECK_OPEN;
 	std::string msg;
 	msg = "(cog-set-value! " + Sexpr::encode_atom(h) +
 	      Sexpr::encode_atom(key) +
@@ -73,6 +81,7 @@ void CogStorage::storeValue(const Handle& h, const Handle& key)
 
 void CogStorage::loadValue(const Handle& h, const Handle& key)
 {
+	CHECK_OPEN;
 	std::string msg;
 	msg = "(cog-value " + Sexpr::encode_atom(h) +
 	      Sexpr::encode_atom(key) + ")\n";
@@ -103,6 +112,7 @@ void CogStorage::is_ok(const std::string& reply, Pkt& pkt)
 
 void CogStorage::getAtom(const Handle& h)
 {
+	CHECK_OPEN;
 	std::string typena = nameserver().getTypeName(h->get_type()) + " ";
 	std::string iknow;
 	if (h->is_node())
@@ -159,6 +169,7 @@ void CogStorage::decode_atom_list(const std::string& expr, const Pkt& pkt)
 
 void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
 {
+	CHECK_OPEN;
 	std::string msg = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
 
 	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED,};
@@ -167,6 +178,7 @@ void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
 
 void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 {
+	CHECK_OPEN;
 	std::string msg = "(cog-incoming-by-type " + Sexpr::encode_atom(h)
 		+ " '" + nameserver().getTypeName(t) + ")\n";
 
@@ -176,6 +188,7 @@ void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
 
 void CogStorage::loadAtomSpace(AtomTable &table)
 {
+	CHECK_OPEN;
 	// Get nodes and links separately, in an effort to get
 	// smaller replies.
 	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED};
@@ -191,6 +204,7 @@ void CogStorage::loadAtomSpace(AtomTable &table)
 
 void CogStorage::loadType(AtomTable &table, Type t)
 {
+	CHECK_OPEN;
 	std::string msg = "(cog-get-atoms '" + nameserver().getTypeName(t) + ")\n";
 
 	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED,};
@@ -199,6 +213,7 @@ void CogStorage::loadType(AtomTable &table, Type t)
 
 void CogStorage::storeAtomSpace(const AtomTable &table)
 {
+	CHECK_OPEN;
 	HandleSet all_atoms;
 	table.getHandleSetByType(all_atoms, ATOM, true);
 	for (const Handle& h : all_atoms)
@@ -208,6 +223,7 @@ void CogStorage::storeAtomSpace(const AtomTable &table)
 
 void CogStorage::kill_data(void)
 {
+	CHECK_OPEN;
 	_io_queue.barrier();
 	Pkt pkt;
 	_io_queue.synchro(this, "(cog-atomspace-clear)\n",
@@ -225,6 +241,7 @@ void CogStorage::decode_kvp_list_const(const std::string& reply, const Pkt& pkt)
 void CogStorage::runQuery(const Handle& query, const Handle& key,
                           const Handle& meta, bool fresh)
 {
+	CHECK_OPEN;
 	std::string msg = "(cog-execute-cache! " +
 		Sexpr::encode_atom(query) +
 		Sexpr::encode_atom(key);
