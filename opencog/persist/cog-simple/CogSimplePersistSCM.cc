@@ -134,7 +134,7 @@ void CogSimplePersistSCM::do_stats(void)
         return;
     }
 
-    printf("cog-simple-stats: Atomspace holds %lu atoms\n", _as->get_size());
+    printf("cog-simple-stats: Atomspace holds %zu atoms\n", _as->get_size());
     _storage->print_stats();
 }
 
