@@ -107,7 +107,7 @@ void CogStorage::decode_value(const std::string& reply, const Pkt& pkt)
 void CogStorage::is_ok(const std::string& reply, Pkt& pkt)
 {
 	if (reply.compare(0, 2, "()"))
-		pkt.table = (AtomTable *) -1;
+		pkt.table = (AtomSpace *) -1;
 }
 
 void CogStorage::getAtom(const Handle& h)
@@ -154,7 +154,7 @@ void CogStorage::decode_atom_list(const std::string& expr, const Pkt& pkt)
 		int pcnt = Sexpr::get_next_expr(expr, l, r, 0);
 		if (l == r) break;
 		if (0 < pcnt) break;
-		Handle h = pkt.table->add(Sexpr::decode_atom(expr, l, r, 0));
+		Handle h = pkt.table->storage_add_nocheck(Sexpr::decode_atom(expr, l, r, 0));
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
@@ -167,31 +167,31 @@ void CogStorage::decode_atom_list(const std::string& expr, const Pkt& pkt)
 	}
 }
 
-void CogStorage::getIncomingSet(AtomTable& table, const Handle& h)
+void CogStorage::fetchIncomingSet(AtomSpace* table, const Handle& h)
 {
 	CHECK_OPEN;
 	std::string msg = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
 
-	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED,};
+	Pkt pkt{table, Handle::UNDEFINED, Handle::UNDEFINED,};
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
-void CogStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
+void CogStorage::fetchIncomingByType(AtomSpace* table, const Handle& h, Type t)
 {
 	CHECK_OPEN;
 	std::string msg = "(cog-incoming-by-type " + Sexpr::encode_atom(h)
 		+ " '" + nameserver().getTypeName(t) + ")\n";
 
-	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED,};
+	Pkt pkt{table, Handle::UNDEFINED, Handle::UNDEFINED,};
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
-void CogStorage::loadAtomSpace(AtomTable &table)
+void CogStorage::loadAtomSpace(AtomSpace* table)
 {
 	CHECK_OPEN;
 	// Get nodes and links separately, in an effort to get
 	// smaller replies.
-	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED};
+	Pkt pkt{table, Handle::UNDEFINED, Handle::UNDEFINED};
 	std::string msg = "(cog-get-atoms 'Node #t)\n";
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 
@@ -202,20 +202,20 @@ void CogStorage::loadAtomSpace(AtomTable &table)
 	_io_queue.barrier();
 }
 
-void CogStorage::loadType(AtomTable &table, Type t)
+void CogStorage::loadType(AtomSpace* table, Type t)
 {
 	CHECK_OPEN;
 	std::string msg = "(cog-get-atoms '" + nameserver().getTypeName(t) + ")\n";
 
-	Pkt pkt{&table, Handle::UNDEFINED, Handle::UNDEFINED,};
+	Pkt pkt{table, Handle::UNDEFINED, Handle::UNDEFINED,};
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
-void CogStorage::storeAtomSpace(const AtomTable &table)
+void CogStorage::storeAtomSpace(const AtomSpace* table)
 {
 	CHECK_OPEN;
-	HandleSet all_atoms;
-	table.getHandleSetByType(all_atoms, ATOM, true);
+	HandleSeq all_atoms;
+	table->get_handles_by_type(all_atoms, ATOM, true);
 	for (const Handle& h : all_atoms)
 		storeAtom(h);
 	_io_queue.barrier();

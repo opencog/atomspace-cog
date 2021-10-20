@@ -30,7 +30,6 @@
 #ifndef _OPENCOG_COG_STORAGE_H
 #define _OPENCOG_COG_STORAGE_H
 
-#include <opencog/atomspace/AtomTable.h>
 #include <opencog/persist/api/StorageNode.h>
 #include <opencog/persist/cog-storage/CogChannel.h>
 
@@ -48,7 +47,7 @@ class CogStorage : public StorageNode
 
 		struct Pkt
 		{
-			AtomTable* table;
+			AtomSpace* table;
 			Handle h;
 			Handle key;
 		};
@@ -82,17 +81,17 @@ class CogStorage : public StorageNode
 
 		// AtomStorage interface
 		void getAtom(const Handle&);
-		void getIncomingSet(AtomTable&, const Handle&);
-		void getIncomingByType(AtomTable&, const Handle&, Type t);
+		void fetchIncomingSet(AtomSpace*, const Handle&);
+		void fetchIncomingByType(AtomSpace*, const Handle&, Type t);
 		void storeAtom(const Handle&, bool synchronous = false);
 		void removeAtom(const Handle&, bool recursive);
 		void storeValue(const Handle& atom, const Handle& key);
 		void loadValue(const Handle& atom, const Handle& key);
 		void runQuery(const Handle&, const Handle&,
 		              const Handle&, bool);
-		void loadType(AtomTable&, Type);
-		void loadAtomSpace(AtomTable&); // Load entire contents
-		void storeAtomSpace(const AtomTable&); // Store entire contents
+		void loadType(AtomSpace*, Type);
+		void loadAtomSpace(AtomSpace*); // Load entire contents
+		void storeAtomSpace(const AtomSpace*); // Store entire contents
 		void barrier();
 
 		// Debugging and performance monitoring
