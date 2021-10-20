@@ -136,7 +136,7 @@ void CogSimpleStorage::getAtom(const Handle& h)
 	Sexpr::decode_alist(h, msg);
 }
 
-void CogSimpleStorage::decode_atom_list(AtomTable& table)
+void CogSimpleStorage::decode_atom_list(AtomSpace* table)
 {
 	// XXX FIXME .. this WILL fail if the returned list is large.
 	// Basically, we don't know quite when all the bytes have been
@@ -154,7 +154,7 @@ void CogSimpleStorage::decode_atom_list(AtomTable& table)
 		int pcnt = Sexpr::get_next_expr(expr, l, r, 0);
 		if (l == r) break;
 		if (0 < pcnt) break;
-		Handle h = table.add(Sexpr::decode_atom(expr, l, r, 0));
+		Handle h = table->storage_add_nocheck(Sexpr::decode_atom(expr, l, r, 0));
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
@@ -168,7 +168,7 @@ void CogSimpleStorage::decode_atom_list(AtomTable& table)
 	}
 }
 
-void CogSimpleStorage::getIncomingSet(AtomTable& table, const Handle& h)
+void CogSimpleStorage::fetchIncomingSet(AtomSpace* table, const Handle& h)
 {
 	std::string atom = "(cog-incoming-set " + Sexpr::encode_atom(h) + ")\n";
 	std::lock_guard<std::mutex> lck(_mtx);
@@ -176,7 +176,7 @@ void CogSimpleStorage::getIncomingSet(AtomTable& table, const Handle& h)
 	decode_atom_list(table);
 }
 
-void CogSimpleStorage::getIncomingByType(AtomTable& table, const Handle& h, Type t)
+void CogSimpleStorage::fetchIncomingByType(AtomSpace* table, const Handle& h, Type t)
 {
 	std::string msg = "(cog-incoming-by-type " + Sexpr::encode_atom(h)
 		+ " '" + nameserver().getTypeName(t) + ")\n";
@@ -185,7 +185,7 @@ void CogSimpleStorage::getIncomingByType(AtomTable& table, const Handle& h, Type
 	decode_atom_list(table);
 }
 
-void CogSimpleStorage::loadAtomSpace(AtomTable &table)
+void CogSimpleStorage::loadAtomSpace(AtomSpace* table)
 {
 	std::lock_guard<std::mutex> lck(_mtx);
 
@@ -200,7 +200,7 @@ void CogSimpleStorage::loadAtomSpace(AtomTable &table)
 	decode_atom_list(table);
 }
 
-void CogSimpleStorage::loadType(AtomTable &table, Type t)
+void CogSimpleStorage::loadType(AtomSpace* table, Type t)
 {
 	std::string msg = "(cog-get-atoms '" + nameserver().getTypeName(t) + ")\n";
 
@@ -209,10 +209,10 @@ void CogSimpleStorage::loadType(AtomTable &table, Type t)
 	decode_atom_list(table);
 }
 
-void CogSimpleStorage::storeAtomSpace(const AtomTable &table)
+void CogSimpleStorage::storeAtomSpace(const AtomSpace* table)
 {
-	HandleSet all_atoms;
-	table.getHandleSetByType(all_atoms, ATOM, true);
+	HandleSeq all_atoms;
+	table->get_handles_by_type(all_atoms, ATOM, true);
 	for (const Handle& h : all_atoms)
 		storeAtom(h);
 }
