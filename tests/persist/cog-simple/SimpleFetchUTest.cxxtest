@@ -46,7 +46,7 @@ class SimpleFetchUTest :  public CxxTest::TestSuite
 		std::string uri;
 		std::string srv_open;
 
-		AtomSpace* _as;
+		AtomSpacePtr _as;
 		SchemeEval* eval;
 		CogServer* srvr = NULL;
 		std::thread * main_loop = NULL;
@@ -100,13 +100,13 @@ SimpleFetchUTest::SimpleFetchUTest(void)
  */
 void SimpleFetchUTest::setUp(void)
 {
-	_as = new AtomSpace();
+	_as = createAtomSpace();
 	eval = SchemeEval::get_evaluator(_as);
 }
 
 void SimpleFetchUTest::tearDown(void)
 {
-	delete _as;
+	_as = nullptr;
 }
 
 // ============================================================
@@ -174,8 +174,7 @@ void SimpleFetchUTest::test_stuff(void)
 	eval->eval("(store-atomspace)");
 	eval->eval("(cog-simple-close)");
 
-	delete _as;
-	_as = new AtomSpace();
+	_as = createAtomSpace();
 	eval = SchemeEval::get_evaluator(_as);
 	eval->eval(srv_open);
 	eval->eval(R"((fetch-atom (List (Concept "AAA") (Concept "BBB"))))");
@@ -203,8 +202,7 @@ void SimpleFetchUTest::test_stuff(void)
 	eval->eval("(store-atomspace)");
 	eval->eval("(cog-simple-close)");
 
-	delete _as;
-	_as = new AtomSpace();
+	_as = createAtomSpace();
 	eval = SchemeEval::get_evaluator(_as);
 	eval->eval(srv_open);
 
@@ -242,8 +240,7 @@ void SimpleFetchUTest::test_readonly(void)
 	eval->eval("(store-atomspace)");
 	eval->eval("(cog-simple-close)");
 
-	delete _as;
-	_as = new AtomSpace();
+	_as = createAtomSpace();
 	eval = SchemeEval::get_evaluator(_as);
 	eval->eval(srv_open);
 	_as->set_read_only();
