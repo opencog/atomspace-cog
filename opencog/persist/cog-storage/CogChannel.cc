@@ -208,11 +208,18 @@ std::string CogChannel<Client, Data>::do_recv()
 		}
 		buf[len] = 0;
 
+		// Ignore solitary synchronous idle chars.
+		// The CogServer sends these when it is congested
+		// and is looking for half-open sockets.
+		if (1 == len and 0x16 == buf[0])
+			continue;
+
 		// If we have a short read, assume we are done.
 		if (first_time and len < 4096)
 			return buf;
 
 		first_time = false;
+
 		if (len < 4096)
 		{
 			rb += buf;
