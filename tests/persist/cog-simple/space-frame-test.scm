@@ -4,10 +4,13 @@
 ;
 (use-modules (srfi srfi-1))
 (use-modules (opencog) (opencog test-runner))
-(use-modules (opencog persist) (opencog persist-rocks))
+(use-modules (opencog cogserver))
+(use-modules (opencog persist) (opencog persist-cog-simple))
 
 (include "test-utils.scm")
-(whack "/tmp/cog-rocks-unit-test")
+
+(define uri "cog://localhost:16020")
+(start-cogserver #:port 16020)
 
 (opencog-test-runner)
 
@@ -34,7 +37,7 @@
 
 	; Store the content. Store the Concepts as well as the link,
 	; as otherwise, the TV's on the Concepts aren't stored.
-	(define storage (RocksStorageNode "rocks:///tmp/cog-rocks-unit-test"))
+	(define storage (CogSimpleStorageNode uri))
 	(cog-open storage)
 	(store-atom (ListLink (Concept "foo") (Concept "bar")))
 	(store-atom (Concept "foo"))
@@ -66,7 +69,7 @@
 
 	; Load everything.
 	(cog-set-atomspace! surface-space)
-	(define storage (RocksStorageNode "rocks:///tmp/cog-rocks-unit-test"))
+	(define storage (CogSimpleStorageNode uri))
 	(cog-open storage)
 	(load-atomspace)
 	(cog-close storage)
@@ -101,7 +104,7 @@
 	(cog-set-atomspace! new-base)
 
 	; Load everything.
-	(define storage (RocksStorageNode "rocks:///tmp/cog-rocks-unit-test"))
+	(define storage (CogSimpleStorageNode uri))
 	(cog-open storage)
 
 	; Load all of the AtomSpaces.
@@ -137,5 +140,5 @@
 (test-end fresh-link)
 
 ; ===================================================================
-(whack "/tmp/cog-rocks-unit-test")
+(stop-cogserver)
 (opencog-test-end)
