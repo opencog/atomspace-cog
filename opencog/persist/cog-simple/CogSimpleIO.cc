@@ -2,7 +2,7 @@
  * CogSimpleIO.cc
  * Save/restore of individual atoms.
  *
- * Copyright (c) 2020 Linas Vepstas <linas@linas.org>
+ * Copyright (c) 2020,2022 Linas Vepstas <linas@linas.org>
  *
  * LICENSE:
  * SPDX-License-Identifier: AGPL-3.0-or-later
@@ -257,3 +257,16 @@ void CogSimpleStorage::runQuery(const Handle& query, const Handle& key,
 
 	query->setValue(key, vp);
 }
+
+void CogSimpleStorage::storeFrameDAG(AtomSpace* top)
+{
+printf("duuude store dag for %s\n", top->get_name().c_str());
+}
+
+Handle CogSimpleStorage::loadFrameDAG(AtomSpace* base)
+{
+printf("duuude load dag for %s\n", base->get_name().c_str());
+	return Handle::UNDEFINED;
+}
+
+// ===================================================================
