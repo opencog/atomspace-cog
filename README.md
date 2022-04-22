@@ -88,9 +88,12 @@ Performance looks good. Two of the unit tests take about 20 seconds
 each to run; two more take a few minutes.  This is intentional,
 they are pounding the server with large datasets.
 
-This is effectively "done"; there are no known bugs or missing
-features at this time. Waiting on user feedback before declaring
-version 1.0.
+This is effectively "done"; there are no known bugs at this time.
+There is one missing feature, but no one uses it (yet): support for
+multiple atomspaces is missing. Work on adding this is in progress;
+see the branch "space-frame" in github.
+
+Waiting on user feedback before declaring version 1.0.
 
 Design
 ------
