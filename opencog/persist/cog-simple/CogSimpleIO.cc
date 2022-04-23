@@ -45,9 +45,14 @@ void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 	std::string msg;
 	if (h->haveValues())
 		msg = "(cog-set-values! " + Sexpr::encode_atom(h) +
-			Sexpr::encode_atom_values(h) + ")\n";
+			Sexpr::encode_atom_values(h);
 	else
-		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " (stv 1 0))\n";
+		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " (stv 1 0)";
+
+	// If working with multiple AtomSpaces, things get complicated.
+	if (_multi_space or h->getAtomSpace() != _atom_space)
+		msg += writeFrame(h->getAtomSpace());
+	msg += ")\n";
 
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
@@ -258,9 +263,57 @@ void CogSimpleStorage::runQuery(const Handle& query, const Handle& key,
 	query->setValue(key, vp);
 }
 
+// ===================================================================
+// Frame-related stuffs
+
+/// Store short atomspace names in the cache.
+void CogSimpleStorage::cacheFrame(const Handle& hasp)
+{
+	// Recurse first
+	for (const Handle& ho : hasp->getOutgoingSet())
+		cacheFrame(ho);
+
+	std::string shorty = "(AtomSpace \"" + hasp->get_name() + "\")";
+	std::lock_guard<std::mutex> flck(_mtx_frame);
+	_frame_map.insert({hasp, shorty});
+}
+
+std::string CogSimpleStorage::writeFrame(const Handle& hasp)
+{
+	// Keep a map. This will be faster than doing string conversion
+	// each time. We expect this to be small, no larger than a few
+	// thousand entries, and so don't expect it to compete for RAM.
+	{
+		std::lock_guard<std::mutex> flck(_mtx_frame);
+		auto it = _frame_map.find(hasp);
+		if (it != _frame_map.end())
+			return it->second;
+	}
+
+	_multi_space = true;
+
+	std::string msg = "(define *-bogus-top-space-* "
+		+ Sexpr::encode_frame(hasp) + ")\n";
+	{
+		std::lock_guard<std::mutex> lck(_mtx);
+		do_send(msg);
+
+		// Flush the response.
+		do_recv();
+	}
+
+	// Store short-forms
+	cacheFrame(hasp);
+
+	// Return short-form
+	std::string shorty = "(AtomSpace \"" + hasp->get_name() + "\")";
+	return shorty;
+}
+
 void CogSimpleStorage::storeFrameDAG(AtomSpace* top)
 {
-printf("duuude store dag for %s\n", top->get_name().c_str());
+	writeFrame(HandleCast(top));
+	_multi_space = true;
 }
 
 Handle CogSimpleStorage::loadFrameDAG(AtomSpace* base)

@@ -52,6 +52,20 @@ class CogSimpleStorage : public StorageNode
 
 		void decode_atom_list(AtomSpace*);
 
+		// True if working with more than one atomspace.
+		bool _multi_space;
+		// The Handles are *always* AtomSpacePtr's
+		std::unordered_map<Handle, const std::string> _frame_map;
+		std::unordered_map<std::string, Handle> _fid_map;
+		std::mutex _mtx_frame;
+		void cacheFrame(const Handle&);
+		std::string writeFrame(const Handle&);
+		std::string writeFrame(AtomSpace* as) {
+			return writeFrame(HandleCast(as));
+		}
+		Handle getFrame(const std::string&);
+
+
 	public:
 		CogSimpleStorage(std::string uri);
 		CogSimpleStorage(const CogSimpleStorage&) = delete; // disable copying
