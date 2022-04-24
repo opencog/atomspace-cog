@@ -201,6 +201,9 @@ void CogSimpleStorage::fetchIncomingByType(AtomSpace* table, const Handle& h, Ty
 
 void CogSimpleStorage::loadAtomSpace(AtomSpace* table)
 {
+	// If there's a hierarchy of frames, get those first.
+	loadFrameDAG(table);
+
 	std::lock_guard<std::mutex> lck(_mtx);
 
 	// Get nodes and links separately, in an effort to get
@@ -282,10 +285,11 @@ void CogSimpleStorage::cacheFrame(const Handle& hasp)
 	for (const Handle& ho : hasp->getOutgoingSet())
 		cacheFrame(ho);
 
-	std::string shorty = "(AtomSpace \"" + hasp->get_name() + "\")";
+	const std::string& name = hasp->get_name();
+	std::string shorty = "(AtomSpace \"" + name + "\")";
 	std::lock_guard<std::mutex> flck(_mtx_frame);
 	_frame_map.insert({hasp, shorty});
-	_fid_map.insert({shorty, hasp});
+	_fid_map.insert({name, hasp});
 }
 
 std::string CogSimpleStorage::writeFrame(const Handle& hasp)
@@ -328,8 +332,32 @@ void CogSimpleStorage::storeFrameDAG(AtomSpace* top)
 
 Handle CogSimpleStorage::loadFrameDAG(AtomSpace* base)
 {
-printf("duuude load dag for %s\n", base->get_name().c_str());
-	return Handle::UNDEFINED;
+	if (0 < base->get_arity())
+	{
+		_multi_space = true;
+		cacheFrame(HandleCast(base));
+		return HandleCast(base);
+	}
+
+	std::lock_guard<std::mutex> lck(_mtx);
+
+	std::string msg = "(cog-atomspace)\n";
+	do_send(msg);
+	std::string rply = do_recv();
+
+	if (rply.size() < 5) return Handle::UNDEFINED;
+
+	_multi_space = true;
+	size_t pos = 0;
+	Handle top = Sexpr::decode_frame(HandleCast(base), rply, pos, _fid_map);
+
+	for (const auto& pr : _fid_map)
+	{
+		std::string shorty = "(AtomSpace \"" + pr.first + "\")";
+		_frame_map.insert({pr.second, shorty});
+	}
+
+	return top;
 }
 
 // ===================================================================
