@@ -143,6 +143,7 @@ void CogStorage::getAtom(const Handle& h)
 
 void CogStorage::decode_atom_list(const std::string& expr, const Pkt& pkt)
 {
+static std::unordered_map<std::string, Handle> _fid_map; // tmp placeholder
 	// Loop and decode atoms.
 	size_t l = expr.find('(') + 1; // skip the first paren.
 	size_t end = expr.rfind(')');  // trim tailing paren.
@@ -154,7 +155,7 @@ void CogStorage::decode_atom_list(const std::string& expr, const Pkt& pkt)
 		int pcnt = Sexpr::get_next_expr(expr, l, r, 0);
 		if (l == r) break;
 		if (0 < pcnt) break;
-		Handle h = pkt.table->storage_add_nocheck(Sexpr::decode_atom(expr, l, r, 0));
+		Handle h = pkt.table->storage_add_nocheck(Sexpr::decode_atom(expr, l, r, 0, _fid_map));
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";

@@ -41,18 +41,19 @@ using namespace opencog;
 
 void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 {
+	// Are there multiple AtomSpaces involved?
+	if (not _multi_space and h->getAtomSpace() != _atom_space)
+		_multi_space = true;
+
+	if (_multi_space) writeFrame(h->getAtomSpace());
+
 	// If there are no values, be sure to reset the TV to the default TV.
 	std::string msg;
 	if (h->haveValues())
-		msg = "(cog-set-values! " + Sexpr::encode_atom(h) +
-			Sexpr::encode_atom_values(h);
+		msg = "(cog-set-values! " + Sexpr::encode_atom(h, _multi_space) +
+			Sexpr::encode_atom_values(h) + ")\n";
 	else
-		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " (stv 1 0)";
-
-	// If working with multiple AtomSpaces, things get complicated.
-	if (_multi_space or h->getAtomSpace() != _atom_space)
-		msg += writeFrame(h->getAtomSpace());
-	msg += ")\n";
+		msg = "(cog-set-tv! " + Sexpr::encode_atom(h, _multi_space) + " (stv 1 0))";
 
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
@@ -63,9 +64,15 @@ void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 
 void CogSimpleStorage::storeValue(const Handle& h, const Handle& key)
 {
+	// Are there multiple AtomSpaces involved?
+	if (not _multi_space and h->getAtomSpace() != _atom_space)
+		_multi_space = true;
+
+	if (_multi_space) writeFrame(h->getAtomSpace());
+
 	std::string msg;
 	msg = "(cog-set-value! " + Sexpr::encode_atom(h) +
-	      Sexpr::encode_atom(key) +
+	      Sexpr::encode_atom(key, _multi_space) +
 	      Sexpr::encode_value(h->getValue(key)) + ")\n";
 
 	std::lock_guard<std::mutex> lck(_mtx);
@@ -159,7 +166,9 @@ void CogSimpleStorage::decode_atom_list(AtomSpace* table)
 		int pcnt = Sexpr::get_next_expr(expr, l, r, 0);
 		if (l == r) break;
 		if (0 < pcnt) break;
-		Handle h = table->storage_add_nocheck(Sexpr::decode_atom(expr, l, r, 0));
+		Handle h = Sexpr::decode_atom(expr, l, r, 0, _fid_map);
+		if (nullptr == h->getAtomSpace())
+			h = table->storage_add_nocheck(h);
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
@@ -276,6 +285,7 @@ void CogSimpleStorage::cacheFrame(const Handle& hasp)
 	std::string shorty = "(AtomSpace \"" + hasp->get_name() + "\")";
 	std::lock_guard<std::mutex> flck(_mtx_frame);
 	_frame_map.insert({hasp, shorty});
+	_fid_map.insert({shorty, hasp});
 }
 
 std::string CogSimpleStorage::writeFrame(const Handle& hasp)
