@@ -42,7 +42,7 @@ using namespace opencog;
 class DeleteUTest :  public CxxTest::TestSuite
 {
     private:
-        AtomSpace* _as;
+        AtomSpacePtr _as;
         CogServer* srvr = NULL;
         std::thread * main_loop = NULL;
 
@@ -80,14 +80,14 @@ class DeleteUTest :  public CxxTest::TestSuite
         void setUp(void);
         void tearDown(void);
 
-        void add_to_space(int, AtomSpace *, std::string id);
+        void add_to_space(int, AtomSpacePtr, std::string id);
         void fetch_space(int, StorageNodePtr);
-        void check_space(int, AtomSpace *, std::string dbgmsg);
-        void check_remove(int, AtomSpace *, std::string dbgmsg);
-        void check_empty(int, AtomSpace *);
-        void extract_links(int, AtomSpace *);
+        void check_space(int, AtomSpacePtr, std::string dbgmsg);
+        void check_remove(int, AtomSpacePtr, std::string dbgmsg);
+        void check_empty(int, AtomSpacePtr);
+        void extract_links(int, AtomSpacePtr);
         void delete_links(int, StorageNodePtr);
-        void extract_nodes(int, AtomSpace *);
+        void extract_nodes(int, AtomSpacePtr);
         void delete_nodes(int, StorageNodePtr);
         void atomCompare(AtomPtr, AtomPtr, std::string);
         void tvMiscompare(AtomPtr, AtomPtr, std::string);
@@ -118,12 +118,12 @@ DeleteUTest:: DeleteUTest(void)
  */
 void DeleteUTest::setUp(void)
 {
-    _as = new AtomSpace();
+    _as = createAtomSpace();
 }
 
 void DeleteUTest::tearDown(void)
 {
-    delete _as;
+    _as = nullptr;
 }
 
 // ============================================================
@@ -197,7 +197,7 @@ void DeleteUTest::tvMiscompare(AtomPtr a, AtomPtr b, std::string where)
 
 // ============================================================
 
-void DeleteUTest::add_to_space(int idx, AtomSpace *as, std::string id)
+void DeleteUTest::add_to_space(int idx, AtomSpacePtr as, std::string id)
 {
     // Create an atom ...
     TruthValuePtr stv(SimpleTruthValue::createTV(0.11, 100+idx));
@@ -287,7 +287,7 @@ void DeleteUTest::fetch_space(int idx, StorageNodePtr space)
     space->barrier();
 }
 
-void DeleteUTest::check_space(int idx, AtomSpace *space, std::string dbgmsg)
+void DeleteUTest::check_space(int idx, AtomSpacePtr space, std::string dbgmsg)
 {
     dbgmsg += "-idx=" + std::to_string(idx);
     Handle hb1 = space->get_handle(n1[idx]->get_type(), n1[idx]->get_name());
@@ -320,7 +320,7 @@ void DeleteUTest::check_space(int idx, AtomSpace *space, std::string dbgmsg)
     atomCompare(hl3[idx], hlb3, dbgmsg + "-hlinkb3");
 }
 
-void DeleteUTest::check_remove(int idx, AtomSpace *space, std::string dbgmsg)
+void DeleteUTest::check_remove(int idx, AtomSpacePtr space, std::string dbgmsg)
 {
     Handle hb1 = space->get_handle(n1[idx]->get_type(), n1[idx]->get_name());
     Handle hb2 = space->get_handle(n2[idx]->get_type(), n2[idx]->get_name());
@@ -345,7 +345,7 @@ void DeleteUTest::check_remove(int idx, AtomSpace *space, std::string dbgmsg)
     tvMiscompare(hl3[idx], hlb3, dbgmsg + "-hlinkb3");
 }
 
-void DeleteUTest::check_empty(int idx, AtomSpace *space)
+void DeleteUTest::check_empty(int idx, AtomSpacePtr space)
 {
     Handle hb1 = space->get_handle(n1[idx]->get_type(), n1[idx]->get_name());
     TSM_ASSERT("Should not find this atom", hb1 == Handle::UNDEFINED);
@@ -370,7 +370,7 @@ void DeleteUTest::check_empty(int idx, AtomSpace *space)
 }
 
 // This removes from atomspace, but not from storage.
-void DeleteUTest::extract_links(int idx, AtomSpace *as)
+void DeleteUTest::extract_links(int idx, AtomSpacePtr as)
 {
 	as->extract_atom(hl3[idx]);
 	as->extract_atom(hl2[idx]);
@@ -391,7 +391,7 @@ void DeleteUTest::delete_links(int idx, StorageNodePtr store)
 
 // This removes all the links, and one node, from atomspace,
 // but not from storage.
-void DeleteUTest::extract_nodes(int idx, AtomSpace *as)
+void DeleteUTest::extract_nodes(int idx, AtomSpacePtr as)
 {
 	as->extract_atom(h1[idx], true);
 }

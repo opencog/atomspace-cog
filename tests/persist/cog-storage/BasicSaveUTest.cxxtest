@@ -383,8 +383,8 @@ void BasicSaveUTest::test_table()
         return;
     }
 
-    AtomSpace *as1 = new AtomSpace();
-    AtomSpace *table1 = as1;
+    AtomSpacePtr as1 = createAtomSpace();
+    AtomSpace *table1 = as1.get();
 
     int idx = 0;
     add_to_table(idx++, table1, "AA-aa-wow ");
@@ -404,7 +404,7 @@ void BasicSaveUTest::test_table()
     }
 #endif
     delete store;
-    delete as1;
+    as1 = nullptr;
     printf("Done storing table; size=%lu\n", num_stored);
 
     // Reopen connection, and load the atom table.
@@ -412,8 +412,8 @@ void BasicSaveUTest::test_table()
     store->open();
     TSM_ASSERT("Not connected to database", store->connected());
 
-    AtomSpace *as2 = new AtomSpace();
-    AtomSpace *table2 = as2;
+    AtomSpacePtr as2 = createAtomSpace();
+    AtomSpace *table2 = as2.get();
 
     store->loadAtomSpace(table2);
     store->barrier();
@@ -433,7 +433,6 @@ void BasicSaveUTest::test_table()
 
     store->kill_data();
     delete store;
-    delete as2;
 
     logger().debug("END TEST: %s", __FUNCTION__);
 }

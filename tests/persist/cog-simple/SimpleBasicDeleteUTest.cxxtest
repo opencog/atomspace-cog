@@ -106,7 +106,7 @@ void SimpleBasicDeleteUTest::test_duplicates(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
@@ -137,7 +137,6 @@ void SimpleBasicDeleteUTest::test_duplicates(void)
 
 	store->erase();
 	store->close();
-	delete as;
 
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
@@ -148,7 +147,7 @@ void SimpleBasicDeleteUTest::test_recursive(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
@@ -236,7 +235,6 @@ void SimpleBasicDeleteUTest::test_recursive(void)
 	// --------------------------------------
 	store->erase();
 	store->close();
-	delete as;
 
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
@@ -248,7 +246,7 @@ void SimpleBasicDeleteUTest::test_key_deletion(void)
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
 	// Create an Atom with some keys on it.
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
@@ -291,14 +289,11 @@ void SimpleBasicDeleteUTest::test_key_deletion(void)
 	// So this is a softball check that everything worked, even
 	// without the close().
 
-	// We are done.
-	delete as;
-
 	// -------------------------------------------------------
 	// Start again, with a fresh connection.
 	// Verify that the delete key is really deleted.
 
-	as = new AtomSpace();
+	as = createAtomSpace();
 
 	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	store = StorageNodeCast(hsn);
@@ -330,7 +325,6 @@ void SimpleBasicDeleteUTest::test_key_deletion(void)
 
 	store->erase();
 	store->close();
-	delete as;
 
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
@@ -344,7 +338,7 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
 	// Create an Atom with some keys on it.
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
@@ -378,14 +372,11 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 	// So this is a softball check that everything worked, even
 	// without the close().
 
-	// We are done.
-	delete as;
-
 	// -------------------------------------------------------
 	// Start again, with a fresh connection.
 	// Verify that the delete key is really deleted.
 
-	as = new AtomSpace();
+	as = createAtomSpace();
 
 	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	store = StorageNodeCast(hsn);
@@ -425,13 +416,12 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 
 	// We are done.
 	store->close();
-	delete as;
 
 	// -------------------------------------------------------
 	// Start again, with a fresh connection.
 	// Verify that the delete key is really deleted.
 
-	as = new AtomSpace();
+	as = createAtomSpace();
 
 	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	store = StorageNodeCast(hsn);
@@ -457,7 +447,6 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 
 	store->erase();
 	store->close();
-	delete as;
 
 	logger().debug("END TEST: %s", __FUNCTION__);
 }

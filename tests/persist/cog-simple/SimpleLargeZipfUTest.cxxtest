@@ -41,7 +41,7 @@ using namespace opencog;
 class LargeZipfUTest :  public CxxTest::TestSuite
 {
 	private:
-		AtomSpace *_as;
+		AtomSpacePtr _as;
 		CogServer* srvr = NULL;
 		std::thread * main_loop = NULL;
 
@@ -60,10 +60,10 @@ class LargeZipfUTest :  public CxxTest::TestSuite
 		void tearDown(void);
 		void kill_data(void);
 
-		int filler_up(AtomSpace *);
-		void fetch_space(AtomSpace *, StorageNodePtr);
-		void check_space(AtomSpace *, std::string dbgmsg);
-		void check_empty(AtomSpace *);
+		int filler_up(AtomSpacePtr);
+		void fetch_space(AtomSpacePtr, StorageNodePtr);
+		void check_space(AtomSpacePtr, std::string dbgmsg);
+		void check_empty(AtomSpacePtr);
 		void atomCompare(AtomPtr, AtomPtr, std::string);
 
 		void test_atomspace(void);
@@ -104,12 +104,12 @@ LargeZipfUTest::~LargeZipfUTest()
  */
 void LargeZipfUTest::setUp(void)
 {
-	_as = new AtomSpace();
+	_as = createAtomSpace();
 }
 
 void LargeZipfUTest::tearDown(void)
 {
-	delete _as;
+	_as = nullptr;
 	kill_data();
 }
 
@@ -182,7 +182,7 @@ void LargeZipfUTest::atomCompare(AtomPtr a, AtomPtr b, std::string where)
 
 // ============================================================
 
-void LargeZipfUTest::fetch_space(AtomSpace *space, StorageNodePtr store)
+void LargeZipfUTest::fetch_space(AtomSpacePtr space, StorageNodePtr store)
 {
 	for (int w=0; w<NWORDS; w++)
 	{
@@ -199,7 +199,7 @@ void LargeZipfUTest::fetch_space(AtomSpace *space, StorageNodePtr store)
 	}
 }
 
-void LargeZipfUTest::check_space(AtomSpace *space, std::string dbgmsg)
+void LargeZipfUTest::check_space(AtomSpacePtr space, std::string dbgmsg)
 {
 	for (int w=0; w<NWORDS; w++)
 	{
@@ -215,7 +215,7 @@ void LargeZipfUTest::check_space(AtomSpace *space, std::string dbgmsg)
 	}
 }
 
-void LargeZipfUTest::check_empty(AtomSpace *space)
+void LargeZipfUTest::check_empty(AtomSpacePtr space)
 {
 	for (int w=0; w<NWORDS; w++)
 	{
@@ -233,7 +233,7 @@ void LargeZipfUTest::check_empty(AtomSpace *space)
 
 // ============================================================
 
-int LargeZipfUTest::filler_up(AtomSpace *space)
+int LargeZipfUTest::filler_up(AtomSpacePtr space)
 {
 	// Emulate a word, with a spelling that is not long, not short ...
 	std::string wrd = "Word-ishy ";

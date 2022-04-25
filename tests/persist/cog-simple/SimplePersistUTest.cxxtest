@@ -42,7 +42,7 @@ using namespace opencog;
 class PersistUTest :  public CxxTest::TestSuite
 {
     private:
-        AtomSpace *_as;
+        AtomSpacePtr _as;
         CogServer* srvr = NULL;
         std::thread * main_loop = NULL;
 
@@ -80,10 +80,10 @@ class PersistUTest :  public CxxTest::TestSuite
         void setUp(void);
         void tearDown(void);
 
-        void add_to_space(int, AtomSpace *, std::string id);
+        void add_to_space(int, AtomSpacePtr, std::string id);
         void fetch_space(int, StorageNodePtr);
-        void check_space(int, AtomSpace *, std::string dbgmsg);
-        void check_empty(int, AtomSpace *);
+        void check_space(int, AtomSpacePtr, std::string dbgmsg);
+        void check_empty(int, AtomSpacePtr);
         void atomCompare(AtomPtr, AtomPtr, std::string);
 
         void test_atomspace(void);
@@ -108,12 +108,12 @@ PersistUTest:: PersistUTest(void)
  */
 void PersistUTest::setUp(void)
 {
-    _as = new AtomSpace();
+    _as = createAtomSpace();
 }
 
 void PersistUTest::tearDown(void)
 {
-    delete _as;
+    _as = nullptr;
 }
 
 // ============================================================
@@ -169,7 +169,7 @@ void PersistUTest::atomCompare(AtomPtr a, AtomPtr b, std::string where)
 
 // ============================================================
 
-void PersistUTest::add_to_space(int idx, AtomSpace *as, std::string id)
+void PersistUTest::add_to_space(int idx, AtomSpacePtr as, std::string id)
 {
     // Create an atom ...
     TruthValuePtr stv(SimpleTruthValue::createTV(0.11, 100+idx));
@@ -252,7 +252,7 @@ void PersistUTest::fetch_space(int idx, StorageNodePtr space)
     space->barrier();
 }
 
-void PersistUTest::check_space(int idx, AtomSpace *space, std::string dbgmsg)
+void PersistUTest::check_space(int idx, AtomSpacePtr space, std::string dbgmsg)
 {
     Handle hb1 = space->get_handle(n1[idx]->get_type(), n1[idx]->get_name());
     atomCompare(h1[idx], hb1, dbgmsg + "-hb1");
@@ -284,7 +284,7 @@ void PersistUTest::check_space(int idx, AtomSpace *space, std::string dbgmsg)
     atomCompare(hl3[idx], hlb3, dbgmsg + "-hlinkb3");
 }
 
-void PersistUTest::check_empty(int idx, AtomSpace *space)
+void PersistUTest::check_empty(int idx, AtomSpacePtr space)
 {
     Handle hb1 = space->get_handle(n1[idx]->get_type(), n1[idx]->get_name());
     TSM_ASSERT("Should not find this atom", hb1 == Handle::UNDEFINED);

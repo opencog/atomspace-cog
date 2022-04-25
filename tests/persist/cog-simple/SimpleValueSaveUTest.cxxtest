@@ -114,7 +114,7 @@ void SimpleValueSaveUTest::test_single_atom_save()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -163,8 +163,6 @@ void SimpleValueSaveUTest::test_single_atom_save()
 	store->store_atom(atom);
 	store->barrier();
 
-	delete as;
-
 	logger().info("END TEST: %s", __FUNCTION__);
 }
 
@@ -180,7 +178,7 @@ void SimpleValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 
 	// ------
 	// First, save the value
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -198,12 +196,12 @@ void SimpleValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 	printf ("Stored atom %s\n", atom->to_string().c_str());
 	printf ("Stored vals %s\n", atom->valuesToString().c_str());
 
-	delete as;
+	as = nullptr;
 
 	// ---------------------------------
 	// Now, fetch the value and compare.
 
-	as = new AtomSpace();
+	as = createAtomSpace();
 	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	store = StorageNodeCast(hsn);
 	store->open();
@@ -221,14 +219,14 @@ void SimpleValueSaveUTest::check_one(ValuePtr pap, bool fetchkey)
 	printf("Expecting %s\n", pap->to_string().c_str());
 	TS_ASSERT(*pap == *fap);
 
-	delete as;
+	as = nullptr;
 }
 
 void SimpleValueSaveUTest::test_save_restore(bool fkey)
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -269,7 +267,7 @@ void SimpleValueSaveUTest::test_save_restore(bool fkey)
 
 	check_one(pvl2, fkey);
 
-	delete as;
+	as = nullptr;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -283,7 +281,7 @@ void SimpleValueSaveUTest::test_load_by_type()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -340,12 +338,12 @@ void SimpleValueSaveUTest::test_load_by_type()
 	store->store_atom(av);
 	store->barrier();
 
-	delete as;
+	as = nullptr;
 
 	// --------------------
 	// Start it up again.
 
-	as = new AtomSpace();
+	as = createAtomSpace();
 	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	store = StorageNodeCast(hsn);
 	store->open();
@@ -401,7 +399,7 @@ void SimpleValueSaveUTest::test_load_by_type()
 	TS_ASSERT(*gpv == *pvv);
 
 	// --------------------
-	delete as;
+	as = nullptr;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -417,7 +415,7 @@ void SimpleValueSaveUTest::test_link_by_type()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -499,12 +497,12 @@ void SimpleValueSaveUTest::test_link_by_type()
 	store->store_atom(cv);
 	store->barrier();
 
-	delete as;
+	as = nullptr;
 
 	// --------------------
 	// Start it up again.
 
-	as = new AtomSpace();
+	as = createAtomSpace();
 	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	store = StorageNodeCast(hsn);
 	store->open();
@@ -616,7 +614,7 @@ void SimpleValueSaveUTest::test_link_by_type()
 	TS_ASSERT(*gpv == *pvv);
 
 	// --------------------
-	delete as;
+	as = nullptr;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -629,7 +627,7 @@ void SimpleValueSaveUTest::test_link_by_type_quoted()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -711,12 +709,12 @@ void SimpleValueSaveUTest::test_link_by_type_quoted()
 	store->store_atom(cv);
 	store->barrier();
 
-	delete as;
+	as = nullptr;
 
 	// --------------------
 	// Start it up again.
 
-	as = new AtomSpace();
+	as = createAtomSpace();
 	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	store = StorageNodeCast(hsn);
 	store->open();
@@ -827,7 +825,7 @@ void SimpleValueSaveUTest::test_link_by_type_quoted()
 	TS_ASSERT(*gpv == *pvv);
 
 	// --------------------
-	delete as;
+	as = nullptr;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -841,7 +839,7 @@ void SimpleValueSaveUTest::test_incoming()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
-	AtomSpace* as = new AtomSpace();
+	AtomSpacePtr as = createAtomSpace();
 	Handle hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -923,12 +921,12 @@ void SimpleValueSaveUTest::test_incoming()
 	store->store_atom(cv);
 	store->barrier();
 
-	delete as;
+	as = nullptr;
 
 	// --------------------
 	// Start it up again.
 
-	as = new AtomSpace();
+	as = createAtomSpace();
 	hsn = as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	store = StorageNodeCast(hsn);
 	store->open();
@@ -1036,7 +1034,7 @@ void SimpleValueSaveUTest::test_incoming()
 	TS_ASSERT(*gpv == *pvv);
 
 	// --------------------
-	delete as;
+	as = nullptr;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
