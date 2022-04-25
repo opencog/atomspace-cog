@@ -42,7 +42,9 @@ using namespace opencog;
 void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 {
 	// Are there multiple AtomSpaces involved?
-	if (not _multi_space and h->getAtomSpace() != _atom_space)
+	if (not _multi_space
+	    and nullptr != _atom_space
+	    and h->getAtomSpace() != _atom_space)
 		_multi_space = true;
 
 	if (_multi_space) writeFrame(h->getAtomSpace());
