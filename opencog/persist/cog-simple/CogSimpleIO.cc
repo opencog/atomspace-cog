@@ -53,7 +53,7 @@ void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 		msg = "(cog-set-values! " + Sexpr::encode_atom(h, _multi_space) +
 			Sexpr::encode_atom_values(h) + ")\n";
 	else
-		msg = "(cog-set-tv! " + Sexpr::encode_atom(h, _multi_space) + " (stv 1 0))";
+		msg = "(cog-set-tv! " + Sexpr::encode_atom(h, _multi_space) + " (stv 1 0))\n";
 
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
