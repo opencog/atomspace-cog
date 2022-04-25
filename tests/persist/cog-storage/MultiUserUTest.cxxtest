@@ -65,7 +65,7 @@ class MultiUserUTest :  public CxxTest::TestSuite
 {
     private:
 #define NUSERS 6
-        AtomSpace* _as[NUSERS];
+        AtomSpacePtr _as[NUSERS];
 
         StorageNodePtr _store[NUSERS];
         std::atomic<int> nstarted;
@@ -113,9 +113,9 @@ class MultiUserUTest :  public CxxTest::TestSuite
         void setUp(void);
         void tearDown(void);
 
-        void add_to_space(int, AtomSpace *, StorageNodePtr, std::string id);
+        void add_to_space(int, AtomSpacePtr, StorageNodePtr, std::string id);
         void fetch_space(int, StorageNodePtr);
-        void check_space(int, AtomSpace *, std::string dbgmsg);
+        void check_space(int, AtomSpacePtr, std::string dbgmsg);
         void atomCompare(AtomPtr, AtomPtr, std::string);
 
         void run_user_test(int);
@@ -168,7 +168,7 @@ void MultiUserUTest::setUp(void)
 
 void MultiUserUTest::connect_to_db(int i)
 {
-    _as[i] = new AtomSpace();
+    _as[i] = createAtomSpace();
     Handle hsn = _as[i]->add_node(COG_STORAGE_NODE, "cog://localhost:16007");
     _store[i] = StorageNodeCast(hsn);
      _store[i]->open();
@@ -180,7 +180,7 @@ void MultiUserUTest::tearDown(void)
     /* Orderly shutdown avoids warning in Postgres log file. */
     for (int i=0; i < n_threads; i++)
     {
-        delete _as[i];
+        _as[i] = nullptr;
     }
 }
 
@@ -258,7 +258,7 @@ void MultiUserUTest::atomCompare(AtomPtr a, AtomPtr b, std::string where)
 
 // ============================================================
 
-void MultiUserUTest::add_to_space(int idx, AtomSpace *as,
+void MultiUserUTest::add_to_space(int idx, AtomSpacePtr as,
                                   StorageNodePtr store, std::string id)
 {
     if (not clobber) id += std::to_string(idx);
@@ -360,7 +360,7 @@ void MultiUserUTest::fetch_space(int idx, StorageNodePtr space)
     space->barrier();
 }
 
-void MultiUserUTest::check_space(int idx, AtomSpace *space, std::string dbgmsg)
+void MultiUserUTest::check_space(int idx, AtomSpacePtr space, std::string dbgmsg)
 {
     // printf("Checking %d\n", idx);
     fflush(stdout);
@@ -401,7 +401,7 @@ void MultiUserUTest::add_atoms(int thread_id)
 {
     int idx = 0;
     int off = NCLAUSE*thread_id;
-    AtomSpace* as = _as[thread_id];
+    AtomSpacePtr as = _as[thread_id];
     StorageNodePtr store = _store[thread_id];
 
     add_to_space(off + idx++, as, store, "AA-aa-wow ");
@@ -464,7 +464,7 @@ void MultiUserUTest::do_test_multiuser(void)
     for (std::thread& t : thread_pool) t.join();
     printf("Done joining threads\n");
 
-    AtomSpace* aspace = new AtomSpace();
+    AtomSpacePtr aspace = createAtomSpace();
     Handle hsn = aspace->add_node(COG_STORAGE_NODE, "cog://localhost:16007");
     StorageNodePtr store = StorageNodeCast(hsn);
     store->open();
@@ -476,7 +476,7 @@ void MultiUserUTest::do_test_multiuser(void)
             check_space(NCLAUSE*off+i, aspace, "verify-again");
         }
 
-    delete aspace;
+    aspace = nullptr;
 }
 
 void MultiUserUTest::test_multiuser(void)
