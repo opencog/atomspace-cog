@@ -43,7 +43,7 @@ using namespace opencog;
 class AlphaEquivUTest :  public CxxTest::TestSuite
 {
 	private:
-		AtomSpace* _as;
+		AtomSpacePtr _as;
 		std::string uri;
 		CogServer* srvr = NULL;
 		std::thread * main_loop = NULL;
@@ -136,7 +136,7 @@ void AlphaEquivUTest::setup_data(void)
 {
 	kill_data();
 
-	_as = new AtomSpace();
+	_as = createAtomSpace();
 
 	Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
@@ -153,7 +153,7 @@ void AlphaEquivUTest::setup_data(void)
 	store->store_atomspace();
 	store->barrier();
 
-	delete _as;
+	_as = nullptr;
 }
 
 // ============================================================
@@ -165,7 +165,7 @@ void AlphaEquivUTest::test_fetch(void)
 
 	setup_data();
 
-	_as = new AtomSpace();
+	_as = createAtomSpace();
 	Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -195,7 +195,7 @@ void AlphaEquivUTest::test_fetch(void)
 	FloatValuePtr fvp = FloatValueCast(fu);
 	TSM_ASSERT_EQUALS("Expecting three floats", fvp->size(), 3);
 
-	delete _as;
+	_as = nullptr;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -209,7 +209,7 @@ void AlphaEquivUTest::test_remove(void)
 
 	setup_data();
 
-	_as = new AtomSpace();
+	_as = createAtomSpace();
 	Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -235,7 +235,7 @@ void AlphaEquivUTest::test_remove(void)
 	ValuePtr fu = lx->getValue(an(PREDICATE, "foo"));
 	TSM_ASSERT("Expecting null value", nullptr == fu);
 
-	delete _as;
+	_as = nullptr;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
@@ -249,7 +249,7 @@ void AlphaEquivUTest::test_recursive_remove(void)
 
 	setup_data();
 
-	_as = new AtomSpace();
+	_as = createAtomSpace();
 	Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
@@ -274,7 +274,7 @@ void AlphaEquivUTest::test_recursive_remove(void)
 	ValuePtr fu = lx->getValue(an(PREDICATE, "foo"));
 	TSM_ASSERT("Expecting null value", nullptr == fu);
 
-	delete _as;
+	_as = nullptr;
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
