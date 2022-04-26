@@ -67,7 +67,7 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 {
 #define URIX_LEN (sizeof("cog://") - 1)  // Should be 6
 	if (strncmp(uri.c_str(), "cog://", URIX_LEN))
-		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri);
+		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri.c_str());
 
 	_uri = uri;
 
@@ -132,11 +132,12 @@ int CogChannel<Client, Data>::open_sock()
 	rc = setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
+#ifndef __APPLE__
 	flags = 1;
 	rc = setsockopt(sockfd, IPPROTO_TCP, TCP_QUICKACK, &flags, sizeof(flags));
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
-
+#endif
 	// Get the s-expression shell.
 	std::string eval = "sexpr\n";
 	rc = send(sockfd, eval.c_str(), eval.size(), 0);

@@ -133,11 +133,12 @@ void CogSimpleStorage::open(void)
 	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
+#ifndef __APPLE__
 	flags = 1;
 	rc = setsockopt(_sockfd, IPPROTO_TCP, TCP_QUICKACK, &flags, sizeof(flags));
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
-
+#endif
 	// Get the s-expression shell.
 	std::string eval = "sexpr\n";
 
