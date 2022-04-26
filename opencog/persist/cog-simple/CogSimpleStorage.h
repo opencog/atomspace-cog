@@ -81,7 +81,7 @@ class CogSimpleStorage : public StorageNode
 		void loadType(AtomSpace*, Type);
 		void loadAtomSpace(AtomSpace*); // Load entire contents
 		void storeAtomSpace(const AtomSpace*); // Store entire contents
-		void barrier();
+		void barrier(AtomSpace* = nullptr);
 
 		// Debugging and performance monitoring
 		void print_stats(void);

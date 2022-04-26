@@ -250,7 +250,7 @@ std::string CogSimpleStorage::do_recv()
 /// barrier really are performed before before all the writes after
 /// the barrier.
 ///
-void CogSimpleStorage::barrier()
+void CogSimpleStorage::barrier(AtomSpace* as)
 {
 }
 
