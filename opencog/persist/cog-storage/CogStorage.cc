@@ -88,7 +88,7 @@ void CogStorage::close(void)
 /// barrier really are performed before before all the writes after
 /// the barrier.
 ///
-void CogStorage::barrier()
+void CogStorage::barrier(AtomSpace* as)
 {
 	_io_queue.barrier();
 }

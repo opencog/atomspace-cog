@@ -97,7 +97,7 @@ class CogSimpleStorage : public StorageNode
 		void storeAtomSpace(const AtomSpace*); // Store entire contents
 		Handle loadFrameDAG(AtomSpace*); // Load AtomSpace DAG
 		void storeFrameDAG(AtomSpace*); // Store AtomSpace DAG
-		void barrier();
+		void barrier(AtomSpace* = nullptr);
 
 		// Debugging and performance monitoring
 		void print_stats(void);
