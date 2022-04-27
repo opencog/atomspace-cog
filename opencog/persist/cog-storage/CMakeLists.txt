@@ -6,7 +6,7 @@ ADD_LIBRARY (persist-cog SHARED
 	CogIO
 	CogPersistSCM
 	CogStorage
-	../cog-common/ListUtils.cc
+	../cog-common/ListUtils
 )
 
 TARGET_LINK_LIBRARIES(persist-cog

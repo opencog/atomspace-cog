@@ -28,6 +28,8 @@ using namespace opencog;
 
 /* ================================================================== */
 
+namespace opencog {
+
 /**
  * Decode a Valuation association list.
  * This list has the format
@@ -76,4 +78,5 @@ void ro_decode_alist(const Handle& atom,
 	}
 }
 
+} // namespace opencog
 /* ============================= END OF FILE ================= */
