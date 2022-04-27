@@ -31,7 +31,11 @@
 
 #include "CogStorage.h"
 #include "CogChannel.cc"
-#include "../cog-common/ListUtils.h"
+
+#define CLASSNAME CogStorage
+#include "../cog-common/ListUtils.cc"
+#undef CLASSNAME
+
 
 using namespace opencog;
 
@@ -156,7 +160,7 @@ static std::unordered_map<std::string, Handle> _fid_map; // tmp placeholder
 		int pcnt = Sexpr::get_next_expr(expr, l, r, 0);
 		if (l == r) break;
 		if (0 < pcnt) break;
-		Handle h = pkt.table->storage_add_nocheck(Sexpr::decode_atom(expr, l, r, 0, _fid_map));
+		Handle h = add_nocheck(pkt.table, Sexpr::decode_atom(expr, l, r, 0, _fid_map));
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
@@ -238,7 +242,7 @@ void CogStorage::decode_kvp_list_const(const std::string& reply, const Pkt& pkt)
 {
 	Handle h = pkt.h;
 	// Sexpr::decode_alist(h, reply);
-	ro_decode_alist(h, reply);
+	ro_decode_alist(pkt.table, h, reply);
 }
 
 void CogStorage::runQuery(const Handle& query, const Handle& key,

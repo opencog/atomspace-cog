@@ -51,6 +51,7 @@ class CogSimpleStorage : public StorageNode
 		std::string do_recv(void);
 
 		void decode_atom_list(AtomSpace*);
+		void ro_decode_alist(AtomSpace*, const Handle&, const std::string&);
 
 		// True if working with more than one atomspace.
 		bool _multi_space;

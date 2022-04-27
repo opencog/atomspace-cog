@@ -63,6 +63,8 @@ class CogStorage : public StorageNode
 		{ decode_kvp_list_const(s, p); }
 		void is_ok(const std::string&, Pkt&);
 
+		void ro_decode_alist(AtomSpace*, const Handle&, const std::string&);
+
 	public:
 		CogStorage(std::string uri);
 		CogStorage(const CogStorage&) = delete; // disable copying

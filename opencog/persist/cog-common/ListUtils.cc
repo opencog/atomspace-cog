@@ -20,15 +20,6 @@
  * Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include <opencog/atoms/base/Atom.h>
-#include <opencog/persist/sexpr/Sexpr.h>
-#include <opencog/atomspace/AtomSpace.h>
-
-using namespace opencog;
-
-/* ================================================================== */
-
-namespace opencog {
 
 /**
  * Decode a Valuation association list.
@@ -39,11 +30,11 @@ namespace opencog {
  * Copy of code originally appearing in ValueSexpr.cc, adjusted to
  * work with read-only spaces.
  */
-void ro_decode_alist(const Handle& atom,
-                     const std::string& alist)
+void CLASSNAME::ro_decode_alist(AtomSpace* as,
+                                const Handle& atom,
+                                const std::string& alist)
 {
 	size_t pos = 0;
-	AtomSpace* as = atom->getAtomSpace();
 
 	pos = alist.find_first_not_of(" \n\t", pos);
 	if (std::string::npos == pos) return;
@@ -67,8 +58,7 @@ void ro_decode_alist(const Handle& atom,
 		// Make sure all atoms have found a nice home.
 		if (as)
 		{
-			Handle hkey = as->add_atom(key);
-			if (hkey) key = hkey; // might be null, if `as` is read-only
+			key = as->add_nocheck(key);
 			val = as->add_atoms(val);
 			as->set_value(atom, key, val);
 		}
@@ -78,5 +68,4 @@ void ro_decode_alist(const Handle& atom,
 	}
 }
 
-} // namespace opencog
 /* ============================= END OF FILE ================= */

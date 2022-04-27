@@ -30,7 +30,10 @@
 #include <opencog/persist/sexpr/Sexpr.h>
 
 #include "CogSimpleStorage.h"
-#include "../cog-common/ListUtils.h"
+
+#define CLASSNAME CogSimpleStorage
+#include "../cog-common/ListUtils.cc"
+#undef CLASSNAME
 
 using namespace opencog;
 
@@ -172,14 +175,14 @@ void CogSimpleStorage::decode_atom_list(AtomSpace* table)
 		if (0 < pcnt) break;
 		Handle h = Sexpr::decode_atom(expr, l, r, 0, _fid_map);
 		if (nullptr == h->getAtomSpace())
-			h = table->storage_add_nocheck(h);
+			h = add_nocheck(as, h);
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
 		do_send(get_keys);
 		std::string msg = do_recv();
 		// Sexpr::decode_alist(h, msg);
-		ro_decode_alist(h, msg);
+		ro_decode_alist(as, h, msg);
 
 		// advance to next.
 		l = r+1;
