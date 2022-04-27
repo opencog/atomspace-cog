@@ -91,7 +91,7 @@ they are pounding the server with large datasets.
 This is effectively "done"; there are no known bugs at this time.
 There is one missing feature, but no one uses it (yet): support for
 multiple atomspaces is missing. Work on adding this is in progress
-but back-burnered. See the `cog-simple` directory.
+but back-burnered. One unit test works. See the `cog-simple` directory.
 
 Waiting on user feedback before declaring version 1.0.
 
