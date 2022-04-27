@@ -30,7 +30,7 @@ namespace opencog
 /** \addtogroup grp_persist
  *  @{
  */
-void ro_decode_alist(const Handle&, const std::string&, size_t&);
+void ro_decode_alist(const Handle&, const std::string&);
 
 /** @}*/
 } // namespace opencog

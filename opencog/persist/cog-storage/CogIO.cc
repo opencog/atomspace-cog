@@ -31,6 +31,7 @@
 
 #include "CogStorage.h"
 #include "CogChannel.cc"
+#include "../cog-common/ListUtils.h"
 
 using namespace opencog;
 
@@ -236,7 +237,8 @@ void CogStorage::kill_data(void)
 void CogStorage::decode_kvp_list_const(const std::string& reply, const Pkt& pkt)
 {
 	Handle h = pkt.h;
-	Sexpr::decode_alist(h, reply);
+	// Sexpr::decode_alist(h, reply);
+	ro_decode_alist(h, reply);
 }
 
 void CogStorage::runQuery(const Handle& query, const Handle& key,

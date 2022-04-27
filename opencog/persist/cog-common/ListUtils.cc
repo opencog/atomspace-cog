@@ -38,8 +38,9 @@ using namespace opencog;
  * work with read-only spaces.
  */
 void ro_decode_alist(const Handle& atom,
-                     const std::string& alist, size_t& pos)
+                     const std::string& alist)
 {
+	size_t pos = 0;
 	AtomSpace* as = atom->getAtomSpace();
 
 	pos = alist.find_first_not_of(" \n\t", pos);
@@ -55,7 +56,7 @@ void ro_decode_alist(const Handle& atom,
 	while (std::string::npos != pos and pos < totlen)
 	{
 		++pos;  // over first paren of pair
-		Handle key(decode_atom(alist, pos));
+		Handle key(Sexpr::decode_atom(alist, pos));
 
 		pos = alist.find(" . ", pos);
 		pos += 3;
@@ -66,7 +67,7 @@ void ro_decode_alist(const Handle& atom,
 		{
 			Handle hkey = as->add_atom(key);
 			if (hkey) key = hkey; // might be null, if `as` is read-only
-			val = add_atoms(as, val);
+			val = as->add_atoms(val);
 			as->set_value(atom, key, val);
 		}
 		else
