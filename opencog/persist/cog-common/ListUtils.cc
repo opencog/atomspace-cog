@@ -62,7 +62,8 @@ void CLASSNAME::ro_decode_alist(AtomSpace* as,
 		{
 			key = add_nocheck(as, key);
 			val = as->add_atoms(val);
-			as->set_value(atom, key, val);
+			atom->setValue(key, val);
+			add_nocheck(as, atom);
 		}
 		else
 			atom->setValue(key, val);
