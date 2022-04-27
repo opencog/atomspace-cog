@@ -21,6 +21,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+using namespace opencog;
+
 /**
  * Decode a Valuation association list.
  * This list has the format
@@ -58,7 +60,7 @@ void CLASSNAME::ro_decode_alist(AtomSpace* as,
 		// Make sure all atoms have found a nice home.
 		if (as)
 		{
-			key = as->add_nocheck(key);
+			key = add_nocheck(as, key);
 			val = as->add_atoms(val);
 			as->set_value(atom, key, val);
 		}

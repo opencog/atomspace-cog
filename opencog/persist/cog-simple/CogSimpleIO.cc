@@ -152,7 +152,7 @@ void CogSimpleStorage::getAtom(const Handle& h)
 	do_send(get_keys);
 	msg = do_recv();
 	// Sexpr::decode_alist(h, msg);
-	ro_decode_alist(h, msg);
+	ro_decode_alist(_atom_space, h, msg);
 }
 
 void CogSimpleStorage::decode_atom_list(AtomSpace* table)
@@ -175,14 +175,14 @@ void CogSimpleStorage::decode_atom_list(AtomSpace* table)
 		if (0 < pcnt) break;
 		Handle h = Sexpr::decode_atom(expr, l, r, 0, _fid_map);
 		if (nullptr == h->getAtomSpace())
-			h = add_nocheck(as, h);
+			h = add_nocheck(table, h);
 
 		// Get all of the keys.
 		std::string get_keys = "(cog-keys->alist " + expr.substr(l, r-l+1) + ")\n";
 		do_send(get_keys);
 		std::string msg = do_recv();
 		// Sexpr::decode_alist(h, msg);
-		ro_decode_alist(as, h, msg);
+		ro_decode_alist(table, h, msg);
 
 		// advance to next.
 		l = r+1;
