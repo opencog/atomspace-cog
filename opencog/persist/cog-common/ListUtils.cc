@@ -36,6 +36,7 @@ void CLASSNAME::ro_decode_alist(AtomSpace* as,
                                 const Handle& atom,
                                 const std::string& alist)
 {
+	if (nullptr == as) as = atom->getAtomSpace();
 	size_t pos = 0;
 
 	pos = alist.find_first_not_of(" \n\t", pos);

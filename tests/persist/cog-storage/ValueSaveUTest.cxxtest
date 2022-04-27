@@ -60,6 +60,7 @@ class ValueSaveUTest :  public CxxTest::TestSuite
 			logger().set_level(Logger::INFO);
 			// logger().set_level(Logger::DEBUG);
 			logger().set_print_to_stdout_flag(true);
+			// logger().set_sync_flag(true);
 
 			uri = "cog://localhost:16002";
 
@@ -360,6 +361,8 @@ void ValueSaveUTest::test_load_by_type()
 	// Six: 4 ConceptNodes, the PredicateNode "*-TruthValueKey-*"
 	// and PredicateNode "some pred key" -- the two preds show up
 	// when the attached values are fetched.
+	printf ("fetched %lu atoms, expecting 7\n", as->get_size());
+	// printf("contents=%s\n", as->to_string().c_str());
 	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 7);
 
 	Handle gkey = as->add_node(PREDICATE_NODE, "some pred key");
@@ -520,6 +523,8 @@ void ValueSaveUTest::test_link_by_type()
 	// only the values on the C-links should be fetched.
 	store->fetch_all_atoms_of_type(LIST_LINK);
 	store->barrier();
+	printf ("fetched %lu atoms, expecting 15\n", as->get_size());
+	// printf("contents=%s\n", as->to_string().c_str());
 	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 15);
 
 	Handle gbf = as->add_node(CONCEPT_NODE, "b float node");
