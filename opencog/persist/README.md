@@ -12,3 +12,7 @@ A multi-threaded, parallel implementation of a cogserver-client. Far
 more complex, but should allow greater throughput for complex production
 uses. Read `cog-simple` to understand the general idea, but use this in
 practice.
+
+cog-common
+----------
+Snippets of code shared by both the above.
