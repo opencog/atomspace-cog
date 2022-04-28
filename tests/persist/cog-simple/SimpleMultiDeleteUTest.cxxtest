@@ -139,8 +139,7 @@ void SimpleMultiDeleteUTest::worker(int thread_id)
 			if (nullptr == li) continue;
 
 			// Remove the link.
-			store->remove_atom(li);
-			as->extract_atom(li);
+			store->remove_atom(as, li);
 		}
 	}
 
