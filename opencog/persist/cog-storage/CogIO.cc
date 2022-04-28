@@ -59,7 +59,7 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
 }
 
-void CogStorage::removeAtom(const Handle& h, bool recursive)
+void CogStorage::removeAtom(AtomSpace* frame, const Handle& h, bool recursive)
 {
 	CHECK_OPEN;
 	std::string msg;

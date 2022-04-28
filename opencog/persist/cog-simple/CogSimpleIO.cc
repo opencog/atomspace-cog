@@ -109,7 +109,7 @@ void CogSimpleStorage::loadValue(const Handle& h, const Handle& key)
 	h->setValue(key, vp);
 }
 
-void CogSimpleStorage::removeAtom(const Handle& h, bool recursive)
+void CogSimpleStorage::removeAtom(AtomSpace* frame, const Handle& h, bool recursive)
 {
 	std::string msg;
 	if (recursive)
