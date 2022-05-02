@@ -210,7 +210,7 @@ void CogSimpleStorage::fetchIncomingByType(AtomSpace* table, const Handle& h, Ty
 void CogSimpleStorage::loadAtomSpace(AtomSpace* table)
 {
 	// If there's a hierarchy of frames, get those first.
-	loadFrameDAG(table);
+	loadFrameDAG();
 
 	std::lock_guard<std::mutex> lck(_mtx);
 
@@ -338,14 +338,10 @@ void CogSimpleStorage::storeFrameDAG(AtomSpace* top)
 	_multi_space = true;
 }
 
-Handle CogSimpleStorage::loadFrameDAG(AtomSpace* base)
+// XXX FIXME; this just returns one top, instead of all of them.
+HandleSeq CogSimpleStorage::loadFrameDAG(void)
 {
-	if (0 < base->get_arity())
-	{
-		_multi_space = true;
-		cacheFrame(HandleCast(base));
-		return HandleCast(base);
-	}
+	_multi_space = true;
 
 	std::lock_guard<std::mutex> lck(_mtx);
 
@@ -353,11 +349,10 @@ Handle CogSimpleStorage::loadFrameDAG(AtomSpace* base)
 	do_send(msg);
 	std::string rply = do_recv();
 
-	if (rply.size() < 5) return Handle::UNDEFINED;
+	if (rply.size() < 5) return HandleSeq();
 
-	_multi_space = true;
 	size_t pos = 0;
-	Handle top = Sexpr::decode_frame(HandleCast(base), rply, pos, _fid_map);
+	Handle top = Sexpr::decode_frame(Handle::UNDEFINED, rply, pos, _fid_map);
 
 	for (const auto& pr : _fid_map)
 	{
@@ -365,7 +360,9 @@ Handle CogSimpleStorage::loadFrameDAG(AtomSpace* base)
 		_frame_map.insert({pr.second, shorty});
 	}
 
-	return top;
+	HandleSeq tops;
+	tops.push_back(top);
+	return tops;
 }
 
 // ===================================================================

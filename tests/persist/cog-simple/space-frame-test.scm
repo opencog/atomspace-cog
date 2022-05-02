@@ -111,7 +111,7 @@
 	(cog-open storage)
 
 	; Load all of the AtomSpaces.
-	(define surface (load-frames))
+	(define surface (car (load-frames)))
 	(cog-set-atomspace! surface)
 
 	; Now load the AtomSpace itself
