@@ -48,7 +48,7 @@ class CogSimpleStorage : public StorageNode
 		std::mutex _mtx;
 		int _sockfd;
 		void do_send(const std::string&);
-		std::string do_recv(void);
+		std::string do_recv(bool=false);
 
 		void decode_atom_list(AtomSpace*);
 		void ro_decode_alist(AtomSpace*, const Handle&, const std::string&);

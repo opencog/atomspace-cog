@@ -245,13 +245,12 @@ std::string CogChannel<Client, Data>::do_recv(bool garbage)
 		// or are reads of the cogserver prompt, which are
 		// blank-space terminated.
 		if (first_time and len < 4096 and
-			(('\n' == buf[len-1]) or garbage))
+		   (('\n' == buf[len-1]) or garbage))
 		{
-				return buf;
+			return buf;
 		}
 
 		first_time = false;
-
 		rb += buf;
 
 		// newline-terminated strings mean we are done.

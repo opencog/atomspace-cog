@@ -192,14 +192,20 @@ void CogSimpleStorage::do_send(const std::string& str)
 			strerror(errno));
 }
 
-std::string CogSimpleStorage::do_recv()
+// If the argument `garbage` is set to true, then assume that
+// the first read contains the CogServer prompt, which is maybe
+// colorized, and is, in any case, not newine teminated.
+std::string CogSimpleStorage::do_recv(bool garbage)
 {
 	if (not connected())
 		throw IOException(TRACE_INFO, "Not connected to cogserver!");
 
-	// XXX FIXME the strategy below is rather fragile.
-	// I don't think its trustworthy for production use,
-	// but I guess its OK for proof-of-concept.
+	// The read strategy is as as folows:
+	// messages are always terminated by a newline, with one exception:
+	// Upon the initial connection to the CogServer, the server will
+	// send it's default prompt. That prompt is not newline-terminated.
+	// However, in that case, `garbage==true` and so we terminate the
+	// read.
 	std::string rb;
 	bool first_time = true;
 	while (true)
@@ -226,21 +232,21 @@ std::string CogSimpleStorage::do_recv()
 		if (1 == len and 0x16 == buf[0])
 			continue;
 
-		// If we have a short read, assume we are done.
-		if (first_time and len < 4096)
-			return buf;
-		first_time = false;
-
-		if (len < 4096)
+		// Normal short reads are either newline-terminated,
+		// or are reads of the cogserver prompt, which are
+		// blank-space terminated.
+		if (first_time and len < 4096 and
+		   (('\n' == buf[len-1]) or garbage))
 		{
-			rb += buf;
-			return rb;
+			return buf;
 		}
 
-		// If we have a long read, assume that there's more.
-		// XXXX FIXME this fails, of course, for buffers of
-		// exactly 4096...
+		first_time = false;
 		rb += buf;
+
+		// newline-terminated strings mean we are done.
+		if ('\n' == buf[len-1])
+			return rb;
 	}
 	return rb;
 }
