@@ -104,23 +104,23 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 			_host.c_str(), strerror(rc));
 	_servinfo = srvinfo;;
 
-#if FIXME_LATER
-// XXX This should work, but is causeing unit tests to fail.
-// I don't want to bother right now .. so ... later.
 	// Try to open a connection, so that we find out immediately
-	// if it is actually there. If not, clean up and throw.
-	int sockfd = 0;
+	// if a cogserver is actually there. If not, clean up and throw.
 	try {
-		sockfd = open_sock();
+		do_send(".\n\n");
+		do_recv();
+		close(s._sockfd);
+		s._sockfd = 0;
 	}
 	catch (const IOException& ex) {
-		if (sockfd) close(sockfd);
 		free(_servinfo);
 		_servinfo = NULL;
+		if (0 != s._sockfd) close(s._sockfd);
+		s._sockfd = 0;
 		throw;
 	}
-	close(sockfd);
-#endif
+	if (0 != s._sockfd) close(s._sockfd);
+	s._sockfd = 0;
 }
 
 template<typename Client, typename Data>
@@ -204,7 +204,8 @@ void CogChannel<Client, Data>::do_send(const std::string& str)
 template<typename Client, typename Data>
 std::string CogChannel<Client, Data>::do_recv()
 {
-	if (0 == s._sockfd) s._sockfd = open_sock();
+	if (0 == s._sockfd)
+		throw IOException(TRACE_INFO, "No open socket!");
 
 	// XXX FIXME the strategy below is rather fragile.
 	// I don't think its trustworthy for production use,
