@@ -168,11 +168,17 @@ IF (CXXTEST_FOUND)
 			COMMENT "Running tests with coverage..."
 		)
 	ELSE (CMAKE_BUILD_TYPE STREQUAL "Coverage")
-		# If this is a build with coverage enabled then test normally
+		# If this is a build with coverage disabled then test normally
 		ADD_CUSTOM_TARGET(test
 			DEPENDS tests
 			WORKING_DIRECTORY tests
 			COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --output-on-failure $(ARGS)
+			COMMENT "Running tests..."
+		)
+		ADD_CUSTOM_TARGET(test_storage
+			DEPENDS tests
+			WORKING_DIRECTORY tests/persist/cog-storage
+			COMMAND ${CMAKE_CTEST_COMMAND} $(ARGS)
 			COMMENT "Running tests..."
 		)
 	ENDIF (CMAKE_BUILD_TYPE STREQUAL "Coverage")
