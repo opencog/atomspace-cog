@@ -107,7 +107,7 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	// Try to open a connection, so that we find out immediately
 	// if a cogserver is actually there. If not, clean up and throw.
 	try {
-		do_send(".\n\n");
+		do_send(".\n\n.\n");
 		do_recv();
 		close(s._sockfd);
 		s._sockfd = 0;
@@ -207,9 +207,10 @@ std::string CogChannel<Client, Data>::do_recv()
 	if (0 == s._sockfd)
 		throw IOException(TRACE_INFO, "No open socket!");
 
-	// XXX FIXME the strategy below is rather fragile.
-	// I don't think its trustworthy for production use,
-	// but I guess its OK for proof-of-concept.
+	// The read strategy is as as folows:
+	// messages are always terminated by a newline, with one exception:
+	// Upon the initial connection to the CogServer, the server will
+	// send it's default prompt. That prompt is blank-space terminated.
 	std::string rb;
 	bool first_time = true;
 	while (true)
@@ -235,21 +236,22 @@ std::string CogChannel<Client, Data>::do_recv()
 			continue;
 
 		// If we have a short read, assume we are done.
-		if (first_time and len < 4096)
-			return buf;
+		// Normal short reads are either newline-terminated,
+		// or are reads of the cogserver prompt, which are
+		// blank-space terminated.
+		if (first_time and len < 4096 and
+			(('\n' == buf[len-1]) or (' ' == buf[len-1])))
+		{
+				return buf;
+		}
 
 		first_time = false;
 
-		if (len < 4096)
-		{
-			rb += buf;
-			return rb;
-		}
-
-		// If we have a long read, assume that there's more.
-		// XXXX FIXME this fails, of course, for buffers of
-		// exactly 4096...
 		rb += buf;
+
+		// newline-terminated strings mean we are done.
+		if ('\n' == buf[len-1])
+			return rb;
 	}
 	return rb;
 }
