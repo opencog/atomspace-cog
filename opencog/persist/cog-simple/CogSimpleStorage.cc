@@ -156,7 +156,7 @@ void CogSimpleStorage::open(void)
 			host.c_str(), strerror(errno));
 
 	// Throw away the cogserver prompt.
-	do_recv();
+	do_recv(true);
 
 #if USE_GUILE_INSTEAD
 	// See above.

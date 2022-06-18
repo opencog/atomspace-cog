@@ -77,7 +77,7 @@ granular load and store is possible; see the
 
 Status
 ------
-This is **Version 0.9.1**. All 26 (13+13) unit tests consistently
+This is **Version 0.9.2**. All 26 (13+13) unit tests consistently
 pass. (*) (There are occassional crashes during shutdown, in the
 shared-library dtor, after the unit tests have passed. See
 [cogutil issue #247](https://github.com/opencog/cogutil/issues/247)
