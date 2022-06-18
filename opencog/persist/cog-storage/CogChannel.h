@@ -59,7 +59,7 @@ class CogChannel
 		} s;
 		int open_sock();
 		void do_send(const std::string&);
-		std::string do_recv();
+		std::string do_recv(bool=false);
 
 		struct Msg
 		{

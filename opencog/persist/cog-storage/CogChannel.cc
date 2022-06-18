@@ -107,8 +107,8 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	// Try to open a connection, so that we find out immediately
 	// if a cogserver is actually there. If not, clean up and throw.
 	try {
-		do_send(".\n\n.\n");
-		do_recv();
+		do_send(".\n.\n");
+		do_recv(true);
 		close(s._sockfd);
 		s._sockfd = 0;
 	}
@@ -165,7 +165,7 @@ int CogChannel<Client, Data>::open_sock()
 
 	// Throw away the cogserver prompt.
 	s._sockfd = sockfd;
-	do_recv();
+	do_recv(true);
 
 	_nsocks++;
 	return sockfd;
@@ -201,8 +201,11 @@ void CogChannel<Client, Data>::do_send(const std::string& str)
 			strerror(errno));
 }
 
+// If the argument `garbage` is set to true, then assume that
+// the first read contains the CogServer prompt, which is maybe
+// colorized, and is, in any case, not newine teminated.
 template<typename Client, typename Data>
-std::string CogChannel<Client, Data>::do_recv()
+std::string CogChannel<Client, Data>::do_recv(bool garbage)
 {
 	if (0 == s._sockfd)
 		throw IOException(TRACE_INFO, "No open socket!");
@@ -210,7 +213,9 @@ std::string CogChannel<Client, Data>::do_recv()
 	// The read strategy is as as folows:
 	// messages are always terminated by a newline, with one exception:
 	// Upon the initial connection to the CogServer, the server will
-	// send it's default prompt. That prompt is blank-space terminated.
+	// send it's default prompt. That prompt is not newline-terminated.
+	// However, in that case, `garbage==true` and so we terminate the
+	// read.
 	std::string rb;
 	bool first_time = true;
 	while (true)
@@ -240,7 +245,7 @@ std::string CogChannel<Client, Data>::do_recv()
 		// or are reads of the cogserver prompt, which are
 		// blank-space terminated.
 		if (first_time and len < 4096 and
-			(('\n' == buf[len-1]) or (' ' == buf[len-1])))
+			(('\n' == buf[len-1]) or garbage))
 		{
 				return buf;
 		}
