@@ -103,6 +103,24 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 		throw IOException(TRACE_INFO, "Unknown host %s: %s",
 			_host.c_str(), strerror(rc));
 	_servinfo = srvinfo;;
+
+#if FIXME_LATER
+// XXX This should work, but is causeing unit tests to fail.
+// I don't want to bother right now .. so ... later.
+	// Try to open a connection, so that we find out immediately
+	// if it is actually there. If not, clean up and throw.
+	int sockfd = 0;
+	try {
+		sockfd = open_sock();
+	}
+	catch (const IOException& ex) {
+		if (sockfd) close(sockfd);
+		free(_servinfo);
+		_servinfo = NULL;
+		throw;
+	}
+	close(sockfd);
+#endif
 }
 
 template<typename Client, typename Data>
