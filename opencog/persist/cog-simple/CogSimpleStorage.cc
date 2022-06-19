@@ -212,6 +212,7 @@ std::string CogSimpleStorage::do_recv(bool garbage)
 	{
 		// Receive 4K bytes of message.
 		char buf[4096];
+		char* pbf = buf;
 		int len = recv(_sockfd, buf, 4096, 0);
 
 		if (0 > len)
@@ -229,17 +230,20 @@ std::string CogSimpleStorage::do_recv(bool garbage)
 		// Ignore solitary synchronous idle chars.
 		// The CogServer sends these when it is congested
 		// and is looking for half-open sockets.
-		if (1 == len and 0x16 == buf[0])
-			continue;
+		if (0x16 == buf[0])
+		{
+			pbf = &buf[1];
+			if (1 == len) continue;
+		}
 
 		// Normal short reads are either newline-terminated,
 		// or are reads of the cogserver prompt, which are
 		// blank-space terminated.
 		if (first_time and (('\n' == buf[len-1]) or garbage))
-			return buf;
+			return pbf;
 
 		first_time = false;
-		rb += buf;
+		rb += pbf;
 
 		// newline-terminated strings mean we are done.
 		if ('\n' == buf[len-1])
