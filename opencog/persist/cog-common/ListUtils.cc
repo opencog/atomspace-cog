@@ -42,8 +42,8 @@ void CLASSNAME::ro_decode_alist(AtomSpace* as,
 	pos = alist.find_first_not_of(" \n\t", pos);
 	if (std::string::npos == pos) return;
 	if ('(' != alist[pos])
-		throw SyntaxException(TRACE_INFO, "Badly formed alist: %s",
-			alist.substr(pos).c_str());
+		throw SyntaxException(TRACE_INFO, "Badly formed alist: %lu/%lu %x >>%s<<",
+			pos, alist.size(), alist[pos], alist.substr(pos).c_str());
 
 	// Skip over opening paren
 	pos++;
