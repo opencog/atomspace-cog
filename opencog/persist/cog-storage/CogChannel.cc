@@ -241,7 +241,19 @@ std::string CogChannel<Client, Data>::do_recv(bool garbage)
 		if (0x16 == buf[0])
 		{
 			pbf = &buf[1];
-			if (1 == len) continue;
+			while (0x16 == pbf[0] and (pbf-buf < len)) pbf++;
+			if (pbf-buf == len) continue;
+		}
+
+		// Unlikely to get one at the end, but not impossible.
+		if (0x16 == buf[len-1])
+		{
+			len--; buf[len] = 0;
+			while (0x16 == buf[len-1] and 0 < len)
+			{
+				len--; buf[len] = 0;
+			}
+			if (0 == len) continue;
 		}
 
 		// If we have a short read, assume we are done.
