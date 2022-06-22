@@ -40,7 +40,8 @@ using namespace opencog;
 
 CogSimplePersistSCM::CogSimplePersistSCM(AtomSpace *as)
 {
-    _as = AtomSpaceCast(as->shared_from_this());
+    if (as)
+        _as = AtomSpaceCast(as->shared_from_this());
 
     static bool is_init = false;
     if (is_init) return;
@@ -150,5 +151,5 @@ void CogSimplePersistSCM::do_clear_stats(void)
 
 void opencog_persist_cog_simple_init(void)
 {
-    static CogSimplePersistSCM patty(NULL);
+    static CogSimplePersistSCM patty(nullptr);
 }
