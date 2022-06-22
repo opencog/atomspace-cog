@@ -40,7 +40,7 @@ using namespace opencog;
 
 CogPersistSCM::CogPersistSCM(AtomSpace *as)
 {
-    _as = as;
+    _as = AtomSpaceCast(as->shared_from_this());
 
     static bool is_init = false;
     if (is_init) return;
@@ -81,8 +81,8 @@ void CogPersistSCM::do_open(const std::string& uri)
              "cogserver-open: Error: Already connected to a database!");
 
     // Unconditionally use the current atomspace, until the next close.
-    AtomSpace *as = SchemeSmob::ss_get_env_as("cogserver-open");
-    if (nullptr != as) _as = as;
+    AtomSpacePtr asp = SchemeSmob::ss_get_env_as("cogserver-open");
+    if (nullptr != asp) _as = asp;
 
     if (nullptr == _as)
         throw RuntimeException(TRACE_INFO,

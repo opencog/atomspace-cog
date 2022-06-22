@@ -44,7 +44,7 @@ private:
 	void init(void);
 
 	CogSimpleStorageNodePtr _storage;
-	AtomSpace *_as;
+	AtomSpacePtr _as;
 
 public:
 	CogSimplePersistSCM(AtomSpace*);
