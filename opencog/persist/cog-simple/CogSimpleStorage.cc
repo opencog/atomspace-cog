@@ -211,7 +211,7 @@ std::string CogSimpleStorage::do_recv(bool garbage)
 	while (true)
 	{
 		// Receive 4K bytes of message.
-		char buf[4096];
+		char buf[4097];
 		char* pbf = buf;
 		int len = recv(_sockfd, buf, 4096, 0);
 

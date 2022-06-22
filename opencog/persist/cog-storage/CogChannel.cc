@@ -220,10 +220,10 @@ std::string CogChannel<Client, Data>::do_recv(bool garbage)
 	bool first_time = true;
 	while (true)
 	{
-		// Receive 4K bytes of message.
-		char buf[4096];
+		// Receive 8K bytes of message.
+		char buf[8193];
 		char* pbf = buf;
-		int len = recv(s._sockfd, buf, 4096, 0);
+		int len = recv(s._sockfd, buf, 8192, 0);
 
 		if (0 > len)
 			throw IOException(TRACE_INFO, "Unable to talk to cogserver: %s",
