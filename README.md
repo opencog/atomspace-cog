@@ -1,6 +1,8 @@
 
 AtomSpace CogStorage Client
 ===========================
+[![CircleCI](https://circleci.com/gh/opencog/atomspace-cog.svg?style=svg)](https://circleci.com/gh/opencog/atomspace-cog)
+
 The code in this git repo allows an AtomSpace to communicate with
 other AtomSpaces by having them all connect to a common CogServer.
 The CogServer itself also provides an AtomSpace, which all clients
