@@ -43,6 +43,40 @@ response-time, etc.  In ASCII-art:
                  +----------+   +-----------+
 ```
 
+Here's yet another diagram, reflecting the actual usage in the
+[LinkGrammar AtomSpace dictionary](https://github.com/opencog/link-grammar/tree/master/link-grammar/dict-atomese).
+Stacked boxes represent shared-libraries, with shared-library calls going
+downwards. Note that AtomSpaces start out empty, so the data has to come
+"from somewhere". In this case, the data comes from another AtomSpace, running
+remotely (in the demo, its in a Docker container).  That AtomSpace in turn
+loads its data from a
+[RocksStorageNode](https://github.com/opencog/opencog-rocks), which uses
+[RocksDB](https://rocksdb.org) to work with the local disk drive.
+The network connection is provided by a
+[CogServer](https://github.com/opencog/cogserver) to
+[CogStorageNode](https://github.com/opencog/opencog-cog) pairing.
+```
+                                            +----------------+
+                                            |  Link Grammar  |
+                                            |    parser      |
+                                            +----------------+
+                                            |   AtomSpace    |
+    +-------------+                         +----------------+
+    |             |                         |                |
+    |  Cogserver  | <<==== Internet ====>>  | CogStorageNode |
+    |             |                         |                |
+    +-------------+                         +----------------+
+    |  AtomSpace  |
+    +-------------+
+    |    Rocks    |
+    | StorageNode |
+    +-------------+
+    |   RocksDB   |
+    +-------------+
+    | disk drive  |
+    +-------------+
+```
+
 
 Example Usage
 -------------
