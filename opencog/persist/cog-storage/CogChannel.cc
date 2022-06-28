@@ -51,13 +51,14 @@ CogChannel<Client, Data>::CogChannel(void) :
 	_servinfo(nullptr),
 	_msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
 {
+	_need_config = true;
 }
 
 template<typename Client, typename Data>
 CogChannel<Client, Data>::~CogChannel()
 {
 	close_connection();
-	free(_servinfo);
+	freeaddrinfo((struct addrinfo*) _servinfo);
 }
 
 /* ================================================================ */
@@ -74,6 +75,15 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	// We expect the URI to be for the form
 	//    cog://ipv4-addr/atomspace-name
 	//    cog://ipv4-addr:port/atomspace-name
+	//    cog://ipv4-addr/atomspace-name?proxy
+
+	// Look for connection arguments
+	size_t parg = _uri.find('?');
+	if (_uri.npos != parg)
+	{
+		_proxy = _uri.substr(parg+1);
+		_uri = _uri.substr(0, parg);
+	}
 
 	_host = uri.substr(URIX_LEN);
 	size_t slash = _host.find_first_of(":/");
@@ -113,8 +123,8 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 		s._sockfd = 0;
 	}
 	catch (const IOException& ex) {
-		free(_servinfo);
-		_servinfo = NULL;
+		freeaddrinfo((struct addrinfo *) _servinfo);
+		_servinfo = nullptr;
 		if (0 != s._sockfd) close(s._sockfd);
 		s._sockfd = 0;
 		throw;
@@ -156,11 +166,37 @@ int CogChannel<Client, Data>::open_sock()
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 #endif
+
+	// Set up proxying, if it appears in the URL.
+	if (_need_config)
+	{
+		_need_config = false;
+		if (0 < _proxy.size())
+		{
+			// We only support write-through at this time.
+			if (0 == _proxy.compare("wthru"))
+			{
+				// Magic incantation that the cogserver knows about.
+				std::string magic = "config SexprShellModule libwthru-proxy.so\n";
+				rc = send(sockfd, magic.c_str(), magic.size(), 0);
+				if (0 > rc)
+					throw IOException(TRACE_INFO,
+						"Unable to talk to cogserver at host %s: %s",
+						_host.c_str(), strerror(errno));
+
+				// Throw away the response
+				s._sockfd = sockfd;
+				do_recv(true);
+			}
+		}
+	}
+
 	// Get the s-expression shell.
 	std::string eval = "sexpr\n";
 	rc = send(sockfd, eval.c_str(), eval.size(), 0);
 	if (0 > rc)
-		throw IOException(TRACE_INFO, "Unable to talk to cogserver at host %s: %s",
+		throw IOException(TRACE_INFO,
+			"Unable to talk to cogserver at host %s: %s",
 			_host.c_str(), strerror(errno));
 
 	// Throw away the cogserver prompt.
@@ -181,6 +217,9 @@ template<typename Client, typename Data>
 void CogChannel<Client, Data>::close_connection(void)
 {
 	_msg_buffer.barrier();
+
+	freeaddrinfo((struct addrinfo *) _servinfo);
+	_servinfo = nullptr;
 }
 
 /* ================================================================== */

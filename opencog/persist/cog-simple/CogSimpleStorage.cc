@@ -53,6 +53,20 @@ void CogSimpleStorage::init(const char * uri)
 	if (strncmp(uri, "cog://", URIX_LEN))
 		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri);
 	_uri = uri;
+
+	// Look for connection arguments
+	size_t parg = _uri.find('?');
+	if (_uri.npos != parg)
+	{
+		_proxy = _uri.substr(parg+1);
+		_uri = _uri.substr(0, parg);
+
+		// Verify acceptable formats
+		if (_proxy.compare("wthru"))
+			throw IOException(TRACE_INFO,
+				"Unknown proxy %s\nThe only supported proxy is 'wthru'",
+				_proxy.c_str());
+	}
 }
 
 CogSimpleStorage::CogSimpleStorage(std::string uri) :
@@ -139,6 +153,24 @@ void CogSimpleStorage::open(void)
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 #endif
+
+	if (0 < _proxy.size())
+	{
+		// We only support write-through at this time.
+		if (0 == _proxy.compare("wthru"))
+		{
+			// Magic incantation that the cogserver knows about.
+			std::string incant = "config SexprShellModule libwthru-proxy.so\n";
+			rc = send(_sockfd, incant.c_str(), incant.size(), 0);
+			if (0 > rc)
+				throw IOException(TRACE_INFO, "Unable to talk to cogserver at host %s: %s",
+					host.c_str(), strerror(errno));
+
+			// Throw away the response
+			do_recv(true);
+		}
+	}
+
 	// Get the s-expression shell.
 	std::string eval = "sexpr\n";
 

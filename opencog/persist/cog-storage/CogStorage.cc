@@ -10,7 +10,7 @@
  *
  * LICENSE:
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License v3 as
  * published by the Free Software Foundation and including the exceptions
@@ -50,6 +50,19 @@ void CogStorage::init(const char * uri)
 		throw IOException(TRACE_INFO, "Unknown URI '%s'\n", uri);
 
 	_uri = uri;
+
+	// Look for connection arguments
+	size_t parg = _uri.find('?');
+	if (_uri.npos != parg)
+	{
+		std::string proxy = _uri.substr(parg+1);
+
+		// Verify acceptable formats
+		if (proxy.compare("wthru"))
+			throw IOException(TRACE_INFO,
+				"Unknown proxy %s\nThe only supported proxy is 'wthru'",
+				proxy.c_str());
+	}
 }
 
 CogStorage::CogStorage(std::string uri) :
