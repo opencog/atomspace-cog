@@ -56,7 +56,6 @@ void CogStorage::init(const char * uri)
 	if (_uri.npos != parg)
 	{
 		std::string proxy = _uri.substr(parg+1);
-		_uri = _uri.substr(0, parg);
 
 		// Verify acceptable formats
 		if (proxy.compare("wthru"))
