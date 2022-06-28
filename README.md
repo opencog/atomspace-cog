@@ -161,3 +161,13 @@ scheme@(guile-user)> (cog-simple-open "cog://example.com/")
 This backend opens four sockets to the cogserver, and handles requests
 asynchronously. Be sure to pepper your code with `(barrier)` to flush
 the network buffers, else you might get unexpected behavior.
+
+URL's
+-----
+Supported URL's include:
+* `cog://example.com/` -- standard internet hostname
+* `cog://1.2.3.4/` -- standard dotted IPv4 address
+* `cog://example.com:17001` -- specify the port of the cogserver.
+* `cog://example.com?wthru` -- specify write-through mode. See
+   [proxying](https://github.com/opencog/cogserver/tree/master/opencog/cogserver/proxy)
+   for details.
