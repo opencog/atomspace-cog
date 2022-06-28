@@ -57,7 +57,7 @@ template<typename Client, typename Data>
 CogChannel<Client, Data>::~CogChannel()
 {
 	close_connection();
-	free(_servinfo);
+	freeaddrinfo((struct addrinfo*) _servinfo);
 }
 
 /* ================================================================ */
@@ -113,8 +113,8 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 		s._sockfd = 0;
 	}
 	catch (const IOException& ex) {
-		free(_servinfo);
-		_servinfo = NULL;
+		freeaddrinfo((struct addrinfo *) _servinfo);
+		_servinfo = nullptr;
 		if (0 != s._sockfd) close(s._sockfd);
 		s._sockfd = 0;
 		throw;
@@ -181,6 +181,9 @@ template<typename Client, typename Data>
 void CogChannel<Client, Data>::close_connection(void)
 {
 	_msg_buffer.barrier();
+
+	freeaddrinfo((struct addrinfo *) _servinfo);
+	_servinfo = nullptr;
 }
 
 /* ================================================================== */
