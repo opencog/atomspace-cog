@@ -48,6 +48,8 @@ class CogChannel
 		std::string _uri;
 		std::string _host;
 		std::string _port;
+		std::string _proxy;
+		bool _need_config;
 		void* _servinfo;
 		static std::atomic_int _nsocks;
 
