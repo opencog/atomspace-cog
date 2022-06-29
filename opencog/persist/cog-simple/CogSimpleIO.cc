@@ -88,6 +88,27 @@ void CogSimpleStorage::storeValue(const Handle& h, const Handle& key)
 	do_recv();
 }
 
+void CogSimpleStorage::updateValue(const Handle& h, const Handle& key,
+                                   const ValuePtr& delta)
+{
+	// Are there multiple AtomSpaces involved?
+	if (not _multi_space and h->getAtomSpace() != _atom_space)
+		_multi_space = true;
+
+	if (_multi_space) writeFrame(h->getAtomSpace());
+
+	std::string msg;
+	msg = "(cog-update-value! " + Sexpr::encode_atom(h) +
+	      Sexpr::encode_atom(key, _multi_space) +
+	      Sexpr::encode_value(delta) + ")\n";
+
+	std::lock_guard<std::mutex> lck(_mtx);
+	do_send(msg);
+
+	// Flush the response.
+	do_recv();
+}
+
 void CogSimpleStorage::loadValue(const Handle& h, const Handle& key)
 {
 	std::string msg;

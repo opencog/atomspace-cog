@@ -84,6 +84,19 @@ void CogStorage::storeValue(const Handle& h, const Handle& key)
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
 }
 
+void CogStorage::updateValue(const Handle& h, const Handle& key,
+                             const ValuePtr& delta)
+{
+	CHECK_OPEN;
+	std::string msg;
+	msg = "(cog-update-value! " + Sexpr::encode_atom(h) +
+	      Sexpr::encode_atom(key) +
+	      Sexpr::encode_value(delta) + ")\n";
+
+	Pkt pkt;
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
+}
+
 void CogStorage::loadValue(const Handle& h, const Handle& key)
 {
 	CHECK_OPEN;
