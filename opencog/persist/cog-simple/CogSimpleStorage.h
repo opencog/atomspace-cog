@@ -119,12 +119,8 @@ class CogSimpleStorageNode : public CogSimpleStorage
 		static Handle factory(const Handle&);
 };
 
-typedef std::shared_ptr<CogSimpleStorageNode> CogSimpleStorageNodePtr;
-static inline CogSimpleStorageNodePtr CogSimpleStorageNodeCast(const Handle& h)
-	{ return std::dynamic_pointer_cast<CogSimpleStorageNode>(h); }
-
-#define createCogSimpleStorageNode std::make_shared<CogSimpleStorageNode>
-
+NODE_PTR_DECL(CogSimpleStorageNode)
+#define createCogSimpleStorageNode CREATE_DECL(CogSimpleStorageNode)
 
 /** @}*/
 } // namespace opencog
