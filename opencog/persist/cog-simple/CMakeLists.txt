@@ -3,9 +3,9 @@
 #
 
 ADD_LIBRARY (persist-cog-simple SHARED
-	CogSimpleStorage
-	CogSimpleIO
-	CogSimplePersistSCM
+	CogSimpleStorage.cc
+	CogSimpleIO.cc
+	CogSimplePersistSCM.cc
 )
 
 TARGET_LINK_LIBRARIES(persist-cog-simple
