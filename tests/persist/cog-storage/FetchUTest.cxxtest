@@ -81,6 +81,7 @@ FetchUTest::FetchUTest(void)
 {
 	logger().set_level(Logger::INFO);
 	// logger().set_level(Logger::DEBUG);
+	// logger().set_sync_flag(true);
 	logger().set_print_to_stdout_flag(true);
 
 	uri = "cog://localhost:16004";
@@ -169,7 +170,8 @@ void FetchUTest::test_stuff(void)
 
 	// First, initialize the database
 	eval->eval("(use-modules (opencog persist) (opencog persist-cog))");
-	eval->eval(srv_open);
+	std::string rc = eval->eval(srv_open);
+	if (0 < rc.size()) printf("Storage open rc=%s\n", rc.c_str());
 	eval->eval(R"((cog-set-tv! (Concept "AAA") (stv 0.1 0.11)))");
 	eval->eval(R"((cog-set-tv! (Concept "BBB") (stv 0.2 0.22)))");
 	eval->eval("(store-atomspace)");

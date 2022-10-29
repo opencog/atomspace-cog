@@ -133,7 +133,7 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	s._sockfd = 0;
 
 	// Make sure the buffer has some threads going.
-	_msg_buffer.open();
+	_msg_buffer.open(NTHREADS);
 }
 
 template<typename Client, typename Data>
