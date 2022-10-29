@@ -104,4 +104,3 @@ class CogChannel
 } // namespace opencog
 
 #endif // _OPENCOG_COG_CHANNEL_H
-

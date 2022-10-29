@@ -64,10 +64,10 @@ void CogPersistSCM::init_in_module(void* data)
 
 void CogPersistSCM::init(void)
 {
-    define_scheme_primitive("cogserver-open", &CogPersistSCM::do_open, this, "persist-cog");
-    define_scheme_primitive("cogserver-close", &CogPersistSCM::do_close, this, "persist-cog");
-    define_scheme_primitive("cogserver-stats", &CogPersistSCM::do_stats, this, "persist-cog");
-    define_scheme_primitive("cogserver-clear-stats", &CogPersistSCM::do_clear_stats, this, "persist-cog");
+    define_scheme_primitive("cog-storage-open", &CogPersistSCM::do_open, this, "persist-cog");
+    define_scheme_primitive("cog-storage-close", &CogPersistSCM::do_close, this, "persist-cog");
+    define_scheme_primitive("cog-storage-stats", &CogPersistSCM::do_stats, this, "persist-cog");
+    define_scheme_primitive("cog-storage-clear-stats", &CogPersistSCM::do_clear_stats, this, "persist-cog");
 }
 
 CogPersistSCM::~CogPersistSCM()
@@ -128,28 +128,27 @@ void CogPersistSCM::do_close(void)
     _storage = nullptr;
 }
 
-void CogPersistSCM::do_stats(void)
-{
-    if (nullptr == _storage) {
-        printf("cogserver-stats: AtomSpace not connected to CogServer!\n");
-        return;
-    }
+#define GET_SNP(FUN) \
+	CogStorageNodePtr snp = CogStorageNodeCast(h); \
+	if (nullptr == snp) { \
+		throw RuntimeException(TRACE_INFO, \
+			FUN ": Error: Not a CogStorageNode!"); \
+		return; \
+	}
 
-    printf("cogserver-stats: Atomspace holds %zu atoms\n", _as->get_size());
-    _storage->print_stats();
+void CogPersistSCM::do_stats(const Handle& h)
+{
+	GET_SNP("cog-storage-stats")
+	snp->print_stats();
 }
 
-void CogPersistSCM::do_clear_stats(void)
+void CogPersistSCM::do_clear_stats(const Handle& h)
 {
-    if (nullptr == _storage) {
-        printf("cogserver-stats: AtomSpace not connected to CogServer!\n");
-        return;
-    }
-
-    _storage->clear_stats();
+	GET_SNP("cog-storage-clear-stats")
+	snp->clear_stats();
 }
 
 void opencog_persist_cog_init(void)
 {
-    static CogPersistSCM patty(nullptr);
+	static CogPersistSCM patty(nullptr);
 }

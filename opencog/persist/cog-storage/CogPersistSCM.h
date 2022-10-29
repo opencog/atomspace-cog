@@ -55,8 +55,8 @@ public:
 	void do_load(void);
 	void do_store(void);
 
-	void do_stats(void);
-	void do_clear_stats(void);
+	void do_stats(const Handle&);
+	void do_clear_stats(const Handle&);
 }; // class
 
 /** @}*/
