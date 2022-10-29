@@ -131,11 +131,16 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	}
 	if (0 != s._sockfd) close(s._sockfd);
 	s._sockfd = 0;
+
+	// Make sure the buffer has some threads going.
+	_msg_buffer.open();
 }
 
 template<typename Client, typename Data>
 int CogChannel<Client, Data>::open_sock()
 {
+	if (nullptr == _servinfo) return -1;
+
 	struct addrinfo *srvinfo = (struct addrinfo *) _servinfo;
 	int sockfd = socket(srvinfo->ai_family, srvinfo->ai_socktype, srvinfo->ai_protocol);
 
@@ -217,6 +222,7 @@ template<typename Client, typename Data>
 void CogChannel<Client, Data>::close_connection(void)
 {
 	_msg_buffer.barrier();
+	_msg_buffer.close();
 
 	freeaddrinfo((struct addrinfo *) _servinfo);
 	_servinfo = nullptr;
@@ -242,7 +248,7 @@ void CogChannel<Client, Data>::do_send(const std::string& str)
 
 // If the argument `garbage` is set to true, then assume that
 // the first read contains the CogServer prompt, which is maybe
-// colorized, and is, in any case, not newine teminated.
+// colorized, and is, in any case, not newline teminated.
 template<typename Client, typename Data>
 std::string CogChannel<Client, Data>::do_recv(bool garbage)
 {
