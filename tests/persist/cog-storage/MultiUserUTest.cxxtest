@@ -137,7 +137,8 @@ MultiUserUTest:: MultiUserUTest(void)
     // as the repo for the duration of the test.
     srvr = &cogserver();
     srvr->loadModules();
-    srvr->enableNetworkServer(16007, 30);
+    srvr->set_max_open_sockets(30);
+    srvr->enableNetworkServer(16007);
     main_loop = new std::thread(&CogServer::serverLoop, srvr);
     printf("Started CogServer\n");
 
