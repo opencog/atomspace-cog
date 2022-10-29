@@ -205,6 +205,12 @@ void CogStorage::fetchIncomingByType(AtomSpace* table, const Handle& h, Type t)
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::decode_atom_list);
 }
 
+// FYI: Of the four sockts open to the cogserver, one of them will
+// handle the `cog-get-atoms` command, and will transfer not very
+// much data. The other three will transfer huge amounts of data,
+// basically fetching the keys and values on each atom. So looking
+// at the server stats will make it look like one socket is bare
+// touched ... which is correct: its cause of this.
 void CogStorage::loadAtomSpace(AtomSpace* table)
 {
 	CHECK_OPEN;
@@ -221,6 +227,7 @@ void CogStorage::loadAtomSpace(AtomSpace* table)
 	_io_queue.barrier();
 }
 
+// See note on loadAtomSpace(), immediately above.
 void CogStorage::loadType(AtomSpace* table, Type t)
 {
 	CHECK_OPEN;
