@@ -10,30 +10,30 @@
 	(string-append opencog-ext-path-persist-cog "libpersist-cog")
 	"opencog_persist_cog_init")
 
-(export cogserver-clear-stats cogserver-close cogserver-open
-cogserver-stats cogserver-load-atomspace)
+(export cog-storage-clear-stats cog-storage-close cog-storage-open
+cog-storage-stats cog-storage-load-atomspace)
 
 ; --------------------------------------------------------------
 
-(set-procedure-property! cogserver-clear-stats 'documentation
+(set-procedure-property! cog-storage-clear-stats 'documentation
 "
- cogserver-clear-stats - reset the performance statistics counters.
+ cog-storage-clear-stats - reset the performance statistics counters.
     This will zero out the various counters used to track the
     performance of the CogServer backend.  Statistics will continue to
     be accumulated.
 ")
 
-(set-procedure-property! cogserver-close 'documentation
+(set-procedure-property! cog-storage-close 'documentation
 "
- cogserver-close - close the currently open CogServer backend.
+ cog-storage-close - close the currently open CogServer backend.
     Close open connections to the currently-open CogServer, after flushing
     any pending writes in the write queues. After the close, atoms can
     no longer be stored to or fetched from the CogServer.
 ")
 
-(set-procedure-property! cogserver-open 'documentation
+(set-procedure-property! cog-storage-open 'documentation
 "
- cogserver-open URL - Open a connection to a CogServer.
+ cog-storage-open URL - Open a connection to a CogServer.
 
   The URL must be one of these formats:
      cog://HOSTNAME/
@@ -43,13 +43,13 @@ cogserver-stats cogserver-load-atomspace)
   is specified, its assumed to be 17001.
 
   Examples of use with valid URL's:
-     (cogserver-open \"cog://localhost/\")
-     (cogserver-open \"cog://localhost:17001/\")
+     (cog-storage-open \"cog://localhost/\")
+     (cog-storage-open \"cog://localhost:17001/\")
 ")
 
-(set-procedure-property! cogserver-stats 'documentation
+(set-procedure-property! cog-storage-stats 'documentation
 "
- cogserver-stats - report performance statistics.
+ cog-storage-stats - report performance statistics.
     This will cause some AtomSpace performance statistics to be printed
     to stdout. These statistics can be quite arcane and are useful
     primarily to the developers of the server.
