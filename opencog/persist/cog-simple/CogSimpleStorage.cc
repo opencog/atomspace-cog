@@ -58,14 +58,33 @@ void CogSimpleStorage::init(const char * uri)
 	size_t parg = _uri.find('?');
 	if (_uri.npos != parg)
 	{
-		_proxy = _uri.substr(parg+1);
+		std::string args = _uri.substr(parg+1);
 		_uri = _uri.substr(0, parg);
 
-		// Verify acceptable formats
-		if (_proxy.compare("wthru"))
+		size_t pamp = args.find('&');
+		while (args.npos != pamp)
+		{
+			std::string proxy = args.substr(0, pamp);
+
+			// Verify acceptable formats
+			if (proxy.compare("r-thru") and proxy.compare("w-thru"))
+				throw IOException(TRACE_INFO,
+					"Unknown proxy %s\nSupported proxies are 'w-thru' and 'r-thru'",
+					proxy.c_str());
+
+			_proxies.push_back(proxy);
+			args = args.substr(pamp+1);
+			pamp = args.find('&');
+		}
+
+		// Check the last one too.
+		std::string proxy = args;
+		if (proxy.compare("r-thru") and proxy.compare("w-thru"))
 			throw IOException(TRACE_INFO,
-				"Unknown proxy %s\nThe only supported proxy is 'wthru'",
-				_proxy.c_str());
+				"Unknown proxy %s\nSupported proxies are 'w-thru' and 'r-thru'",
+				proxy.c_str());
+
+		_proxies.push_back(proxy);
 	}
 }
 
@@ -154,21 +173,28 @@ void CogSimpleStorage::open(void)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 #endif
 
-	if (0 < _proxy.size())
+	for (const std::string& proxy : _proxies)
 	{
-		// We only support write-through at this time.
-		if (0 == _proxy.compare("wthru"))
-		{
-			// Magic incantation that the cogserver knows about.
-			std::string incant = "config SexprShellModule libwthru-proxy.so\n";
-			rc = send(_sockfd, incant.c_str(), incant.size(), 0);
-			if (0 > rc)
-				throw IOException(TRACE_INFO, "Unable to talk to cogserver at host %s: %s",
-					host.c_str(), strerror(errno));
+		std::string magic;
 
-			// Throw away the response
-			do_recv(true);
-		}
+		// Magic incantations that the cogserver knows about.
+		// Translate what we know about.
+		if (0 == proxy.compare("w-thru"))
+			magic = "config SexprShellModule libw-thru-proxy.so\n";
+		else if (0 == proxy.compare("r-thru"))
+			magic = "config SexprShellModule libr-thru-proxy.so\n";
+		else
+			throw IOException(TRACE_INFO,
+				"Unknown proxy %s", proxy.c_str());
+
+		rc = send(_sockfd, magic.c_str(), magic.size(), 0);
+		if (0 > rc)
+			throw IOException(TRACE_INFO,
+				"Unable to talk to cogserver at host %s: %s",
+				host.c_str(), strerror(errno));
+
+		// Throw away the response
+		do_recv(true);
 	}
 
 	// Get the s-expression shell.
