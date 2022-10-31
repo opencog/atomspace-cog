@@ -75,14 +75,25 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	// We expect the URI to be for the form
 	//    cog://ipv4-addr/atomspace-name
 	//    cog://ipv4-addr:port/atomspace-name
-	//    cog://ipv4-addr/atomspace-name?proxy
+	//    cog://ipv4-addr/atomspace-name?proxy-name&more-proxy
+	// where valid proxy-names are w-thru and r-thru -- so for example:
+	//    cog://ipv4-addr/atomspace-name?r-thru&w-thru
 
 	// Look for connection arguments
 	size_t parg = _uri.find('?');
 	if (_uri.npos != parg)
 	{
-		_proxy = _uri.substr(parg+1);
+		std::string args = _uri.substr(parg+1);
 		_uri = _uri.substr(0, parg);
+
+		size_t pamp = args.find('&');
+		while (args.npos != pamp)
+		{
+			_proxies.push_back(args.substr(0, pamp));
+			args = args.substr(pamp+1);
+			pamp = args.find('&');
+		}
+		_proxies.push_back(args);
 	}
 
 	_host = uri.substr(URIX_LEN);
@@ -176,23 +187,29 @@ int CogChannel<Client, Data>::open_sock()
 	if (_need_config)
 	{
 		_need_config = false;
-		if (0 < _proxy.size())
+		for (const std::string& proxy : _proxies)
 		{
-			// We only support write-through at this time.
-			if (0 == _proxy.compare("wthru"))
-			{
-				// Magic incantation that the cogserver knows about.
-				std::string magic = "config SexprShellModule libwthru-proxy.so\n";
-				rc = send(sockfd, magic.c_str(), magic.size(), 0);
-				if (0 > rc)
-					throw IOException(TRACE_INFO,
-						"Unable to talk to cogserver at host %s: %s",
-						_host.c_str(), strerror(errno));
+			std::string magic;
 
-				// Throw away the response
-				s._sockfd = sockfd;
-				do_recv(true);
-			}
+			// Magic incantations that the cogserver knows about.
+			// Translate what we know about.
+			if (0 == proxy.compare("w-thru"))
+				magic = "config SexprShellModule libw-thru-proxy.so\n";
+			else if (0 == proxy.compare("r-thru"))
+				magic = "config SexprShellModule libr-thru-proxy.so\n";
+			else
+				throw IOException(TRACE_INFO,
+					"Unknown proxy %s", proxy.c_str());
+
+			rc = send(sockfd, magic.c_str(), magic.size(), 0);
+			if (0 > rc)
+				throw IOException(TRACE_INFO,
+					"Unable to talk to cogserver at host %s: %s",
+					_host.c_str(), strerror(errno));
+
+			// Throw away the response
+			s._sockfd = sockfd;
+			do_recv(true);
 		}
 	}
 
