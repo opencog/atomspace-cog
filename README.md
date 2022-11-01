@@ -115,7 +115,7 @@ granular load and store is possible; see the
 
 Status
 ------
-This is **Version 0.9.4**. All 26 (13+13) unit tests consistently
+This is **Version 1.0.0**. All 26 (13+13) unit tests consistently
 pass. (*) (There are occassional crashes during shutdown, in the
 shared-library dtor, after the unit tests have passed. See
 [cogutil issue #247](https://github.com/opencog/cogutil/issues/247)
@@ -126,12 +126,14 @@ Performance looks good. Two of the unit tests take about 20 seconds
 each to run; two more take a few minutes.  This is intentional,
 they are pounding the server with large datasets.
 
-This is effectively "done"; there are no known bugs at this time.
-There is one missing feature, but no one uses it (yet): support for
-multiple atomspaces is missing. Work on adding this is in progress
-but back-burnered. One unit test works. See the `cog-simple` directory.
+This is a "stable" version. There are no known bugs at this time.
+It is being used in "production" environments, successfully transfering
+gigabytes of data around.
 
-Waiting on user feedback before declaring version 1.0.
+There is one missing feature, but no one uses it (yet): support for
+multiple atomspaces (aka frames) is missing. Work on adding this was
+started but is low priority.  One unit test works. See the `cog-simple`
+directory.
 
 Design
 ------
@@ -153,8 +155,9 @@ provides init and socket I/O.
 
 This backend can be accessed via:
 ```
-scheme@(guile-user)> (use-modules (opencog persist-cog-simple))
-scheme@(guile-user)> (cog-simple-open "cog://example.com/")
+scheme> (use-modules (opencog persist-cog-simple))
+scheme> (define cssn (ComSimpleStorageNode "cog-simple://example.com/"))
+scheme> (cog-open cssn)
 ```
 
 ### The Production Backend
@@ -164,6 +167,13 @@ Be sure to pepper your code with `(barrier)` to flush the network
 buffers, else you might get unexpected behavior. The `(barrier)` ensures
 that all reads/writes before the barrier are completed, before any that
 come after are started.
+
+Usage is much like before:
+```
+scheme> (use-modules (opencog persist-cog))
+scheme> (define csn (ComStorageNode "cog://example.com/"))
+scheme> (cog-open csn)
+```
 
 URL's
 -----
@@ -175,5 +185,5 @@ Supported URL's include:
 * `cog://example.com?r-thru&w-thru` -- both read and write-through proxy.
 
 See [proxying](https://github.com/opencog/cogserver/tree/master/opencog/cogserver/proxy)
-for details about how the cogserver can pass on i/o requests to other
+for details about how the cogserver can pass on I/O requests to other
 storage nodes.
