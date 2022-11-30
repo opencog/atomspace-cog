@@ -45,9 +45,6 @@ class CogStorage : public StorageNode
 		void init(const char *);
 		std::string _uri;
 
-		void proxy_open(void);
-		void proxy_close(void);
-
 		struct Pkt
 		{
 			AtomSpace* table;
@@ -74,6 +71,7 @@ class CogStorage : public StorageNode
 		CogStorage& operator=(const CogStorage&) = delete; // disable assignment
 		virtual ~CogStorage();
 
+		// StorageNode API implementation (virtual methods)
 		void open(void);
 		void close(void);
 		bool connected(void); // connection to DB is alive
@@ -81,10 +79,13 @@ class CogStorage : public StorageNode
 		void create(void) {}
 		void destroy(void) { kill_data(); }
 		void erase(void) { kill_data(); }
-
 		void kill_data(void); // destroy DB contents
 
-		// AtomStorage interface
+		void proxy_open(void);
+		void proxy_close(void);
+		void set_proxy(const Handle&);
+
+		// BackingStore interface implementation (virual methods)
 		void getAtom(const Handle&);
 		void fetchIncomingSet(AtomSpace*, const Handle&);
 		void fetchIncomingByType(AtomSpace*, const Handle&, Type t);
@@ -101,8 +102,7 @@ class CogStorage : public StorageNode
 		void barrier(AtomSpace* = nullptr);
 
 		// Debugging and performance monitoring
-		void print_stats(void);
-		void clear_stats(void); // reset stats counters.
+		std::string monitor(void);
 };
 
 class CogStorageNode : public CogStorage

@@ -349,7 +349,7 @@ void CogSimpleStorage::barrier(AtomSpace* as)
 
 /* ================================================================ */
 
-void std::string CogSimpleStorage::monitor(void)
+std::string CogSimpleStorage::monitor(void)
 {
 	return "Connected to " + _uri + "\n";
 }

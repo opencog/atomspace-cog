@@ -58,6 +58,17 @@ void CogStorage::proxy_close(void)
 	_io_queue.barrier();
 }
 
+void CogStorage::set_proxy(const Handle& h)
+{
+	CHECK_OPEN;
+	std::string msg =
+		"(cog-set-proxy! " + Sexpr::encode_atom(h) + ")\n";
+
+	Pkt pkt;
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
+	_io_queue.barrier();
+}
+
 void CogStorage::storeAtom(const Handle& h, bool synchronous)
 {
 	CHECK_OPEN;

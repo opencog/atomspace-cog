@@ -66,8 +66,6 @@ void CogPersistSCM::init(void)
 {
     define_scheme_primitive("cog-storage-open", &CogPersistSCM::do_open, this, "persist-cog");
     define_scheme_primitive("cog-storage-close", &CogPersistSCM::do_close, this, "persist-cog");
-    define_scheme_primitive("cog-storage-stats", &CogPersistSCM::do_stats, this, "persist-cog");
-    define_scheme_primitive("cog-storage-clear-stats", &CogPersistSCM::do_clear_stats, this, "persist-cog");
 }
 
 CogPersistSCM::~CogPersistSCM()
@@ -126,26 +124,6 @@ void CogPersistSCM::do_close(void)
     _as->extract_atom(HandleCast(_storage));
     PersistSCM::set_connection(nullptr);
     _storage = nullptr;
-}
-
-#define GET_SNP(FUN) \
-	CogStorageNodePtr snp = CogStorageNodeCast(h); \
-	if (nullptr == snp) { \
-		throw RuntimeException(TRACE_INFO, \
-			FUN ": Error: Not a CogStorageNode!"); \
-		return; \
-	}
-
-void CogPersistSCM::do_stats(const Handle& h)
-{
-	GET_SNP("cog-storage-stats")
-	snp->print_stats();
-}
-
-void CogPersistSCM::do_clear_stats(const Handle& h)
-{
-	GET_SNP("cog-storage-clear-stats")
-	snp->clear_stats();
 }
 
 void opencog_persist_cog_init(void)

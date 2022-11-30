@@ -95,7 +95,6 @@ void CogStorage::open(void)
 {
 	if (connected()) return;
 	_io_queue.open_connection(_uri.c_str());
-	proxy_open();
 }
 
 bool CogStorage::connected(void)
@@ -125,14 +124,11 @@ void CogStorage::barrier(AtomSpace* as)
 
 /* ================================================================ */
 
-void CogStorage::clear_stats(void)
+std::string CogStorage::monitor(void)
 {
-	_io_queue.clear_stats();
-}
-
-void CogStorage::print_stats(void)
-{
-	printf("%s", _io_queue.print_stats().c_str());
+	// _io_queue.clear_stats();
+	return "CogStorageNode I/O Queue Stats:\n" +
+		_io_queue.print_stats();
 }
 
 DEFINE_NODE_FACTORY(CogStorageNode, COG_STORAGE_NODE)

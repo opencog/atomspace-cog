@@ -115,7 +115,7 @@ granular load and store is possible; see the
 
 Status
 ------
-This is **Version 1.0.0**. All 26 (13+13) unit tests consistently
+This is **Version 1.1.0**. All 26 (13+13) unit tests consistently
 pass. (*) (There are occassional crashes during shutdown, in the
 shared-library dtor, after the unit tests have passed. See
 [cogutil issue #247](https://github.com/opencog/cogutil/issues/247)
@@ -181,9 +181,8 @@ Supported URL's include:
 * `cog://example.com/` -- standard internet hostname
 * `cog://1.2.3.4/` -- standard dotted IPv4 address
 * `cog://example.com:17001` -- specify the port of the cogserver.
-* `cog://example.com?r-thru` -- specify read-through proxy mode.
-* `cog://example.com?r-thru&w-thru` -- both read and write-through proxy.
 
-See [proxying](https://github.com/opencog/cogserver/tree/master/opencog/cogserver/proxy)
+See
+[proxying](https://github.com/opencog/atomspace/tree/master/opencog/persist/proxy)
 for details about how the cogserver can pass on I/O requests to other
 storage nodes.

@@ -52,11 +52,7 @@ public:
 
 	void do_open(const std::string&);
 	void do_close(void);
-	void do_load(void);
-	void do_store(void);
 
-	void do_stats(const Handle&);
-	void do_clear_stats(const Handle&);
 }; // class
 
 /** @}*/

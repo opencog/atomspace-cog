@@ -74,7 +74,7 @@ class CogSimpleStorage : public StorageNode
 		CogSimpleStorage& operator=(const CogSimpleStorage&) = delete; // disable assignment
 		virtual ~CogSimpleStorage();
 
-		// StorageNode interface (virtual metods)
+		// StorageNode API implementation (virtual metods)
 		void open(void);
 		void close(void);
 		bool connected(void); // connection to DB is alive
@@ -89,7 +89,7 @@ class CogSimpleStorage : public StorageNode
 		void proxy_open(void);
 		void proxy_close(void);
 
-		// BackingStore interface (virtual methods)
+		// BackingStore API implementation (virtual methods)
 		void getAtom(const Handle&);
 		void fetchIncomingSet(AtomSpace*, const Handle&);
 		void fetchIncomingByType(AtomSpace*, const Handle&, Type t);
@@ -108,7 +108,7 @@ class CogSimpleStorage : public StorageNode
 		void barrier(AtomSpace* = nullptr);
 
 		// Debugging and performance monitoring
-		void std::string monitor(void);
+		std::string monitor(void);
 };
 
 class CogSimpleStorageNode : public CogSimpleStorage
