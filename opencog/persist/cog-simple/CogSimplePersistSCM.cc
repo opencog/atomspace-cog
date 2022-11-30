@@ -66,8 +66,6 @@ void CogSimplePersistSCM::init(void)
 {
     define_scheme_primitive("cog-simple-open", &CogSimplePersistSCM::do_open, this, "persist-cog-simple");
     define_scheme_primitive("cog-simple-close", &CogSimplePersistSCM::do_close, this, "persist-cog-simple");
-    define_scheme_primitive("cog-simple-stats", &CogSimplePersistSCM::do_stats, this, "persist-cog-simple");
-    define_scheme_primitive("cog-simple-clear-stats", &CogSimplePersistSCM::do_clear_stats, this, "persist-cog-simple");
 }
 
 CogSimplePersistSCM::~CogSimplePersistSCM()
@@ -126,27 +124,6 @@ void CogSimplePersistSCM::do_close(void)
     _as->extract_atom(HandleCast(_storage));
     PersistSCM::set_connection(nullptr);
     _storage = nullptr;
-}
-
-void CogSimplePersistSCM::do_stats(void)
-{
-    if (nullptr == _storage) {
-        printf("cog-simple-stats: AtomSpace not connected to CogServer!\n");
-        return;
-    }
-
-    printf("cog-simple-stats: Atomspace holds %zu atoms\n", _as->get_size());
-    _storage->print_stats();
-}
-
-void CogSimplePersistSCM::do_clear_stats(void)
-{
-    if (nullptr == _storage) {
-        printf("cog-simple-stats: AtomSpace not connected to CogServer!\n");
-        return;
-    }
-
-    _storage->clear_stats();
 }
 
 void opencog_persist_cog_simple_init(void)

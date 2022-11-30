@@ -233,8 +233,23 @@ bool CogSimpleStorage::connected(void)
 void CogSimpleStorage::close(void)
 {
 	if (connected())
+	{
+		proxy_close();
 		unistd_close(_sockfd);
+	}
 	_sockfd = -1;
+}
+
+void CogSimpleStorage::proxy_open(void)
+{
+	do_send("(cog-proxy-open)\n");
+	do_recv();
+}
+
+void CogSimpleStorage::proxy_close(void)
+{
+	do_send("(cog-proxy-close)\n");
+	do_recv();
 }
 
 /* ================================================================== */
@@ -334,14 +349,9 @@ void CogSimpleStorage::barrier(AtomSpace* as)
 
 /* ================================================================ */
 
-void CogSimpleStorage::clear_stats(void)
+void std::string CogSimpleStorage::monitor(void)
 {
-}
-
-void CogSimpleStorage::print_stats(void)
-{
-	printf("Connected to %s\n", _uri.c_str());
-	printf("no stats yet\n");
+	return "Connected to " + _uri + "\n";
 }
 
 DEFINE_NODE_FACTORY(CogSimpleStorageNode, COG_SIMPLE_STORAGE_NODE)

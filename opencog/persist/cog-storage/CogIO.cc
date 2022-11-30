@@ -44,6 +44,20 @@ using namespace opencog;
 		throw IOException(TRACE_INFO, "CogStorageNode is not open!  '%s'\n", \
 			_name.c_str());
 
+void CogStorage::proxy_open(void)
+{
+	Pkt pkt;
+	_io_queue.enqueue(this, "(cog-proxy-open)\n", pkt, &CogStorage::noop_const);
+	_io_queue.barrier();
+}
+
+void CogStorage::proxy_close(void)
+{
+	Pkt pkt;
+	_io_queue.enqueue(this, "(cog-proxy-close)\n", pkt, &CogStorage::noop_const);
+	_io_queue.barrier();
+}
+
 void CogStorage::storeAtom(const Handle& h, bool synchronous)
 {
 	CHECK_OPEN;

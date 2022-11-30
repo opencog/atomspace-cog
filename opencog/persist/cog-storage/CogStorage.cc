@@ -95,6 +95,7 @@ void CogStorage::open(void)
 {
 	if (connected()) return;
 	_io_queue.open_connection(_uri.c_str());
+	proxy_open();
 }
 
 bool CogStorage::connected(void)
@@ -106,6 +107,7 @@ void CogStorage::close(void)
 {
 	if (not connected()) return;
 
+	proxy_close();
 	_io_queue.barrier();
 	_io_queue.close_connection();
 }

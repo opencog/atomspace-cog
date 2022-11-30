@@ -45,6 +45,9 @@ class CogStorage : public StorageNode
 		void init(const char *);
 		std::string _uri;
 
+		void proxy_open(void);
+		void proxy_close(void);
+
 		struct Pkt
 		{
 			AtomSpace* table;
