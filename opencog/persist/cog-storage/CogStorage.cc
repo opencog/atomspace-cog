@@ -59,24 +59,20 @@ void CogStorage::init(const char * uri)
 		size_t pamp = args.find('&');
 		while (args.npos != pamp)
 		{
-			std::string proxy = args.substr(0, pamp);
+			std::string pcfg = args.substr(0, pamp);
 
-			// Verify acceptable formats
-			if (proxy.compare("r-thru") and proxy.compare("w-thru"))
-				throw IOException(TRACE_INFO,
-					"Unknown proxy %s\nSupported proxies are 'w-thru' and 'r-thru'",
-					proxy.c_str());
+			// Verify acceptable formats. (There are none at this time.)
+			throw IOException(TRACE_INFO,
+				"Unknown configuration %s", pcfg.c_str());
 
 			args = args.substr(pamp+1);
 			pamp = args.find('&');
 		}
 
 		// Check the last one too.
-		std::string proxy = args;
-		if (proxy.compare("r-thru") and proxy.compare("w-thru"))
-			throw IOException(TRACE_INFO,
-				"Unknown proxy %s\nSupported proxies are 'w-thru' and 'r-thru'",
-				proxy.c_str());
+		std::string pcfg = args;
+		throw IOException(TRACE_INFO,
+			"Unknown configuration %s", pcfg.c_str());
 	}
 }
 

@@ -51,7 +51,6 @@ CogChannel<Client, Data>::CogChannel(void) :
 	_servinfo(nullptr),
 	_msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
 {
-	_need_config = true;
 }
 
 template<typename Client, typename Data>
@@ -75,9 +74,8 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	// We expect the URI to be for the form
 	//    cog://ipv4-addr/atomspace-name
 	//    cog://ipv4-addr:port/atomspace-name
-	//    cog://ipv4-addr/atomspace-name?proxy-name&more-proxy
-	// where valid proxy-names are w-thru and r-thru -- so for example:
-	//    cog://ipv4-addr/atomspace-name?r-thru&w-thru
+	//    cog://ipv4-addr/atomspace-name?stuff&more-stuff
+	// except that there aren't any vaid 'stuffs' at this time.
 
 	// Look for connection arguments
 	size_t parg = _uri.find('?');
@@ -89,11 +87,11 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 		size_t pamp = args.find('&');
 		while (args.npos != pamp)
 		{
-			_proxies.push_back(args.substr(0, pamp));
+			// _stuff.push_back(args.substr(0, pamp));
 			args = args.substr(pamp+1);
 			pamp = args.find('&');
 		}
-		_proxies.push_back(args);
+		// _stuff.push_back(args);
 	}
 
 	_host = uri.substr(URIX_LEN);
@@ -182,36 +180,6 @@ int CogChannel<Client, Data>::open_sock()
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 #endif
-
-	// Set up proxying, if it appears in the URL.
-	if (_need_config)
-	{
-		_need_config = false;
-		for (const std::string& proxy : _proxies)
-		{
-			std::string magic;
-
-			// Magic incantations that the cogserver knows about.
-			// Translate what we know about.
-			if (0 == proxy.compare("w-thru"))
-				magic = "config SexprShellModule libw-thru-proxy.so\n";
-			else if (0 == proxy.compare("r-thru"))
-				magic = "config SexprShellModule libr-thru-proxy.so\n";
-			else
-				throw IOException(TRACE_INFO,
-					"Unknown proxy %s", proxy.c_str());
-
-			rc = send(sockfd, magic.c_str(), magic.size(), 0);
-			if (0 > rc)
-				throw IOException(TRACE_INFO,
-					"Unable to talk to cogserver at host %s: %s",
-					_host.c_str(), strerror(errno));
-
-			// Throw away the response
-			s._sockfd = sockfd;
-			do_recv(true);
-		}
-	}
 
 	// Get the s-expression shell.
 	std::string eval = "sexpr\n";

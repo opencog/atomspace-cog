@@ -43,7 +43,6 @@ class CogSimpleStorage : public StorageNode
 	private:
 		void init(const char *);
 		std::string _uri;
-		std::vector<std::string> _proxies;
 
 		// Socket API ... is single-threaded.
 		std::mutex _mtx;
