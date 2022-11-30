@@ -10,18 +10,9 @@
 	(string-append opencog-ext-path-persist-cog-simple "libpersist-cog-simple")
 	"opencog_persist_cog_simple_init")
 
-(export cog-simple-clear-stats cog-simple-close cog-simple-open
-cog-simple-stats cog-simple-load-atomspace)
+(export cog-simple-close cog-simple-open)
 
 ; --------------------------------------------------------------
-
-(set-procedure-property! cog-simple-clear-stats 'documentation
-"
- cog-simple-clear-stats - reset the performance statistics counters.
-    This will zero out the various counters used to track the
-    performance of the CogServer backend.  Statistics will continue to
-    be accumulated.
-")
 
 (set-procedure-property! cog-simple-close 'documentation
 "
@@ -45,12 +36,4 @@ cog-simple-stats cog-simple-load-atomspace)
   Examples of use with valid URL's:
      (cog-simple-open \"cog://localhost/\")
      (cog-simple-open \"cog://localhost:17001/\")
-")
-
-(set-procedure-property! cog-simple-stats 'documentation
-"
- cog-simple-stats - report performance statistics.
-    This will cause some performance statistics to be printed to stdout.
-    These statistics can be quite arcane and are useful primarily to
-    the developers of the server.
 ")

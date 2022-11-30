@@ -10,18 +10,9 @@
 	(string-append opencog-ext-path-persist-cog "libpersist-cog")
 	"opencog_persist_cog_init")
 
-(export cog-storage-clear-stats cog-storage-close cog-storage-open
-cog-storage-stats cog-storage-load-atomspace)
+(export cog-storage-close cog-storage-open)
 
 ; --------------------------------------------------------------
-
-(set-procedure-property! cog-storage-clear-stats 'documentation
-"
- cog-storage-clear-stats - reset the performance statistics counters.
-    This will zero out the various counters used to track the
-    performance of the CogServer backend.  Statistics will continue to
-    be accumulated.
-")
 
 (set-procedure-property! cog-storage-close 'documentation
 "
@@ -45,12 +36,4 @@ cog-storage-stats cog-storage-load-atomspace)
   Examples of use with valid URL's:
      (cog-storage-open \"cog://localhost/\")
      (cog-storage-open \"cog://localhost:17001/\")
-")
-
-(set-procedure-property! cog-storage-stats 'documentation
-"
- cog-storage-stats - report performance statistics.
-    This will cause some AtomSpace performance statistics to be printed
-    to stdout. These statistics can be quite arcane and are useful
-    primarily to the developers of the server.
 ")
