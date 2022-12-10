@@ -45,6 +45,12 @@ using namespace opencog;
 
 void CogSimpleStorage::set_proxy(const Handle& h)
 {
+	// Some proxies require that the CogServer know about the
+	// keys on the proxy. Thus, on behalf of the user, we send
+	// those keys and values. (The user could do this themselves
+	// but they (i.e. me) forget.)
+	storeAtom(h);
+
 	std::string msg =
 		"(cog-set-proxy! " + Sexpr::encode_atom(h, false) + ")\n";
 

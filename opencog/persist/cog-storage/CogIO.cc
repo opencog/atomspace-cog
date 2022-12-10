@@ -61,6 +61,14 @@ void CogStorage::proxy_close(void)
 void CogStorage::set_proxy(const Handle& h)
 {
 	CHECK_OPEN;
+
+	// Some proxies require that the CogServer know about the
+	// keys on the proxy. Thus, on behalf of the user, we send
+	// those keys and values. (The user could do this themselves
+	// but they (i.e. me) forget.)
+	storeAtom(h);
+	barrier();
+
 	std::string msg =
 		"(cog-set-proxy! " + Sexpr::encode_atom(h) + ")\n";
 
