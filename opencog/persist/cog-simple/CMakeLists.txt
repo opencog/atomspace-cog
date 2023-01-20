@@ -18,3 +18,8 @@ ADD_GUILE_EXTENSION(SCM_CONFIG persist-cog-simple
 INSTALL (TARGETS persist-cog-simple EXPORT AtomSpaceTargets
 	DESTINATION "lib${LIB_DIR_SUFFIX}/opencog"
 )
+
+INSTALL (FILES
+   CogSimpleStorage.h
+   DESTINATION "include/opencog/persist/cog-simple"
+)
