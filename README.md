@@ -156,7 +156,7 @@ provides init and socket I/O.
 This backend can be accessed via:
 ```
 scheme> (use-modules (opencog persist-cog-simple))
-scheme> (define cssn (CogSimpleStorageNode "cog-simple://example.com/"))
+scheme> (define cssn (CogSimpleStorageNode "cog://example.com/"))
 scheme> (cog-open cssn)
 ```
 
