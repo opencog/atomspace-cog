@@ -116,7 +116,7 @@ granular load and store is possible; see the
 Status
 ------
 This is **Version 1.1.0**. All 26 (13+13) unit tests consistently
-pass. (*) (There are occassional crashes during shutdown, in the
+pass. (*) (There are occasional crashes during shutdown, in the
 shared-library dtor, after the unit tests have passed. See
 [cogutil issue #247](https://github.com/opencog/cogutil/issues/247)
 for details. Tracked locally as
@@ -127,7 +127,7 @@ each to run; two more take a few minutes.  This is intentional,
 they are pounding the server with large datasets.
 
 This is a "stable" version. There are no known bugs at this time.
-It is being used in "production" environments, successfully transfering
+It is being used in "production" environments, successfully transferring
 gigabytes of data around.
 
 There is one missing feature, but no one uses it (yet): support for
@@ -156,7 +156,7 @@ provides init and socket I/O.
 This backend can be accessed via:
 ```
 scheme> (use-modules (opencog persist-cog-simple))
-scheme> (define cssn (ComSimpleStorageNode "cog-simple://example.com/"))
+scheme> (define cssn (CogSimpleStorageNode "cog-simple://example.com/"))
 scheme> (cog-open cssn)
 ```
 
