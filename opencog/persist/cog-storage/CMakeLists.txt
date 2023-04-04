@@ -3,9 +3,9 @@
 #
 
 ADD_LIBRARY (persist-cog SHARED
-	CogIO
-	CogPersistSCM
-	CogStorage
+	CogIO.cc
+	CogPersistSCM.cc
+	CogStorage.cc
 )
 
 TARGET_LINK_LIBRARIES(persist-cog
