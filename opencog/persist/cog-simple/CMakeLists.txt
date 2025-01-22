@@ -9,6 +9,7 @@ ADD_LIBRARY (persist-cog-simple SHARED
 )
 
 TARGET_LINK_LIBRARIES(persist-cog-simple
+	${ATOMSPACE_STORAGE_LIBRARIES}
 	${ATOMSPACE_LIBRARIES}
 )
 
