@@ -32,6 +32,7 @@
 
 #include <atomic>
 #include <string>
+#include <unistd.h> /* for close() */
 
 #include <opencog/util/async_buffer.h>
 
