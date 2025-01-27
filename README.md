@@ -163,15 +163,16 @@ scheme> (cog-open cssn)
 ### The Production Backend
 This backend opens four sockets to the cogserver, and handles requests
 asynchronously. In other words, requests might be handled out-of-order.
-Be sure to pepper your code with `(barrier)` to flush the network
-buffers, else you might get unexpected behavior. The `(barrier)` ensures
-that all reads/writes before the barrier are completed, before any that
-come after are started.
+If there is some critical code segment that can't tolerate this, use the
+`(barrier)` call. It will flush the network buffers, and force a
+serialization barrier at the remote end. The `(barrier)` is a 'fence'
+and not a synchronization chekpoint: it ensures that all reads/writes
+before the barrier are completed before any that come after are started.
 
 Usage is much like before:
 ```
 scheme> (use-modules (opencog persist-cog))
-scheme> (define csn (ComStorageNode "cog://example.com/"))
+scheme> (define csn (CogStorageNode "cog://example.com/"))
 scheme> (cog-open csn)
 ```
 
