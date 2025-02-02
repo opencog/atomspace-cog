@@ -233,10 +233,10 @@ void LargeFlatUTest::add_to_space(int idx, AtomSpacePtr as, std::string id)
 	hl[idx] = as->add_link(SET_LINK, std::move(hvec));
 	l[idx] = LinkCast(hl[idx]);
 
-	hl2[idx] = as->add_link(LIST_LINK, hl[idx], h2[idx]);
+	hl2[idx] = as->add_link(LIST_LINK, {hl[idx], h2[idx]});
 	l2[idx] = LinkCast(hl2[idx]);
 
-	hl3[idx] = as->add_link(EVALUATION_LINK, h1[idx], hl2[idx], h3[idx]);
+	hl3[idx] = as->add_link(EVALUATION_LINK, {h1[idx], hl2[idx], h3[idx]});
 	l3[idx] = LinkCast(hl3[idx]);
 }
 

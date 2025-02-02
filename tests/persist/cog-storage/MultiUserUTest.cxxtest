@@ -303,11 +303,11 @@ void MultiUserUTest::add_to_space(int idx, AtomSpacePtr as,
     store->store_atom(hl[idx]);
     l[idx] = LinkCast(hl[idx]);
 
-    hl2[idx] = as->add_link(LIST_LINK, hl[idx], h2[idx]);
+    hl2[idx] = as->add_link(LIST_LINK, {hl[idx], h2[idx]});
     store->store_atom(hl2[idx]);
     l2[idx] = LinkCast(hl2[idx]);
 
-    hl3[idx] = as->add_link(EVALUATION_LINK, h1[idx], hl2[idx], h3[idx]);
+    hl3[idx] = as->add_link(EVALUATION_LINK, {h1[idx], hl2[idx], h3[idx]});
     store->store_atom(hl3[idx]);
     l3[idx] = LinkCast(hl3[idx]);
 
