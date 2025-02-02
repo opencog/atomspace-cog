@@ -137,24 +137,24 @@ void QueryPersistUTest::setup_data(void)
 	TS_ASSERT(store->connected())
 
 	/* Populate the Storage with stuff that we will later query. */
-	al(EVALUATION_LINK, an(PREDICATE_NODE, "is-a"),
-		al(LIST_LINK, an(CONCEPT, "car"), an(CONCEPT, "vehicle")));
-	al(EVALUATION_LINK, an(PREDICATE_NODE, "has-a"),
-		al(LIST_LINK, an(CONCEPT, "car"), an(CONCEPT, "wheel")));
-	al(EVALUATION_LINK, an(PREDICATE_NODE, "has-a"),
-		al(LIST_LINK, an(CONCEPT, "car"), an(CONCEPT, "battery")));
+	al(EVALUATION_LINK, {an(PREDICATE_NODE, "is-a"),
+		al(LIST_LINK, {an(CONCEPT, "car"), an(CONCEPT, "vehicle")})});
+	al(EVALUATION_LINK, {an(PREDICATE_NODE, "has-a"),
+		al(LIST_LINK, {an(CONCEPT, "car"), an(CONCEPT, "wheel")})});
+	al(EVALUATION_LINK, {an(PREDICATE_NODE, "has-a"),
+		al(LIST_LINK, {an(CONCEPT, "car"), an(CONCEPT, "battery")})});
 
-	al(EVALUATION_LINK, an(PREDICATE_NODE, "is-a"),
-		al(LIST_LINK, an(CONCEPT, "bicycle"), an(CONCEPT, "vehicle")));
-	al(EVALUATION_LINK, an(PREDICATE_NODE, "has-a"),
-		al(LIST_LINK, an(CONCEPT, "bicycle"), an(CONCEPT, "wheel")));
-	al(EVALUATION_LINK, an(PREDICATE_NODE, "has-a"),
-		al(LIST_LINK, an(CONCEPT, "bicycle"), an(CONCEPT, "derailleur")));
+	al(EVALUATION_LINK, {an(PREDICATE_NODE, "is-a"),
+		al(LIST_LINK, {an(CONCEPT, "bicycle"), an(CONCEPT, "vehicle")})});
+	al(EVALUATION_LINK, {an(PREDICATE_NODE, "has-a"),
+		al(LIST_LINK, {an(CONCEPT, "bicycle"), an(CONCEPT, "wheel")})});
+	al(EVALUATION_LINK, {an(PREDICATE_NODE, "has-a"),
+		al(LIST_LINK, {an(CONCEPT, "bicycle"), an(CONCEPT, "derailleur")})});
 
-	al(EVALUATION_LINK, an(PREDICATE_NODE, "is-a"),
-		al(LIST_LINK, an(CONCEPT, "airplane"), an(CONCEPT, "vehicle")));
-	al(EVALUATION_LINK, an(PREDICATE_NODE, "has-a"),
-		al(LIST_LINK, an(CONCEPT, "airplane"), an(CONCEPT, "wings")));
+	al(EVALUATION_LINK, {an(PREDICATE_NODE, "is-a"),
+		al(LIST_LINK, {an(CONCEPT, "airplane"), an(CONCEPT, "vehicle")})});
+	al(EVALUATION_LINK, {an(PREDICATE_NODE, "has-a"),
+		al(LIST_LINK, {an(CONCEPT, "airplane"), an(CONCEPT, "wings")})});
 
 	// Sprinkle in some TruthValues
 	an(CONCEPT, "airplane") ->
@@ -186,11 +186,11 @@ void QueryPersistUTest::test_meet(void)
 	// Create a query to find all things that have wheels.
 	// We expect cars and bicycles, only.
 	Handle qry =
-	al(MEET_LINK,
+	al(MEET_LINK, {
 		al(TYPED_VARIABLE_LINK,
-			an(VARIABLE, "$transport"), an(TYPE_NODE, "Concept")),
-		al(EVALUATION_LINK, an(PREDICATE_NODE, "has-a"),
-			al(LIST_LINK, an(VARIABLE, "$transport"), an(CONCEPT, "wheel"))));
+			{an(VARIABLE, "$transport"), an(TYPE_NODE, "Concept")}),
+		al(EVALUATION_LINK, {an(PREDICATE_NODE, "has-a"),
+			al(LIST_LINK, {an(VARIABLE, "$transport"), an(CONCEPT, "wheel")})})});
 
 	// Create a key where the query results will arrive...
 	Handle key = an(PREDICATE_NODE, "qkey");
@@ -248,7 +248,7 @@ void QueryPersistUTest::test_join(void)
 
 	// Create a join to find all vehicles.
 	Handle join =
-	al(MAXIMAL_JOIN_LINK, al(PRESENT_LINK, an(CONCEPT, "vehicle")));
+	al(MAXIMAL_JOIN_LINK, {al(PRESENT_LINK, an(CONCEPT, "vehicle"))});
 
 	// Create a key where the query results will arrive...
 	Handle key = an(PREDICATE_NODE, "qkey");
@@ -270,14 +270,14 @@ void QueryPersistUTest::test_join(void)
 	HandleSet hset = lvp->to_handle_set();
 	HandleSet expect;
 	expect.insert(
-		al(EVALUATION_LINK, an(PREDICATE_NODE, "is-a"),
-			al(LIST_LINK, an(CONCEPT, "airplane"), an(CONCEPT, "vehicle"))));
+		al(EVALUATION_LINK, {an(PREDICATE_NODE, "is-a"),
+			al(LIST_LINK, {an(CONCEPT, "airplane"), an(CONCEPT, "vehicle")})}));
 	expect.insert(
-		al(EVALUATION_LINK, an(PREDICATE_NODE, "is-a"),
-			al(LIST_LINK, an(CONCEPT, "bicycle"), an(CONCEPT, "vehicle"))));
+		al(EVALUATION_LINK, {an(PREDICATE_NODE, "is-a"),
+			al(LIST_LINK, {an(CONCEPT, "bicycle"), an(CONCEPT, "vehicle")})}));
 	expect.insert(
-		al(EVALUATION_LINK, an(PREDICATE_NODE, "is-a"),
-			al(LIST_LINK, an(CONCEPT, "car"), an(CONCEPT, "vehicle"))));
+		al(EVALUATION_LINK, {an(PREDICATE_NODE, "is-a"),
+			al(LIST_LINK, {an(CONCEPT, "car"), an(CONCEPT, "vehicle")})}));
 
 	TSM_ASSERT_EQUALS("Expecting airplane, bicycle and car", hset, expect);
 
