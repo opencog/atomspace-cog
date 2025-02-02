@@ -366,16 +366,16 @@ void MultiUserUTest::check_space(int idx, AtomSpacePtr space, std::string dbgmsg
     // printf("Checking %d\n", idx);
     fflush(stdout);
 
-    Handle hb1 = space->get_handle(n1[idx]->get_type(), n1[idx]->get_name());
+    Handle hb1 = space->xget_handle(n1[idx]->get_type(), n1[idx]->get_name());
     atomCompare(h1[idx], hb1, dbgmsg + "-hb1");
 
-    Handle hb2 = space->get_handle(n2[idx]->get_type(), n2[idx]->get_name());
+    Handle hb2 = space->xget_handle(n2[idx]->get_type(), n2[idx]->get_name());
     atomCompare(h2[idx], hb2, dbgmsg + "-hb2");
 
-    Handle hb3 = space->get_handle(n3[idx]->get_type(), n3[idx]->get_name());
+    Handle hb3 = space->xget_handle(n3[idx]->get_type(), n3[idx]->get_name());
     atomCompare(h3[idx], hb3, dbgmsg + "-hb3");
 
-    Handle hb4 = space->get_handle(n4[idx]->get_type(), n4[idx]->get_name());
+    Handle hb4 = space->xget_handle(n4[idx]->get_type(), n4[idx]->get_name());
     atomCompare(h4[idx], hb4, dbgmsg + "-hb4");
 
     HandleSeq hvec;
@@ -384,15 +384,15 @@ void MultiUserUTest::check_space(int idx, AtomSpacePtr space, std::string dbgmsg
     hvec.push_back(hb3);
     hvec.push_back(hb4);
 
-    Handle hlb = space->get_handle(hl[idx]->get_type(), hvec);
+    Handle hlb = space->xget_handle(hl[idx]->get_type(), hvec);
     atomCompare(hl[idx], hlb, dbgmsg + "-hlinkb");
 
     HandleSeq hv2({hlb, hb2});
-    Handle hlb2 = space->get_handle(hl2[idx]->get_type(), hv2);
+    Handle hlb2 = space->xget_handle(hl2[idx]->get_type(), hv2);
     atomCompare(hl2[idx], hlb2, dbgmsg + "-hlinkb2");
 
     HandleSeq hv3({hb1, hlb2, hb3});
-    Handle hlb3 = space->get_handle(hl3[idx]->get_type(), hv3);
+    Handle hlb3 = space->xget_handle(hl3[idx]->get_type(), hv3);
     atomCompare(hl3[idx], hlb3, dbgmsg + "-hlinkb3");
 }
 
