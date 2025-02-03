@@ -33,10 +33,11 @@
 #include <opencog/atoms/atom_types/atom_types.h>
 #include <opencog/atoms/truthvalue/SimpleTruthValue.h>
 #include <opencog/atomspace/AtomSpace.h>
-#include <opencog/cogserver/server/CogServer.h>
 #include <opencog/persist/cog-simple/CogSimpleStorage.h>
 
 #include <opencog/util/Logger.h>
+
+#include "fork-cogserver.h"
 
 using namespace opencog;
 
@@ -44,8 +45,6 @@ class BasicSaveUTest :  public CxxTest::TestSuite
 {
     private:
         std::string uri;
-        CogServer* srvr = NULL;
-        std::thread * main_loop = NULL;
 
         Handle n1[10];
         Handle n2[10];
@@ -69,22 +68,14 @@ class BasicSaveUTest :  public CxxTest::TestSuite
 
             // Create a single cogserver node that will act as
             // as the repo for the duration of the test.
-            srvr = &cogserver();
-            srvr->loadModules();
-            srvr->enableNetworkServer(16001);
-            main_loop = new std::thread(&CogServer::serverLoop, srvr);
-            printf("Started CogServer\n");
+				start_cogserver();
         }
 
         ~BasicSaveUTest()
         {
-            srvr->stop();
-            main_loop->join();
-            srvr->disableNetworkServer();
-            delete main_loop;
-            delete srvr;
+				stop_cogserver();
 
-            // erase the log file if no assertions failed
+            // Erase the log file if no assertions failed
             if (!CxxTest::TestTracker::tracker().suiteFailed())
                 std::remove(logger().get_filename().c_str());
         }
