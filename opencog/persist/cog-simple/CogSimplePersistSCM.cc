@@ -105,8 +105,6 @@ void CogSimplePersistSCM::do_open(const std::string& uri)
         throw RuntimeException(TRACE_INFO,
             "cog-simple-open: Error: Unable to connect to the database");
     }
-
-    PersistSCM::set_connection(_storage);
 }
 
 void CogSimplePersistSCM::do_close(void)
@@ -122,7 +120,6 @@ void CogSimplePersistSCM::do_close(void)
     // Only then actually call the dtor.
     _storage->close();
     _as->extract_atom(HandleCast(_storage));
-    PersistSCM::set_connection(nullptr);
     _storage = nullptr;
 }
 
