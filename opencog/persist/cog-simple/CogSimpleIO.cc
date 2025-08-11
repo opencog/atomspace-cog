@@ -286,6 +286,14 @@ void CogSimpleStorage::kill_data(void)
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send("(cog-atomspace-clear)\n");
 	do_recv();
+
+	// Reset multi-space tracking after clearing
+	_multi_space = false;
+	{
+		std::lock_guard<std::mutex> flck(_mtx_frame);
+		_frame_map.clear();
+		_fid_map.clear();
+	}
 }
 
 void CogSimpleStorage::runQuery(const Handle& query, const Handle& key,
