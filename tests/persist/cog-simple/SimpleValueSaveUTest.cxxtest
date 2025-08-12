@@ -1041,6 +1041,10 @@ void SimpleValueSaveUTest::test_incoming()
 	gpl = gcl->getValue(gkey);
 	gpv = gcv->getValue(gkey);
 
+	TS_ASSERT(gpf != nullptr);
+	if (nullptr == gpf)
+		printf("Oh No!!! Will now seg fault! Whoopsy-daisy!\n");
+	fflush(stdout);
 	TS_ASSERT(*gpf == *pvf);
 	TS_ASSERT(*gpt == *pvt);
 	TS_ASSERT(*gpl == *pvl);
