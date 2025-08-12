@@ -152,6 +152,7 @@ void AlphaEquivUTest::setup_data(void)
 	/* Push all atoms out to the database */
 	store->store_atomspace();
 	store->barrier();
+	store->close();
 }
 
 // ============================================================
@@ -193,6 +194,7 @@ void AlphaEquivUTest::test_fetch(void)
 	FloatValuePtr fvp = FloatValueCast(fu);
 	TSM_ASSERT_EQUALS("Expecting three floats", fvp->size(), 3);
 
+	store->close();
 	logger().info("END TEST: %s", __FUNCTION__);
 }
 
@@ -231,6 +233,7 @@ void AlphaEquivUTest::test_remove(void)
 	ValuePtr fu = lx->getValue(an(PREDICATE, "foo"));
 	TSM_ASSERT("Expecting null value", nullptr == fu);
 
+	store->close();
 	logger().info("END TEST: %s", __FUNCTION__);
 }
 
@@ -268,6 +271,7 @@ void AlphaEquivUTest::test_recursive_remove(void)
 	ValuePtr fu = lx->getValue(an(PREDICATE, "foo"));
 	TSM_ASSERT("Expecting null value", nullptr == fu);
 
+	store->close();
 	logger().info("END TEST: %s", __FUNCTION__);
 }
 
