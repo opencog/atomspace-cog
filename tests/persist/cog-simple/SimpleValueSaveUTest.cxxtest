@@ -1,5 +1,5 @@
 /*
- * tests/persist/cog-simple/ValueSaveUTest.cxxtest
+ * tests/persist/cog-simple/SimpleValueSaveUTest.cxxtest
  *
  * Test of save and restore of generic values.
  * Ported from tests/persist/sql/multi-driver/ValueSaveUTest.cxxtest
@@ -623,6 +623,14 @@ void SimpleValueSaveUTest::test_link_by_type()
 
 // Same as test_link_by_type() except that the StringValue
 // has some nasties intended to confuse parsing.
+//
+// XXX FIXME. This unit test is currently failing due to broken
+// fame support in CogSimpleIO.cc ... Somehow, an earlier unit
+// test accidentally sets the _multi_space flag to true, I don't
+// know why, and then things fall apart because multispace support
+// is incomplete in sexpr and here in CogSimple. So, basically,
+// shit is broken. I don't wnat to fix this now. It's low priority.
+// brute force is to force disable multi-space support.
 void SimpleValueSaveUTest::test_link_by_type_quoted()
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
