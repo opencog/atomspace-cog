@@ -259,7 +259,7 @@ void CogSimpleStorage::fetchIncomingByType(AtomSpace* table, const Handle& h, Ty
 void CogSimpleStorage::loadAtomSpace(AtomSpace* table)
 {
 	// If there's a hierarchy of frames, get those first.
-	loadFrameDAG();
+	// loadFrameDAG(); disable for now.
 
 	std::lock_guard<std::mutex> lck(_mtx);
 
