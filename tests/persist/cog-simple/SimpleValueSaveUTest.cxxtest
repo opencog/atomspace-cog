@@ -819,6 +819,11 @@ void SimpleValueSaveUTest::test_link_by_type_quoted()
 	gpl = gcl->getValue(gkey);
 	gpv = gcv->getValue(gkey);
 
+	TS_ASSERT(gpf != nullptr);
+	if (nullptr == gpf)
+		printf("Will now seg fault! Whoopieee!\n");
+	fflush(stdout);
+
 	TS_ASSERT(*gpf == *pvf);
 	TS_ASSERT(*gpt == *pvt);
 	TS_ASSERT(*gpl == *pvl);
