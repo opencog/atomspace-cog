@@ -42,8 +42,8 @@
 // the generic StorageNode. This requires ripping it out of Rocks
 // Storage Node, and also out of the below. This is a large project,
 // so it won't happen any time soon. For now, just disable things.
-#define SET_MULTI {}
-// #define SET_MULTI { _multi_space = true; }
+// #define SET_MULTI {}
+#define SET_MULTI { _multi_space = true; }
 
 using namespace opencog;
 
