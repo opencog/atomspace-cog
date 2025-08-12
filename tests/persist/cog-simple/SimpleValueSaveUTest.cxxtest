@@ -962,6 +962,7 @@ void SimpleValueSaveUTest::test_incoming()
 	store->fetch_incoming_set(gat, false);
 	store->fetch_incoming_set(gal, false);
 	store->fetch_incoming_set(gav, false);
+	printf ("AtomSpace now contains %lu atoms, expecting 15\n", as->get_size());
 	TSM_ASSERT("Wrong number of Atoms fetched!", as->get_size() == 15);
 
 	Handle gbf = as->add_node(CONCEPT_NODE, "b float node");
