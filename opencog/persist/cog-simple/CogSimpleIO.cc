@@ -35,6 +35,16 @@
 #include "../cog-common/ListUtils.cc"
 #undef CLASSNAME
 
+// XXX FIXME Disable the setting of multi-spaces, for now. The logic
+// used below is incomplete and broken, and appears to be causing issues
+// for the unit tests in certain situations. At any rate, the *correct*
+// solution is probably to put most of the multi-space support into
+// the generic StorageNode. This requires ripping it out of Rocks
+// Storage Node, and also out of the below. This is a large project,
+// so it won't happen any time soon. For now, just disable things.
+#define SET_MULTI
+// #define SET_MULTI _multi_space = true;
+
 using namespace opencog;
 
 // Design note: each of the calls below grabs a lock to protect the
@@ -67,7 +77,7 @@ void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 	if (not _multi_space
 	    and nullptr != _atom_space
 	    and h->getAtomSpace() != _atom_space)
-		_multi_space = true;
+		SET_MULTI;
 
 	if (_multi_space) writeFrame(h->getAtomSpace());
 
@@ -90,7 +100,7 @@ void CogSimpleStorage::storeValue(const Handle& h, const Handle& key)
 {
 	// Are there multiple AtomSpaces involved?
 	if (not _multi_space and h->getAtomSpace() != _atom_space)
-		_multi_space = true;
+		SET_MULTI;
 
 	if (_multi_space) writeFrame(h->getAtomSpace());
 
@@ -111,7 +121,7 @@ void CogSimpleStorage::updateValue(const Handle& h, const Handle& key,
 {
 	// Are there multiple AtomSpaces involved?
 	if (not _multi_space and h->getAtomSpace() != _atom_space)
-		_multi_space = true;
+		SET_MULTI;
 
 	if (_multi_space) writeFrame(h->getAtomSpace());
 
