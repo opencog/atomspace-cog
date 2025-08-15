@@ -36,7 +36,7 @@
 
 static int unistd_close(int fd) { return close(fd); }
 
-#include <opencog/persist/types/atom_types.h>
+#include <opencog/persist/cog-types/atom_types.h>
 #include "CogSimpleStorage.h"
 
 using namespace opencog;
