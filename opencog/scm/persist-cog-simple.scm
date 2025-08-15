@@ -6,6 +6,15 @@
 
 (use-modules (opencog))
 (use-modules (opencog cog-config))
+
+; Load the C library that calls the classserver to load the types.
+(load-extension
+	(string-append opencog-ext-path-persist-cog-types "libpersist-cog-types")
+	"persist_cog_types_init")
+
+; Load the persist-cog types scheme bindings
+(load-from-path "opencog/persist/types/persist_cog_types.scm")
+
 (load-extension
 	(string-append opencog-ext-path-persist-cog-simple "libpersist-cog-simple")
 	"opencog_persist_cog_simple_init")
