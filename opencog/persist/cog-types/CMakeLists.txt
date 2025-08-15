@@ -32,12 +32,12 @@ INSTALL (TARGETS persist-cog-types EXPORT AtomSpaceCogStorageTargets
 
 INSTALL (FILES
 	${CMAKE_CURRENT_BINARY_DIR}/atom_types.h
-	DESTINATION "include/opencog/persist/types"
+	DESTINATION "include/opencog/persist/cog-types"
 )
 
 ADD_GUILE_MODULE (FILES
 	${CMAKE_CURRENT_BINARY_DIR}/persist_cog_types.scm
-	MODULE_DESTINATION "${GUILE_SITE_DIR}/opencog/persist/types"
+	MODULE_DESTINATION "${GUILE_SITE_DIR}/opencog/persist/cog-types"
 	DEPENDS persist_cog_atom_types
 )
 

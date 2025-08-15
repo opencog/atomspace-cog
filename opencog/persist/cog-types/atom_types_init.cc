@@ -1,5 +1,5 @@
 /*
- * opencog/persist/types/atom_types_init.cc
+ * opencog/persist/cog-types/atom_types_init.cc
  *
  * Copyright (C) 2025 BrainyBlaze Dynamics Inc.
  * All Rights Reserved
@@ -21,9 +21,9 @@
  */
 
 #include <opencog/persist/storage/storage_types.h>
-#include "opencog/persist/types/atom_types.definitions"
+#include "opencog/persist/cog-types/atom_types.definitions"
 
-#define INHERITANCE_FILE "opencog/persist/types/atom_types.inheritance"
+#define INHERITANCE_FILE "opencog/persist/cog-types/atom_types.inheritance"
 #define INITNAME persist_cog_types_init
 
 #include <opencog/atoms/atom_types/atom_types.cc>
