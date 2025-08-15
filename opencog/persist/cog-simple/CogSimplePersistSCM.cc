@@ -27,6 +27,7 @@
 
 #include <opencog/atomspace/AtomSpace.h>
 #include <opencog/persist/api/StorageNode.h>
+#include <opencog/persist/cog-types/atom_types.h>
 #include <opencog/guile/SchemePrimitive.h>
 
 #include "CogSimpleStorage.h"

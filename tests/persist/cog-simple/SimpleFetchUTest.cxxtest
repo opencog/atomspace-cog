@@ -163,23 +163,34 @@ void SimpleFetchUTest::atomCompare(AtomPtr a, AtomPtr b, std::string where)
 
 // ============================================================
 
+#define CHKERR \
+	TSM_ASSERT("Caught scm error during eval", \
+		(false == eval->eval_error()));
+
 void SimpleFetchUTest::test_stuff(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
 	// First, initialize the database
 	eval->eval("(use-modules (opencog persist) (opencog persist-cog-simple))");
+	CHKERR;
 	eval->eval(srv_open);
+	CHKERR;
 	eval->eval(R"((cog-set-tv! (Concept "AAA") (stv 0.1 0.11)))");
 	eval->eval(R"((cog-set-tv! (Concept "BBB") (stv 0.2 0.22)))");
 	eval->eval("(store-atomspace)");
+	CHKERR;
 	eval->eval("(cog-close)");
+	CHKERR;
 
 	_as = createAtomSpace();
 	eval = SchemeEval::get_evaluator(_as);
 	eval->set_scheme_as(_as);
+	CHKERR;
 	eval->eval(srv_open);
+	CHKERR;
 	eval->eval(R"((fetch-atom (List (Concept "AAA") (Concept "BBB"))))");
+	CHKERR;
 
 	// The above should NOT update the TV of (Concept "AAA")
 	TruthValuePtr tv = eval->eval_tv(R"((cog-tv (Concept "AAA")))");

@@ -1,0 +1,7 @@
+//
+// Script for generating the two CogStorageNode atom types.
+//
+COG_SIMPLE_STORAGE_NODE <- STORAGE_NODE
+COG_STORAGE_NODE <- STORAGE_NODE
+
+// That's all folks!  Nothing more is needed here!

@@ -33,6 +33,8 @@
 #include <netdb.h>
 #include <errno.h>
 
+#include <opencog/persist/cog-types/atom_types.h>
+
 #include "CogStorage.h"
 #include "CogChannel.cc"
 
