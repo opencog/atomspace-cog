@@ -13,7 +13,7 @@
 	"persist_cog_types_init")
 
 ; Load the persist-cog types scheme bindings
-(load-from-path "opencog/persist/types/persist_cog_types.scm")
+(load-from-path "opencog/persist/cog-types/persist_cog_types.scm")
 
 (load-extension
 	(string-append opencog-ext-path-persist-cog-simple "libpersist-cog-simple")
