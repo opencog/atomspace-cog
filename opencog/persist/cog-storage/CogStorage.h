@@ -31,6 +31,7 @@
 #define _OPENCOG_COG_STORAGE_H
 
 #include <opencog/persist/api/StorageNode.h>
+#include <opencog/persist/cog-types/atom_types.h>
 #include <opencog/persist/cog-storage/CogChannel.h>
 
 namespace opencog
