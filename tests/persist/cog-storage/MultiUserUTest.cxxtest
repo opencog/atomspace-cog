@@ -104,9 +104,9 @@ class MultiUserUTest :  public CxxTest::TestSuite
             srvr->disableNetworkServer();
             delete main_loop;
             delete srvr;
-            logger().flush();
 
-            // erase the log file if no assertions failed
+            // Erase the log file if no assertions failed
+            logger().flush();
             if (!CxxTest::TestTracker::tracker().suiteFailed())
                 std::remove(logger().get_filename().c_str());
         }
