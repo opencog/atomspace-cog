@@ -173,17 +173,12 @@ void MultiUserUTest::connect_to_db(int i)
     _as[i] = createAtomSpace();
     Handle hsn = _as[i]->add_node(COG_STORAGE_NODE, "cog://localhost:16007");
     _store[i] = StorageNodeCast(hsn);
-     _store[i]->open();
+    _store[i]->open();
     TS_ASSERT(_store[i]->connected())
 }
 
 void MultiUserUTest::tearDown(void)
 {
-    /* Orderly shutdown avoids warning in Postgres log file. */
-    for (int i=0; i < n_threads; i++)
-    {
-        _as[i] = nullptr;
-    }
 }
 
 // ============================================================
@@ -447,6 +442,8 @@ void MultiUserUTest::run_user_test(int thread_id)
 	TSM_ASSERT("Took too long to connect", end - start < 10);
 
 	add_atoms(thread_id);
+	_store[thread_id]->close();
+	_as[thread_id] = nullptr;
 }
 
 // ============================================================
