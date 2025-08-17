@@ -461,6 +461,7 @@ void MultiUserUTest::do_test_multiuser(void)
             check_space(NCLAUSE*off+i, aspace, "verify-again");
         }
 
+    store->barrier();
     store->close();
     aspace = nullptr;
 }
