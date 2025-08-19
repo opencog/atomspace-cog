@@ -206,7 +206,7 @@ void SimpleFetchUTest::test_stuff(void)
 	// value from the database.
 	eval->eval(R"((fetch-atom (Concept "AAA")))");
 	tv = eval->eval_tv(R"((cog-tv (Concept "AAA")))");
-	TruthValuePtr etv = SimpleTruthValue::createTV(0.1, 0.11);
+	TruthValuePtr etv = createSimpleTruthValue(0.1, 0.11);
 	TS_ASSERT((*tv) == (*etv));
 	printf("Expecting %s\n", etv->to_string().c_str());
 	printf("Got %s\n", tv->to_string().c_str());
@@ -227,7 +227,7 @@ void SimpleFetchUTest::test_stuff(void)
 	// AAA should have been updated, as above.
 	eval->eval(R"((fetch-atom (Concept "AAA")))");
 	tv = eval->eval_tv(R"((cog-tv (Concept "AAA")))");
-	etv = SimpleTruthValue::createTV(0.3, 0.33);
+	etv = createSimpleTruthValue(0.3, 0.33);
 	TS_ASSERT((*tv) == (*etv));
 	printf("Expecting %s\n", etv->to_string().c_str());
 	printf("Got %s\n", tv->to_string().c_str());
@@ -286,7 +286,7 @@ void SimpleFetchUTest::xxxtest_readonly(void)
 	TS_ASSERT(nullptr != a);
 
 	TruthValuePtr tv = eval->eval_tv(R"((cog-tv (Concept "AAA")))");
-	TruthValuePtr etv = SimpleTruthValue::createTV(0.1, 0.11);
+	TruthValuePtr etv = createSimpleTruthValue(0.1, 0.11);
 	TS_ASSERT((*tv) == (*etv));
 	printf("Expecting %s\n", etv->to_string().c_str());
 	printf("Got %s\n", tv->to_string().c_str());
