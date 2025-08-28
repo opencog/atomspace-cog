@@ -232,6 +232,8 @@ void QueryPersistUTest::test_meet(void)
 	HandleSet htoo = lvp->to_handle_set();
 	TSM_ASSERT("Expect same results as before", hset == htoo);
 
+	store->close();
+
 	logger().info("END TEST: %s", __FUNCTION__);
 }
 
@@ -281,6 +283,8 @@ void QueryPersistUTest::test_join(void)
 			al(LIST_LINK, {an(CONCEPT, "car"), an(CONCEPT, "vehicle")})}));
 
 	TSM_ASSERT_EQUALS("Expecting airplane, bicycle and car", hset, expect);
+
+	store->close();
 
 	logger().info("END TEST: %s", __FUNCTION__);
 }
