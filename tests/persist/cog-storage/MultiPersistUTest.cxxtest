@@ -471,6 +471,7 @@ void MultiPersistUTest::test_atomspace(void)
         for (i=0; i<NATS; i++)
             check_empty(NHACK*off+i, _as);
 
+    store->close();
     logger().debug("END TEST: %s", __FUNCTION__);
 }
 
