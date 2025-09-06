@@ -351,6 +351,7 @@ void LargeZipfUTest::test_atomspace(void)
 	/* Verify that the atoms are no longer being found. */
 	check_empty(_as);
 
+	store->close();
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
 

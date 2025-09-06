@@ -426,6 +426,7 @@ void LargeFlatUTest::test_atomspace(void)
 	for (i=0; i<idx; i++)
 		check_empty(i, _as);
 
+	store->close();
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
 
