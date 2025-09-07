@@ -148,6 +148,8 @@ void MultiPersistUTest::setUp(void)
 
 void MultiPersistUTest::tearDown(void)
 {
+    store->close();
+    store = nullptr;
     _as = nullptr;
 }
 
