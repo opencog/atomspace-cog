@@ -109,6 +109,7 @@ void FetchUTest::setUp(void)
 
 void FetchUTest::tearDown(void)
 {
+	_as = nullptr;
 }
 
 // ============================================================
@@ -230,6 +231,7 @@ void FetchUTest::test_stuff(void)
 	printf("Expecting %s\n", dtv->to_string().c_str());
 	printf("Got %s\n", tv->to_string().c_str());
 
+	eval->eval("(barrier)");
 	eval->eval("(cog-close)");
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
