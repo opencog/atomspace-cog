@@ -198,9 +198,7 @@ void SimpleFetchUTest::test_stuff(void)
 
 	// The above should NOT update the TV of (Concept "AAA")
 	TruthValuePtr tv = eval->eval_tv(R"((cog-tv (Concept "AAA")))");
-	printf("Expecting default, got %s\n", tv->to_string().c_str());
-	TruthValuePtr dtv = nullptr;
-	TS_ASSERT((*tv) == (*dtv));
+	TS_ASSERT(tv == nullptr);
 
 	// If we fetch the TV explicitly, then we should get the
 	// value from the database.
@@ -235,9 +233,7 @@ void SimpleFetchUTest::test_stuff(void)
 	// BBB should have been clobbered.
 	eval->eval(R"((fetch-atom (Concept "BBB")))");
 	tv = eval->eval_tv(R"((cog-tv (Concept "BBB")))");
-	TS_ASSERT((*tv) == (*dtv));
-	printf("Expecting %s\n", dtv->to_string().c_str());
-	printf("Got %s\n", tv->to_string().c_str());
+	TS_ASSERT(tv == nullptr);
 
 	eval->eval("(cog-close)");
 	logger().debug("END TEST: %s", __FUNCTION__);

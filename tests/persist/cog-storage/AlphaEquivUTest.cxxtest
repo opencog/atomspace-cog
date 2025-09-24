@@ -262,8 +262,6 @@ void AlphaEquivUTest::test_recursive_remove(void)
 	store->barrier();
 
 	TruthValuePtr tvp = TruthValueCast(lx->getValue(truth_key()));
-	printf("Got TV: %s\n", tvp->to_string().c_str());
-
 	TSM_ASSERT("Expecting default TV", tvp == nullptr);
 
 	// Verify that other values are absent
