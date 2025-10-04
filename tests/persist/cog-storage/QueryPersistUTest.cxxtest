@@ -116,6 +116,8 @@ void QueryPersistUTest::kill_data(void)
 
 	// Trash the contents of the database.
 	astore->kill_data();
+	astore->barrier();
+	astore->close();
 
 	// Destructor also logs out of database
 	delete astore;
