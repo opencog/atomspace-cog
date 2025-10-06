@@ -141,8 +141,8 @@ void SimpleFetchUTest::atomCompare(Handle a, AtomPtr b, std::string where)
 		}
 	}
 
-	ValuePtr ta = a->getValue(truth_key());
-	ValuePtr tb = b->getValue(truth_key());
+	FloatValuePtr ta = FloatValueCast(a->getValue(truth_key()));
+	FloatValuePtr tb = FloatValueCast(b->getValue(truth_key()));
 	if (ta or tb)
 	{
 		TSM_ASSERT("Missing truth value", ta);
@@ -155,7 +155,7 @@ void SimpleFetchUTest::atomCompare(Handle a, AtomPtr b, std::string where)
 			{
 				fprintf(stderr, "Error, truth value miscompare, "
 					"ma=%f mb=%f ca=%f cb=%f\n",
-					ta->get_mean(), tb->get_mean(), ta->get_count(), tb->get_count());
+					ta->value()[0], tb->value()[0], ta->value()[1], tb->value()[1]);
 			}
 		}
 	}
