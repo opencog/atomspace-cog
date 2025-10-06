@@ -81,13 +81,10 @@ void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 
 	if (_multi_space) writeFrame(h->getAtomSpace());
 
-	// If there are no values, be sure to clobber the TV.
 	std::string msg;
 	if (h->haveValues())
 		msg = "(cog-set-values! " + Sexpr::encode_atom(h, _multi_space) +
 			Sexpr::encode_atom_values(h) + ")\n";
-	else
-		msg = "(cog-set-tv! " + Sexpr::encode_atom(h, _multi_space) + " #f)\n";
 
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);

@@ -80,13 +80,10 @@ void CogStorage::set_proxy(const Handle& h)
 void CogStorage::storeAtom(const Handle& h, bool synchronous)
 {
 	CHECK_OPEN;
-	// If there are no values, be sure to clobber the TV.
 	std::string msg;
 	if (h->haveValues())
 		msg = "(cog-set-values! " + Sexpr::encode_atom(h) +
 			Sexpr::encode_atom_values(h) + ")\n";
-	else
-		msg = "(cog-set-tv! " + Sexpr::encode_atom(h) + " #f)\n";
 
 	Pkt pkt;
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
