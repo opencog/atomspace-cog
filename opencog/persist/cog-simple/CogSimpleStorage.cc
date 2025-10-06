@@ -128,7 +128,7 @@ void CogSimpleStorage::open(void)
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC; // IPv4 or IPv6
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
+	hints.ai_flags = 0;
 
 	struct addrinfo *servinfo;
 	int rc = getaddrinfo(host.c_str(), port.c_str(), &hints, &servinfo);

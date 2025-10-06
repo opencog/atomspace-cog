@@ -114,7 +114,7 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC; // IPv4 or IPv6
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
+	hints.ai_flags = 0;
 
 	struct addrinfo *srvinfo;
 	int rc = getaddrinfo(_host.c_str(), _port.c_str(), &hints, &srvinfo);
