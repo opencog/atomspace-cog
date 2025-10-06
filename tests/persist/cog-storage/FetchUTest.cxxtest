@@ -173,8 +173,9 @@ void FetchUTest::test_stuff(void)
 	eval->eval("(use-modules (opencog persist) (opencog persist-cog))");
 	std::string rc = eval->eval(srv_open);
 	if (0 < rc.size()) printf("Storage open rc=%s\n", rc.c_str());
-	eval->eval(R"((cog-set-value! (Concept "AAA") (stv 0.1 0.11)))");
-	eval->eval(R"((cog-set-value! (Concept "BBB") (stv 0.2 0.22)))");
+	eval->eval(R"((define tvkey (Predicate "*-TruthValueKey-*")))");
+	eval->eval(R"((cog-set-value! (Concept "AAA") tvkey (FloatValue 0.1 0.11)))");
+	eval->eval(R"((cog-set-value! (Concept "BBB") tvkey (FloatValue 0.2 0.22)))");
 	eval->eval("(store-atomspace)");
 	eval->eval("(cog-close)");
 
@@ -200,7 +201,7 @@ void FetchUTest::test_stuff(void)
 	printf("Got %s\n", tv->to_string().c_str());
 
 	// Update A.
-	eval->eval(R"((cog-set-value! (Concept "AAA") (stv 0.3 0.33)))");
+	eval->eval(R"((cog-set-value! (Concept "AAA") tvkey (FloatValue 0.3 0.33)))");
 
 	// Saving everything should not crash.  It should, however,
 	// change the TV on (Concept "BBB") back to DEFAULT_TV.
