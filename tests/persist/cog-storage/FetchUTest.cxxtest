@@ -143,8 +143,8 @@ void FetchUTest::atomCompare(Handle a, AtomPtr b, std::string where)
 		}
 	}
 
-	TruthValuePtr ta = TruthValueCast(a->getValue(truth_key()));
-	TruthValuePtr tb = TruthValueCast(b->getValue(truth_key()));
+	ValuePtr ta = a->getValue(truth_key());
+	ValuePtr tb = b->getValue(truth_key());
 	if (ta or tb)
 	{
 		TSM_ASSERT("Missing truth value", ta);
@@ -186,15 +186,15 @@ void FetchUTest::test_stuff(void)
 	eval->eval("(barrier)");
 
 	// The above should NOT update the TV of (Concept "AAA")
-	TruthValuePtr tv = eval->eval_tv(R"((cog-value (Concept "AAA") tvkey))");
+	ValuePtr tv = eval->eval_v(R"((cog-value (Concept "AAA") tvkey))");
 	TS_ASSERT(tv == nullptr);
 
 	// If we fetch the TV explicitly, then we should get the
 	// value from the database.
 	eval->eval(R"((fetch-atom (Concept "AAA")))");
 	eval->eval("(barrier)");
-	tv = eval->eval_tv(R"((cog-value (Concept "AAA") tvkey))");
-	TruthValuePtr etv = createFloatValue({0.1, 0.11});
+	tv = eval->eval_v(R"((cog-value (Concept "AAA") tvkey))");
+	ValuePtr etv = createFloatValue(std::vector<double>{0.1, 0.11});
 	TS_ASSERT((*tv) == (*etv));
 	printf("Expecting %s\n", etv->to_string().c_str());
 	printf("Got %s\n", tv->to_string().c_str());
@@ -215,8 +215,8 @@ void FetchUTest::test_stuff(void)
 	// AAA should have been updated, as above.
 	eval->eval(R"((fetch-atom (Concept "AAA")))");
 	eval->eval("(barrier)");
-	tv = eval->eval_tv(R"((cog-value (Concept "AAA") tvkey))");
-	etv = createFloatValue({0.3, 0.33});
+	tv = eval->eval_v(R"((cog-value (Concept "AAA") tvkey))");
+	etv = createFloatValue(std::vector<double>{0.3, 0.33});
 	TS_ASSERT((*tv) == (*etv));
 	printf("Expecting %s\n", etv->to_string().c_str());
 	printf("Got %s\n", tv->to_string().c_str());
@@ -224,7 +224,7 @@ void FetchUTest::test_stuff(void)
 	// BBB should have been clobbered.
 	eval->eval(R"((fetch-atom (Concept "BBB")))");
 	eval->eval("(barrier)");
-	tv = eval->eval_tv(R"((cog-value (Concept "BBB") tvkey))");
+	tv = eval->eval_v(R"((cog-value (Concept "BBB") tvkey))");
 	TS_ASSERT(tv == nullptr);
 
 	eval->eval("(barrier)");
@@ -277,8 +277,8 @@ void FetchUTest::xxxtest_readonly(void)
 	Handle a = eval->eval_h(R"((Concept "AAA"))");
 	TS_ASSERT(nullptr != a);
 
-	TruthValuePtr tv = eval->eval_tv(R"((cog-value (Concept "AAA") tvkey))");
-	TruthValuePtr etv = createFloatValue({0.1, 0.11});
+	ValuePtr tv = eval->eval_v(R"((cog-value (Concept "AAA") tvkey))");
+	ValuePtr etv = createFloatValue(std::vector<double>{0.1, 0.11});
 	TS_ASSERT((*tv) == (*etv));
 	printf("Expecting %s\n", etv->to_string().c_str());
 	printf("Got %s\n", tv->to_string().c_str());
@@ -296,7 +296,7 @@ void FetchUTest::xxxtest_readonly(void)
 	eval->eval(R"((cog-set-value! (Concept "AAA") tvkey (FloatValue 0.3 0.33)))");
 	TS_ASSERT(eval->eval_error());
 	eval->clear_pending();
-	tv = eval->eval_tv(R"((cog-value (Concept "AAA") tvkey))");
+	tv = eval->eval_v(R"((cog-value (Concept "AAA") tvkey))");
 	TS_ASSERT((*tv) == (*etv));
 
 	// Should be possible to extract, even though its read-only
