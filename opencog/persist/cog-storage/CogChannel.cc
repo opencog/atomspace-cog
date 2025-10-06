@@ -150,28 +150,32 @@ int CogChannel<Client, Data>::open_sock()
 {
 	if (nullptr == _servinfo) return -1;
 
-	struct addrinfo *srvinfo = (struct addrinfo *) _servinfo;
-	int sockfd = socket(srvinfo->ai_family, srvinfo->ai_socktype, srvinfo->ai_protocol);
-
-	if (0 > sockfd)
+	// Try IPv4 and IPv6 until we successfully connect.
+	// Newer OS'es offer up IPv6 first, and cogserver is usually on IPv4
+	struct addrinfo *p;
+	int sockfd = -1;
+	int norr = 0;
+	for (p = (struct addrinfo *) _servinfo; p != NULL; p = p->ai_next)
 	{
-		int norr = errno;
-		throw IOException(TRACE_INFO, "Unable to create socket to host %s: %s",
-			_host.c_str(), strerror(norr));
+		sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+		if (sockfd < 0) continue;
+
+		if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0)
+			break;
+
+		norr = errno;
+		close(sockfd);
+		sockfd = -1;
 	}
 
-	int rc = connect(sockfd, srvinfo->ai_addr, srvinfo->ai_addrlen);
-	if (0 > rc)
-	{
-		int norr = errno;
+	if (p == NULL)
 		throw IOException(TRACE_INFO, "Unable to connect to host %s: %s",
 			_host.c_str(), strerror(norr));
-	}
 
 	// We are going to be sending oceans of tiny packets,
 	// and we want the fastest-possible responses.
 	int flags = 1;
-	rc = setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
+	int rc = setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
 	if (0 > rc)
 		fprintf(stderr, "Error setting sockopt: %s", strerror(errno));
 #ifndef __APPLE__
