@@ -141,7 +141,7 @@ void CogSimpleStorage::open(void)
 	if (0 > _sockfd)
 	{
 		int norr = errno;
-		free(servinfo);
+		freeaddrinfo(servinfo);
 		throw IOException(TRACE_INFO, "Unable to create socket to host %s: %s",
 			host.c_str(), strerror(norr));
 	}
@@ -150,11 +150,11 @@ void CogSimpleStorage::open(void)
 	if (0 > rc)
 	{
 		int norr = errno;
-		free(servinfo);
+		freeaddrinfo(servinfo);
 		throw IOException(TRACE_INFO, "Unable to connect to host %s: %s",
 			host.c_str(), strerror(norr));
 	}
-	free(servinfo);
+	freeaddrinfo(servinfo);
 
 	// We are going to be sending oceans of tiny packets,
 	// and we want the fastest-possible responses.
