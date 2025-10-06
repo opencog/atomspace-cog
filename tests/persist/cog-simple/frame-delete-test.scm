@@ -140,6 +140,7 @@
 ; Building on the above, verify that values work
 
 (define (setup-deep-change)
+	(define tvkey (Predicate "*-TruthValueKey-*"))
 
 	; This uses the spaces built prviously.
 	; The previous spaces were built on the current space.
@@ -151,13 +152,13 @@
 
 	; Repeatedly add and remove the same atom
 	(cog-set-atomspace! base-space)
-	(cog-set-tv! (Concept "foo") (ctv 1 0 2))
+	(cog-set-value! (Concept "foo") tvkey (FloatValue 1 0 2))
 
 	(cog-set-atomspace! mid2-space)
-	(cog-set-tv! (Concept "foo") (ctv 1 0 4))
+	(cog-set-value! (Concept "foo") tvkey (FloatValue 1 0 4))
 
 	(cog-set-atomspace! surface-space)
-	(cog-set-tv! (Concept "foo") (ctv 1 0 6))
+	(cog-set-value! (Concept "foo") tvkey (FloatValue 1 0 6))
 
 	; Store the changed content. Toggle through all the atomspaces,
 	; as otherwise, the TV's on the Concepts aren't stored.
