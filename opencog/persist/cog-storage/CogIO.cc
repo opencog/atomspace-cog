@@ -84,6 +84,12 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 	if (h->haveValues())
 		msg = "(cog-set-values! " + Sexpr::encode_atom(h) +
 			Sexpr::encode_atom_values(h) + ")\n";
+   else
+		// There is no "just create an atom with no values on it"
+		// message type in the protocol. So instead, we clobber the
+		// truth value on it. This is fully 100% backwards compat.
+		msg = "(cog-set-value! " + Sexpr::encode_atom(h) +
+			"(Predicate \"*-TruthValueKey-*\") #f)\n";
 
 	Pkt pkt;
 	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
