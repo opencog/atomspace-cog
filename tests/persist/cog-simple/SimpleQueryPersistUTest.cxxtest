@@ -31,7 +31,7 @@
 #include <opencog/atoms/base/Link.h>
 #include <opencog/atoms/base/Node.h>
 #include <opencog/atomspace/AtomSpace.h>
-#include <opencog/atoms/truthvalue/SimpleTruthValue.h>
+#include <opencog/atoms/value/FloatValue.h>
 #include <opencog/atoms/value/LinkValue.h>
 #include <opencog/persist/cog-simple/CogSimpleStorage.h>
 #include <opencog/cogserver/server/CogServer.h>
@@ -159,13 +159,13 @@ void QueryPersistUTest::setup_data(void)
 
 	// Sprinkle in some TruthValues
 	an(CONCEPT, "airplane") ->
-		setValue(truth_key(), createSimpleTruthValue(0.11, 100));
+		setValue(truth_key(), createFloatValue(std::vector<double>({0.11, 100})));
 
 	an(CONCEPT, "bicycle") ->
-		setValue(truth_key(), createSimpleTruthValue(0.22, 100));
+		setValue(truth_key(), createFloatValue(std::vector<double>({0.22, 100})));
 
 	an(CONCEPT, "car") ->
-		setValue(truth_key(), createSimpleTruthValue(0.33, 300));
+		setValue(truth_key(), createFloatValue(std::vector<double>({0.33, 300})));
 
 	/* Push all atoms out to the server */
 	store->store_atomspace();
