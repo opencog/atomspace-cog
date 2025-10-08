@@ -31,7 +31,7 @@
 #include <opencog/atoms/base/Atom.h>
 #include <opencog/atoms/base/Link.h>
 #include <opencog/atoms/base/Node.h>
-#include <opencog/atoms/truthvalue/CountTruthValue.h>
+#include <opencog/atoms/value/FloatValue.h>
 #include <opencog/persist/cog-storage/CogStorage.h>
 #include <opencog/cogserver/server/CogServer.h>
 
@@ -241,7 +241,7 @@ int LargeZipfUTest::filler_up(AtomSpacePtr space)
 	for (int w=0; w<NWORDS; w++)
 	{
 		hword[w] = space->add_node(CONCEPT_NODE, wrd + std::to_string(w));
-		TruthValuePtr tv(createCountTruthValue(1, 0, ((int) NWORDS/(w+1))));
+		ValuePtr tv(createFloatValue(std::vector<double>({1, 0, (double)((int) NWORDS/(w+1))})));
 		hword[w]->setValue(truth_key(), tv);
 	}
 
@@ -259,7 +259,7 @@ int LargeZipfUTest::filler_up(AtomSpacePtr space)
 	while (p<NPAIRS)
 	{
 		hpair[p] = space->add_link(LIST_LINK, hword[w1], hword[w2]);
-		TruthValuePtr tv(createCountTruthValue(1, 0, wmax));
+		ValuePtr tv(createFloatValue(std::vector<double>({1, 0, (double)wmax})));
 		hpair[p]->setValue(truth_key(), tv);
 
 		w2++;
