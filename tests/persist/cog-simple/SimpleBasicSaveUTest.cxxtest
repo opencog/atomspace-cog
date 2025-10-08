@@ -142,8 +142,8 @@ static void atomCompare(Handle a, AtomPtr b, const char* where)
         }
     }
 
-    TruthValuePtr ta = TruthValueCast(a->getValue(truth_key()));
-    TruthValuePtr tb = TruthValueCast(b->getValue(truth_key()));
+    ValuePtr ta = a->getValue(truth_key());
+    ValuePtr tb = b->getValue(truth_key());
     if (ta or tb)
     {
         TSM_ASSERT("Missing truth value", ta);
@@ -154,13 +154,15 @@ static void atomCompare(Handle a, AtomPtr b, const char* where)
 
             if (not ((*ta) == (*tb)))
             {
+                FloatValuePtr fva = FloatValueCast(ta);
+                FloatValuePtr fvb = FloatValueCast(tb);
                 fprintf(stderr,
                     "Error, truth value miscompare, ma=%18.16g\n"
                     "                               mb=%18.16g\n"
                     "   mdiff=%g ca=%g cb=%g\n",
-                    ta->get_mean(), tb->get_mean(),
-                    ta->get_mean() - tb->get_mean(),
-                    ta->get_confidence(), tb->get_confidence());
+                    fva->value()[0], fvb->value()[0],
+                    fva->value()[0] - fvb->value()[0],
+                    fva->value()[1], fvb->value()[1]);
                 fprintf(stderr, "Above is for a=%s\n\n", a->to_string().c_str());
                 fprintf(stderr, "Above is for b=%s\n\n", b->to_string().c_str());
             }
