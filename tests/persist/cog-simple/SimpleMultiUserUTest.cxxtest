@@ -36,7 +36,7 @@
 #include <opencog/atoms/base/Node.h>
 #include <opencog/persist/cog-simple/CogSimpleStorage.h>
 #include <opencog/cogserver/server/CogServer.h>
-#include <opencog/atoms/truthvalue/CountTruthValue.h>
+#include <opencog/atoms/value/FloatValue.h>
 
 #include <opencog/util/Logger.h>
 
@@ -258,19 +258,19 @@ void MultiUserUTest::add_to_space(int idx, AtomSpacePtr as,
     if (not clobber) id += std::to_string(idx);
 
     // Create an atom ...
-    TruthValuePtr stv(createCountTruthValue(0.11, 0.0, 100+idx));
+    ValuePtr stv(createFloatValue(std::vector<double>({0.11, 0.0, 100.0+idx})));
     h1[idx] = as->add_node(CONCEPT_NODE, id + "fromNode");
     h1[idx]->setValue(truth_key(), stv);
     n1[idx] = NodeCast(h1[idx]);
     store->store_atom(h1[idx]);
 
-    TruthValuePtr stv2(createCountTruthValue(0.22, 0.0, 200+idx));
+    ValuePtr stv2(createFloatValue(std::vector<double>({0.22, 0.0, 200.0+idx})));
     h2[idx] = as->add_node(CONCEPT_NODE, id + "toNode");
     h2[idx]->setValue(truth_key(), stv2);
     n2[idx] = NodeCast(h2[idx]);
     store->store_atom(h2[idx]);
 
-    TruthValuePtr stv3(createCountTruthValue(0.33, 0.0, 300+idx));
+    ValuePtr stv3(createFloatValue(std::vector<double>({0.33, 0.0, 300.0+idx})));
     h3[idx] = as->add_node(CONCEPT_NODE, id + "third wheel");
     h3[idx]->setValue(truth_key(), stv3);
     n3[idx] = NodeCast(h3[idx]);
@@ -280,7 +280,7 @@ void MultiUserUTest::add_to_space(int idx, AtomSpacePtr as,
     // and should thus elicit any errors in clone uuid handling.
     char buf[40]; sprintf(buf, "%f", idx+0.14159265358979);
     h4[idx] = as->add_node(NUMBER_NODE, buf);
-    TruthValuePtr stv4(createCountTruthValue(0.44, 0.0, 400+idx));
+    ValuePtr stv4(createFloatValue(std::vector<double>({0.44, 0.0, 400.0+idx})));
     h4[idx]->setValue(truth_key(), stv4);
     n4[idx] = NodeCast(h4[idx]);
     store->store_atom(h4[idx]);
