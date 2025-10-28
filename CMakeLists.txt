@@ -99,16 +99,6 @@ ELSE (ATOMSPACE_STORAGE_FOUND)
 	MESSAGE(FATAL_ERROR "AtomSpace Storage missing: it is needed!")
 ENDIF (ATOMSPACE_STORAGE_FOUND)
 
-# CogServer
-FIND_PACKAGE(CogServer 1.0.0 CONFIG)
-IF (COGSERVER_FOUND)
-	MESSAGE(STATUS "CogServer found.")
-	ADD_DEFINITIONS(-DHAVE_SERVER)
-	SET(HAVE_SERVER 1)
-ELSE (COGSERVER_FOUND)
-	MESSAGE(STATUS "CogServer was not found.")
-ENDIF (COGSERVER_FOUND)
-
 # ----------------------------------------------------------
 # Needed for unit tests
 
@@ -227,7 +217,7 @@ SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 SET(CPACK_PACKAGE_FILE_NAME
 	"${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${PACKAGE_ARCHITECTURE}")
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
-SET(CPACK_PACKAGE_EXECUTABLES "cogserver" "The AtomSpace Cogserver Client")
+SET(CPACK_PACKAGE_EXECUTABLES "atomspace-cog" "The AtomSpace Cogserver Client")
 
 ## Debian specific configurations
 SET(DEPENDENCY_LIST
