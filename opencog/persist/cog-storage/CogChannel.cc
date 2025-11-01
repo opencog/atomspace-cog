@@ -343,6 +343,16 @@ void CogChannel<Client, Data>::reply_handler(const Msg& msg)
 	std::string reply = do_recv();
 
 	// Client is called unlocked.
+	// XXX FIXME. The callback can throw an exception;
+	// e.g. opencog::Sexpr::decode_atom for an Atom type
+	// defined in a module that isn't loaded. Since we are
+	// running in a distinct async thread, I don't know how
+	// to pass this exception back to the caller. Well I do
+	// know how but am too lazy to implement. So instead,
+	// this will just core dump. Boo hoo. An alternative
+	// would be to write to a log file, but that's bad design.
+	// So we will core dump, for now.
+	// Same comment for the synchro callback above.
 	(msg.client->*msg.callback)(reply, msg.data);
 }
 
