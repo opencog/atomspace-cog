@@ -103,8 +103,7 @@ FetchUTest::FetchUTest(void)
 void FetchUTest::setUp(void)
 {
 	_as = createAtomSpace();
-	eval = SchemeEval::get_evaluator(_as);
-	eval->set_scheme_as(_as);
+	eval = SchemeEval::get_scheme_evaluator(_as);
 }
 
 void FetchUTest::tearDown(void)
@@ -180,8 +179,7 @@ void FetchUTest::test_stuff(void)
 	eval->eval("(cog-close)");
 
 	_as = createAtomSpace();
-	eval = SchemeEval::get_evaluator(_as);
-	eval->set_scheme_as(_as);
+	eval = SchemeEval::get_scheme_evaluator(_as);
 	eval->eval(srv_open);
 	eval->eval(R"((fetch-atom (List (Concept "AAA") (Concept "BBB"))))");
 	eval->eval("(barrier)");
@@ -209,8 +207,7 @@ void FetchUTest::test_stuff(void)
 	eval->eval("(cog-close)");
 
 	_as = createAtomSpace();
-	eval = SchemeEval::get_evaluator(_as);
-	eval->set_scheme_as(_as);
+	eval = SchemeEval::get_scheme_evaluator(_as);
 	eval->eval(srv_open);
 
 	// AAA should have been updated, as above.
@@ -264,8 +261,7 @@ void FetchUTest::xxxtest_readonly(void)
 	eval->eval("(cog-close)");
 
 	_as = createAtomSpace();
-	eval = SchemeEval::get_evaluator(_as);
-	eval->set_scheme_as(_as);
+	eval = SchemeEval::get_scheme_evaluator(_as);
 	eval->eval(srv_open);
 	_as->set_read_only();
 

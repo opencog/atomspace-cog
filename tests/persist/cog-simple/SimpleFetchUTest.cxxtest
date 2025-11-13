@@ -101,8 +101,7 @@ SimpleFetchUTest::SimpleFetchUTest(void)
 void SimpleFetchUTest::setUp(void)
 {
 	_as = createAtomSpace();
-	eval = SchemeEval::get_evaluator(_as);
-	eval->set_scheme_as(_as);
+	eval = SchemeEval::get_scheme_evaluator(_as);
 }
 
 void SimpleFetchUTest::tearDown(void)
@@ -189,8 +188,7 @@ void SimpleFetchUTest::test_stuff(void)
 	CHKERR;
 
 	_as = createAtomSpace();
-	eval = SchemeEval::get_evaluator(_as);
-	eval->set_scheme_as(_as);
+	eval = SchemeEval::get_scheme_evaluator(_as);
 	CHKERR;
 	eval->eval(srv_open);
 	CHKERR;
@@ -219,8 +217,7 @@ void SimpleFetchUTest::test_stuff(void)
 	eval->eval("(cog-close)");
 
 	_as = createAtomSpace();
-	eval = SchemeEval::get_evaluator(_as);
-	eval->set_scheme_as(_as);
+	eval = SchemeEval::get_scheme_evaluator(_as);
 	eval->eval(srv_open);
 
 	// AAA should have been updated, as above.
@@ -270,8 +267,7 @@ void SimpleFetchUTest::xxxtest_readonly(void)
 	eval->eval("(cog-close)");
 
 	_as = createAtomSpace();
-	eval = SchemeEval::get_evaluator(_as);
-	eval->set_scheme_as(_as);
+	eval = SchemeEval::get_scheme_evaluator(_as);
 	eval->eval(srv_open);
 	_as->set_read_only();
 
