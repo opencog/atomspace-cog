@@ -360,6 +360,9 @@ template<typename Client, typename Data>
 void CogChannel<Client, Data>::barrier()
 {
 	_msg_buffer.barrier();
+	do_send("(cog-barrier)\n");
+	// No do_recv because no response expected.
+	_msg_buffer.barrier();
 }
 
 template<typename Client, typename Data>
