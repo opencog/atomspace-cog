@@ -324,6 +324,9 @@ std::string CogSimpleStorage::do_recv(bool garbage)
 ///
 void CogSimpleStorage::barrier(AtomSpace* as)
 {
+	std::lock_guard<std::mutex> lck(_mtx);
+	do_send("(cog-barrier)\n");
+	// do_recv(); There is no reply for this.
 }
 
 /* ================================================================ */
