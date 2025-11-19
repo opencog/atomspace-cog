@@ -61,13 +61,13 @@ class MultiDeleteUTest :  public CxxTest::TestSuite
 			// logger().set_level(Logger::DEBUG);
 			logger().set_print_to_stdout_flag(true);
 
-			uri = "cog://localhost:16011";
+			uri = "cog://localhost:16012";
 
 			// Create a single cogserver node that will act as
 			// as the repo for the duration of the test.
 			srvr = &cogserver();
 			srvr->loadModules();
-			srvr->enableNetworkServer(16011);
+			srvr->enableNetworkServer(16012);
 			main_loop = new std::thread(&CogServer::serverLoop, srvr);
 			printf("Started CogServer\n");
 		}
