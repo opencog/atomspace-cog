@@ -92,7 +92,7 @@ LargeFlatUTest::LargeFlatUTest(void)
 	// as the repo for the duration of the test.
 	srvr = &cogserver();
 	srvr->loadModules();
-	srvr->enableNetworkServer(16008);
+	srvr->enableNetworkServer(16308);
 	main_loop = new std::thread(&CogServer::serverLoop, srvr);
 	printf("Started CogServer\n");
 }
@@ -129,7 +129,7 @@ void LargeFlatUTest::tearDown(void)
 
 void LargeFlatUTest::kill_data(void)
 {
-	CogSimpleStorage *astore = new CogSimpleStorage("cog://localhost:16008");
+	CogSimpleStorage *astore = new CogSimpleStorage("cog://localhost:16308");
 	astore->open();
 	if (!astore->connected())
 	{
@@ -366,7 +366,7 @@ void LargeFlatUTest::test_atomspace(void)
 {
 	logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-	Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16008");
+	Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16308");
 	StorageNodePtr store = StorageNodeCast(hsn);
 	store->open();
 	TS_ASSERT(store->connected())
@@ -391,7 +391,7 @@ void LargeFlatUTest::test_atomspace(void)
 	TSM_ASSERT("Non-empty atomspace", 0 == _as->get_size());
 
 	/* The clear above nuked the storage, so restart */
-	hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16008");
+	hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16308");
 	store = StorageNodeCast(hsn);
 	store->open();
 	TS_ASSERT(store->connected())
@@ -408,7 +408,7 @@ void LargeFlatUTest::test_atomspace(void)
 	TSM_ASSERT("Non-empty atomspace", 0 == _as->get_size());
 
 	/* The clear above nuked the storage, so restart */
-	hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16008");
+	hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16308");
 	store = StorageNodeCast(hsn);
 	store->open();
 	TS_ASSERT(store->connected())

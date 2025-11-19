@@ -136,7 +136,7 @@ MultiUserUTest:: MultiUserUTest(void)
     // as the repo for the duration of the test.
     srvr = &cogserver();
     srvr->loadModules();
-    srvr->enableNetworkServer(16007);
+    srvr->enableNetworkServer(16307);
     main_loop = new std::thread(&CogServer::serverLoop, srvr);
     printf("Started CogServer\n");
 
@@ -168,7 +168,7 @@ void MultiUserUTest::setUp(void)
 void MultiUserUTest::connect_to_db(int i)
 {
     _as[i] = createAtomSpace();
-    Handle hsn = _as[i]->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16007");
+    Handle hsn = _as[i]->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16307");
     _store[i] = StorageNodeCast(hsn);
     _store[i]->open();
     TS_ASSERT(_store[i]->connected())
@@ -453,7 +453,7 @@ void MultiUserUTest::do_test_multiuser(void)
     printf("Done joining threads\n");
 
     AtomSpacePtr aspace = createAtomSpace();
-    Handle hsn = aspace->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16007");
+    Handle hsn = aspace->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16307");
     StorageNodePtr store = StorageNodeCast(hsn);
     store->open();
     TS_ASSERT(store->connected())

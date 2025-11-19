@@ -82,7 +82,7 @@ SimpleFetchUTest::SimpleFetchUTest(void)
 	logger().set_print_to_stdout_flag(true);
 	// logger().set_sync_flag(true);
 
-	uri = "cog://localhost:16004";
+	uri = "cog://localhost:16304";
 
 	srv_open = "(cog-open (CogSimpleStorageNode \"" + uri + "\"))\n";
 
@@ -90,7 +90,7 @@ SimpleFetchUTest::SimpleFetchUTest(void)
 	// as the repo for the duration of the test.
 	srvr = &cogserver();
 	srvr->loadModules();
-	srvr->enableNetworkServer(16004);
+	srvr->enableNetworkServer(16304);
 	main_loop = new std::thread(&CogServer::serverLoop, srvr);
 	printf("Started CogServer\n");
 }

@@ -111,7 +111,7 @@ MultiPersistUTest:: MultiPersistUTest(void)
     // as the repo for the duration of the test.
     srvr = &cogserver();
     srvr->loadModules();
-    srvr->enableNetworkServer(16006);
+    srvr->enableNetworkServer(16306);
     main_loop = new std::thread(&CogServer::serverLoop, srvr);
     printf("Started CogServer\n");
 
@@ -140,7 +140,7 @@ void MultiPersistUTest::setUp(void)
 {
     _as = createAtomSpace();
 
-    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16006");
+    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16306");
     store = StorageNodeCast(hsn);
     store->open();
     TS_ASSERT(store->connected())
@@ -431,7 +431,7 @@ void MultiPersistUTest::test_atomspace(void)
     printf("===============================================\n");
 
     /* The clear above nuked the storage, so restart */
-    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16006");
+    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16306");
     store = StorageNodeCast(hsn);
     store->open();
     TS_ASSERT(store->connected())
@@ -450,7 +450,7 @@ void MultiPersistUTest::test_atomspace(void)
     TSM_ASSERT("Non-empty atomspace", 0 == _as->get_size());
 
     /* The clear above nuked the storage, so restart */
-    hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16006");
+    hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16306");
     store = StorageNodeCast(hsn);
     store->open();
     TS_ASSERT(store->connected())

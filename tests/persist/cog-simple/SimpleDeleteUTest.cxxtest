@@ -110,7 +110,7 @@ DeleteUTest:: DeleteUTest(void)
     // as the repo for the duration of the test.
     srvr = &cogserver();
     srvr->loadModules();
-    srvr->enableNetworkServer(16005);
+    srvr->enableNetworkServer(16305);
     main_loop = new std::thread(&CogServer::serverLoop, srvr);
     printf("Started CogServer\n");
 }
@@ -408,7 +408,7 @@ void DeleteUTest::test_remove(void)
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16005");
+    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16305");
     StorageNodePtr store = StorageNodeCast(hsn);
     store->open();
     TS_ASSERT(store->connected())
@@ -487,7 +487,7 @@ void DeleteUTest::test_recurse(void)
 {
     logger().debug("BEGIN TEST: %s", __FUNCTION__);
 
-    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16005");
+    Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, "cog://localhost:16305");
     StorageNodePtr store = StorageNodeCast(hsn);
     store->open();
     TS_ASSERT(store->connected())

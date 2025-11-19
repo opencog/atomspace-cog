@@ -82,13 +82,13 @@ AlphaEquivUTest:: AlphaEquivUTest(void)
 	logger().set_level(Logger::INFO);
 	logger().set_print_to_stdout_flag(true);
 
-	uri = "cog://localhost:16011";
+	uri = "cog://localhost:16311";
 
 	// Create a single cogserver node that will act as
 	// as the repo for the duration of the test.
 	srvr = &cogserver();
 	srvr->loadModules();
-	srvr->enableNetworkServer(16011);
+	srvr->enableNetworkServer(16311);
 	main_loop = new std::thread(&CogServer::serverLoop, srvr);
 	printf("Started CogServer\n");
 }
