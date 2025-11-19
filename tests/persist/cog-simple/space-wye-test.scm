@@ -4,10 +4,7 @@
 ;
 (use-modules (srfi srfi-1))
 (use-modules (opencog) (opencog test-runner))
-(use-modules (opencog persist) (opencog persist-rocks))
-
-(include "test-utils.scm")
-(whack "/tmp/cog-rocks-unit-test")
+(use-modules (opencog persist) (opencog persist-cog-simple))
 
 (opencog-test-runner)
 

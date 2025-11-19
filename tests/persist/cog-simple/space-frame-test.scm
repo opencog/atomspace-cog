@@ -7,10 +7,8 @@
 (use-modules (opencog cogserver))
 (use-modules (opencog persist) (opencog persist-cog-simple))
 
-(include "test-utils.scm")
-
-(define uri "cog://localhost:16020")
-(start-cogserver #:port 16020)
+(define uri "cog://localhost:16320")
+(start-cogserver #:port 16320)
 (define server-space (cog-atomspace))
 ; Rest of test must run in some other atomspace.
 (cog-set-atomspace! (cog-new-atomspace))
