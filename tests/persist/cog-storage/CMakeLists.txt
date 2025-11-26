@@ -1,7 +1,6 @@
 
 LINK_LIBRARIES(
 	persist-cog
-	persist
 	server
 	atomspace
 )
