@@ -250,8 +250,7 @@ void SimpleQueryPersistUTest::test_join(void)
 	TS_ASSERT(store->connected())
 
 	// Create a join to find all vehicles.
-	Handle join =
-	al(MAXIMAL_JOIN_LINK, {al(PRESENT_LINK, an(CONCEPT, "vehicle"))});
+	Handle join = al(MAXIMAL_JOIN_LINK, an(CONCEPT, "vehicle"));
 
 	// Create a key where the query results will arrive...
 	Handle key = an(PREDICATE_NODE, "qkey");
