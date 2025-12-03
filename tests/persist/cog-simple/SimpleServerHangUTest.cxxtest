@@ -118,16 +118,20 @@ void ServerHangUTest::test_hang(void)
 	store->open();
 	TS_ASSERT(store->connected())
 
-	printf("Connection opened. Now creating PresentLink that will throw...\n");
+	printf("Performing atomspace operations gauranteed to throw...\n");
 
-	// This will throw an exception because PresentLink with a closed
-	// (no variables) child cannot be added to an AtomSpace.
-	// The exception bypasses store->close() below.
-	Handle join =
-	al(MAXIMAL_JOIN_LINK, {al(PRESENT_LINK, an(CONCEPT, "something"))});
+	// The exceptions thrown here bypass store->close() below.
+	// All of these will throw, but only the first one gets a chance.
+	al(UNIQUE_LINK, an(CONCEPT, "foo"), an(CONCEPT, "boink"));
+	al(DEFINE_LINK, an(CONCEPT, "foo"), an(CONCEPT, "bar"));
+	al(DEFINE_LINK, an(CONCEPT, "foo"), an(CONCEPT, "bummer"));
+	al(EQUAL_LINK, an(CONCEPT, "foo"), an(CONCEPT, "bar"));
+	al(IDENTICAL_LINK, an(CONCEPT, "foo"), an(CONCEPT, "bar"));
+	al(PRESENT_LINK, an(CONCEPT, "something"));
+	al(ABSENT_LINK, an(CONCEPT, "something"));
 
 	// This code is never reached because of the exception above.
-	printf("This should not print!\n");
+	TS_FAIL("This statement should not be reached!");
 	store->close();
 
 	logger().info("END TEST: %s", __FUNCTION__);
