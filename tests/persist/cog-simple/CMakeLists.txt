@@ -31,3 +31,7 @@ ADD_CXXTEST(SimpleQueryPersistUTest)
 #
 ADD_CXXTEST(SimpleLargeFlatUTest)
 ADD_CXXTEST(SimpleLargeZipfUTest)
+
+# Test demonstrating server hang when client doesn't close connection.
+# This test is expected to hang until the fix is applied!
+ADD_CXXTEST(SimpleServerHangUTest)

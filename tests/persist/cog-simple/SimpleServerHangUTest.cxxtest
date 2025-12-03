@@ -1,0 +1,136 @@
+/*
+ * tests/persist/cog-simple/SimpleServerHangUTest.cxxtest
+ *
+ * Test case demonstrating server hang when client connection is not
+ * properly closed before server shutdown.
+ *
+ * The hang occurs because:
+ * 1. Client opens TCP connection to CogServer
+ * 2. An exception is thrown (or connection otherwise not closed)
+ * 3. Server handler thread is blocked in recv() waiting for client data
+ * 4. In destructor, srvr->stop() is called
+ * 5. NetworkServer::stop() tries to join() handler threads
+ * 6. Handler thread blocked in recv() can't exit -> join() hangs
+ *
+ * Copyright (C) 2008, 2009, 2013, 2020, 2025 Linas Vepstas <linasvepstas@gmail.com>
+ * All Rights Reserved
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+#include <cstdio>
+
+#include <opencog/atoms/atom_types/atom_types.h>
+#include <opencog/persist/cog-types/atom_types.h>
+#include <opencog/atoms/base/Atom.h>
+#include <opencog/atoms/base/Link.h>
+#include <opencog/atoms/base/Node.h>
+#include <opencog/atomspace/AtomSpace.h>
+#include <opencog/persist/cog-simple/CogSimpleStorage.h>
+#include <opencog/cogserver/server/CogServer.h>
+
+#include <opencog/util/Logger.h>
+
+using namespace opencog;
+
+class ServerHangUTest : public CxxTest::TestSuite
+{
+	private:
+		AtomSpacePtr _as;
+		std::string uri;
+		CogServer* srvr = nullptr;
+		std::thread* main_loop = nullptr;
+
+	public:
+
+		ServerHangUTest(void)
+		{
+			logger().set_level(Logger::INFO);
+			logger().set_print_to_stdout_flag(true);
+
+			uri = "cog://localhost:16314";
+
+			// Create a CogServer for the duration of the test.
+			srvr = &cogserver();
+			srvr->loadModules();
+			srvr->enableNetworkServer(16314);
+			main_loop = new std::thread(&CogServer::serverLoop, srvr);
+			printf("Started CogServer on port 16314\n");
+		}
+
+		~ServerHangUTest()
+		{
+			// This is where the hang occurs!
+			// If _as still holds an open connection, the server can't
+			// stop because handler threads are blocked in recv().
+			printf("Stopping CogServer...\n");
+			srvr->stop();
+			printf("Joining server thread...\n");
+			main_loop->join();  // <-- HANGS HERE if connection not closed
+			printf("Server thread joined.\n");
+			srvr->disableNetworkServer();
+			delete main_loop;
+			delete srvr;
+
+			logger().flush();
+
+			// erase the log file if no assertions failed
+			if (!CxxTest::TestTracker::tracker().suiteFailed())
+				std::remove(logger().get_filename().c_str());
+		}
+
+		void setUp(void)
+		{
+			_as = nullptr;
+		}
+
+		void tearDown(void)
+		{
+			// BUG: We do NOT reset _as here, so if test_hang() threw
+			// an exception, the connection remains open and the
+			// destructor will hang.
+			//
+			// FIX would be: _as = nullptr;
+		}
+
+		void test_hang(void);
+};
+
+#define an _as->add_node
+#define al _as->add_link
+#define CONCEPT CONCEPT_NODE
+
+// This test demonstrates the hang by:
+// 1. Opening a connection to the CogServer
+// 2. Throwing an exception (creating a closed PresentLink)
+// 3. Never calling store->close() because the exception bypasses it
+//
+// When the test suite destructor runs, it tries to stop the server,
+// but the handler thread for this connection is blocked in recv()
+// waiting for data that will never come.
+//
+void ServerHangUTest::test_hang(void)
+{
+	logger().info("BEGIN TEST: %s", __FUNCTION__);
+
+	_as = createAtomSpace();
+	Handle hsn = _as->add_node(COG_SIMPLE_STORAGE_NODE, std::string(uri));
+	StorageNodePtr store = StorageNodeCast(hsn);
+	store->open();
+	TS_ASSERT(store->connected())
+
+	printf("Connection opened. Now creating PresentLink that will throw...\n");
+
+	// This will throw an exception because PresentLink with a closed
+	// (no variables) child cannot be added to an AtomSpace.
+	// The exception bypasses store->close() below.
+	Handle join =
+	al(MAXIMAL_JOIN_LINK, {al(PRESENT_LINK, an(CONCEPT, "something"))});
+
+	// This code is never reached because of the exception above.
+	printf("This should not print!\n");
+	store->close();
+
+	logger().info("END TEST: %s", __FUNCTION__);
+}
+
+/* ============================= END OF FILE ================= */
