@@ -41,7 +41,7 @@
 
 using namespace opencog;
 
-class QueryPersistUTest :  public CxxTest::TestSuite
+class SimpleQueryPersistUTest :  public CxxTest::TestSuite
 {
 	private:
 		AtomSpacePtr _as;
@@ -51,8 +51,8 @@ class QueryPersistUTest :  public CxxTest::TestSuite
 
 	public:
 
-		QueryPersistUTest(void);
-		~QueryPersistUTest()
+		SimpleQueryPersistUTest(void);
+		~SimpleQueryPersistUTest()
 		{
 			srvr->stop();
 			main_loop->join();
@@ -76,7 +76,7 @@ class QueryPersistUTest :  public CxxTest::TestSuite
 		void test_join(void);
 };
 
-QueryPersistUTest:: QueryPersistUTest(void)
+SimpleQueryPersistUTest:: SimpleQueryPersistUTest(void)
 {
 	// logger().set_level(Logger::DEBUG);
 	logger().set_level(Logger::INFO);
@@ -96,19 +96,19 @@ QueryPersistUTest:: QueryPersistUTest(void)
 /*
  * This is called once before each test, for each test (!!)
  */
-void QueryPersistUTest::setUp(void)
+void SimpleQueryPersistUTest::setUp(void)
 {
 	_as = nullptr;
 }
 
-void QueryPersistUTest::tearDown(void)
+void SimpleQueryPersistUTest::tearDown(void)
 {
 	kill_data();
 }
 
 // ============================================================
 
-void QueryPersistUTest::kill_data(void)
+void SimpleQueryPersistUTest::kill_data(void)
 {
 	CogSimpleStorage *astore = new CogSimpleStorage(uri);
 	astore->open();
@@ -127,7 +127,7 @@ void QueryPersistUTest::kill_data(void)
 #define CONCEPT CONCEPT_NODE
 #define VARIABLE VARIABLE_NODE
 
-void QueryPersistUTest::setup_data(void)
+void SimpleQueryPersistUTest::setup_data(void)
 {
 	kill_data();
 
@@ -172,7 +172,7 @@ void QueryPersistUTest::setup_data(void)
 	store->barrier();
 }
 
-void QueryPersistUTest::test_meet(void)
+void SimpleQueryPersistUTest::test_meet(void)
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
@@ -237,7 +237,7 @@ void QueryPersistUTest::test_meet(void)
 	logger().info("END TEST: %s", __FUNCTION__);
 }
 
-void QueryPersistUTest::test_join(void)
+void SimpleQueryPersistUTest::test_join(void)
 {
 	logger().info("BEGIN TEST: %s", __FUNCTION__);
 
