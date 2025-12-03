@@ -92,7 +92,7 @@ class PersistUTest :  public CxxTest::TestSuite
 
 PersistUTest:: PersistUTest(void)
 {
-    logger().set_level(Logger::DEBUG);
+    // logger().set_level(Logger::DEBUG);
     logger().set_print_to_stdout_flag(true);
 
     // Create a single cogserver node that will act as
