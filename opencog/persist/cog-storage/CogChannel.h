@@ -50,13 +50,14 @@ class CogChannel
 		std::string _host;
 		std::string _port;
 		void* _servinfo;
-		static std::atomic_int _nsocks;
+		std::atomic_int _nsocks{0};
 
 		// Socket API.
 		static thread_local struct tlso {
 			int _sockfd;
-			tlso() { _sockfd = 0; }
-			~tlso() { if (_sockfd) { close(_sockfd); _nsocks--; }}
+			CogChannel* _owner;
+			tlso() : _sockfd(0), _owner(nullptr) {}
+			~tlso() { if (_sockfd) { close(_sockfd); if (_owner) _owner->_nsocks--; }}
 		} s;
 		int open_sock();
 		void do_send(const std::string&);

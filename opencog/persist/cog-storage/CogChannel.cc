@@ -195,6 +195,7 @@ int CogChannel<Client, Data>::open_sock()
 
 	// Throw away the cogserver prompt.
 	s._sockfd = sockfd;
+	s._owner = this;
 	do_recv(true);
 
 	_nsocks++;
@@ -218,9 +219,6 @@ void CogChannel<Client, Data>::close_connection(void)
 }
 
 /* ================================================================== */
-
-template<typename Client, typename Data>
-std::atomic_int CogChannel<Client, Data>::_nsocks = 0;
 
 template<typename Client, typename Data>
 thread_local typename CogChannel<Client, Data>::tlso CogChannel<Client, Data>::s;
@@ -331,7 +329,7 @@ void CogChannel<Client, Data>::enqueue(Client* client,
                                        Data& data,
                   void (Client::*handler)(const std::string&, const Data&))
 {
-	Msg block{msg, data, client, handler, false};
+	Msg block{client, handler, false, msg, data};
 	_msg_buffer.insert(block);
 }
 
@@ -340,7 +338,7 @@ template<typename Client, typename Data>
 void CogChannel<Client, Data>::enqueue_noreply(const std::string& msg)
 {
 	Data dummy = Data();
-	Msg block{msg, dummy, nullptr, nullptr, true};
+	Msg block{nullptr, nullptr, true, msg, dummy};
 	_msg_buffer.insert(block);
 }
 
