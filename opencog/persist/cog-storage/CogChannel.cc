@@ -199,6 +199,10 @@ int CogChannel<Client, Data>::open_sock()
 	do_recv(true);
 
 	_nsocks++;
+
+	std::lock_guard<std::mutex> lck(_sock_set_mtx);
+	_open_socks.insert(sockfd);
+
 	return sockfd;
 }
 
@@ -213,6 +217,7 @@ void CogChannel<Client, Data>::close_connection(void)
 {
 	_msg_buffer.barrier();
 	_msg_buffer.close();
+	_open_socks.clear();
 
 	freeaddrinfo((struct addrinfo *) _servinfo);
 	_servinfo = nullptr;
@@ -370,10 +375,12 @@ void CogChannel<Client, Data>::reply_handler(const Msg& msg)
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::barrier()
 {
+	// Drain work queues.
 	_msg_buffer.barrier();
-	do_send("(cog-barrier)\n");
-	// No do_recv because no response expected.
-	_msg_buffer.barrier();
+
+	std::lock_guard<std::mutex> lck(_sock_set_mtx);
+	for (int sockfd : _open_socks)
+		send(sockfd, "(cog-barrier)\n", 14, MSG_NOSIGNAL);
 }
 
 template<typename Client, typename Data>

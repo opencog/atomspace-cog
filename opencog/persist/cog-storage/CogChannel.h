@@ -31,6 +31,8 @@
 #define _OPENCOG_COG_CHANNEL_H
 
 #include <atomic>
+#include <mutex>
+#include <set>
 #include <string>
 #include <unistd.h> /* for close() */
 
@@ -51,6 +53,10 @@ class CogChannel
 		std::string _port;
 		void* _servinfo;
 		std::atomic_int _nsocks{0};
+
+		// Registry of open sockets, for barrier synchronization.
+		std::set<int> _open_socks;
+		std::mutex _sock_set_mtx;
 
 		// Socket API.
 		static thread_local struct tlso {
