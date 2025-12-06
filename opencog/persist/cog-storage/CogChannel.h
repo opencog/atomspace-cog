@@ -64,12 +64,15 @@ class CogChannel
 
 		struct Msg
 		{
-			std::string str_to_send;
-			Data data;
 			Client* client;
 			void (Client::*callback)(const std::string&, const Data&);
+			bool noreply;  // If true, skip do_recv()
+
+			std::string str_to_send;
+			Data data;
 
 			// Need operator<() in order to queue up the messages.
+			// XXX Maybe should be `(this->data < other.data)` ??
 			int operator<(const Msg& other) const
 			{ return this < &other; }
 		};
@@ -89,6 +92,7 @@ class CogChannel
 
 		void enqueue(Client*, const std::string&, Data&,
 		             void (Client::*)(const std::string&, const Data&));
+		void enqueue_noreply(const std::string&);
 		void synchro(Client*, const std::string&, Data&,
 		             void (Client::*)(const std::string&, Data&));
 

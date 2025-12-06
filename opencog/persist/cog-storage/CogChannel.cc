@@ -324,14 +324,23 @@ void CogChannel<Client, Data>::synchro(Client* client,
 
 /* ================================================================== */
 
-// Place the message int to queue
+// Place the message into queue
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::enqueue(Client* client,
                                        const std::string& msg,
                                        Data& data,
                   void (Client::*handler)(const std::string&, const Data&))
 {
-	Msg block{msg, data, client, handler};
+	Msg block{msg, data, client, handler, false};
+	_msg_buffer.insert(block);
+}
+
+// Place message into queue, no response expected from server
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::enqueue_noreply(const std::string& msg)
+{
+	Data dummy = Data();
+	Msg block{msg, dummy, nullptr, nullptr, true};
 	_msg_buffer.insert(block);
 }
 
@@ -340,6 +349,10 @@ template<typename Client, typename Data>
 void CogChannel<Client, Data>::reply_handler(const Msg& msg)
 {
 	do_send(msg.str_to_send);
+
+	// No-reply commands: just send, don't wait for response
+	if (msg.noreply) return;
+
 	std::string reply = do_recv();
 
 	// Client is called unlocked.
