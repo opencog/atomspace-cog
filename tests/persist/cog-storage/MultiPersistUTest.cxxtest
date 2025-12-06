@@ -399,6 +399,9 @@ void MultiPersistUTest::threaded_add(int thread_id)
     add_to_space(off + idx++, _as, store, "はにがうりだそうであってるのかはち ");
     add_to_space(off + idx++, _as, store, "係拉丁字母");
 
+    // Ensure all stores complete before fetching
+    store->barrier();
+
     /* Verify that the atoms were added */
     for (int i=0; i<idx; i++)
         check_space(off+i, _as, "verify-add");
