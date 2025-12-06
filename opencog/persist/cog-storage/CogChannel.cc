@@ -27,6 +27,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <random>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -378,9 +379,19 @@ void CogChannel<Client, Data>::barrier()
 	// Drain work queues.
 	_msg_buffer.barrier();
 
+	// Server can complete barrier only after it receives it on
+	// all of the open sockets; the random string is the uuid to
+	// disambiguate this barrier from any others that might get
+	// issued. The barrier is retired after all N of them are received.
+	static thread_local std::minstd_rand rng(std::random_device{}());
+	uint64_t rnd = (uint64_t(rng()) << 32) | rng();
+
 	std::lock_guard<std::mutex> lck(_sock_set_mtx);
+	char msg[64];
+	snprintf(msg, sizeof(msg), "(cog-barrier %zu \"%016lx\")\n",
+	         _open_socks.size(), rnd);
 	for (int sockfd : _open_socks)
-		send(sockfd, "(cog-barrier)\n", 14, MSG_NOSIGNAL);
+		send(sockfd, msg, strlen(msg), MSG_NOSIGNAL);
 }
 
 template<typename Client, typename Data>
