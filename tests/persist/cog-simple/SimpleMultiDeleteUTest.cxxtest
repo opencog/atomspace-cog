@@ -181,12 +181,42 @@ void SimpleMultiDeleteUTest::test_add_delete(void)
 	for (std::thread& t : thread_pool) t.join();
 	printf("Done joining threads\n");
 
-	printf("Final AtomSpace size=%lu\n", as->get_size());
-	printf("AtomSpace contents = %s\n", as->to_string().c_str());
+	printf("Post-update AtomSpace size=%lu\n", as->get_size());
+	// printf("AtomSpace contents =\n%s\n", as->to_string().c_str());
 
-	// Verify the atomspace size. Should be 18:
-	// The (Concept "aaaa") and 17 from thread-id modulo 17
-	TS_ASSERT_EQUALS(as->get_size(), 18);
+	// Verify the local AtomSpace size. Should be 18:
+	// The CogStrageNode itself, the (Concept "aaaa") and
+	// 16 from thread-id modulo 17
+	TS_ASSERT_EQUALS(as->get_size(), 8 + n_threads);
+
+	// Verify the remote AtomSpace: pull everything from the
+	// cogserver, back to here. Do this "independently", by
+	// closing the socket; this forces the cogserver through
+	// its socket-close code, potentially exposing bugs.
+	store->close();
+
+	HandleSeq hs;
+	as->get_handles_by_type(hs, CONCEPT_NODE);
+	for (const Handle& h : hs)
+		as->extract_atom(h);
+	hs.clear();
+	printf("AtomSpace contents =\n%s\n", as->to_string().c_str());
+	TS_ASSERT_EQUALS(as->get_size(), 1);
+
+	store->open();
+	TS_ASSERT(store->connected())
+
+	store->load_atomspace();
+	printf("Final AtomSpace size=%lu\n", as->get_size());
+
+	// Size should be 19: the 18 from before plus that annoying
+	// (Predicate "*-TruthValueKey-*")
+	size_t expected_size = 9 + n_threads;
+	if (as->get_size() != expected_size)
+		printf("Error: Bad size! AtomSpace contents =\n%s\n",
+			as->to_string().c_str());
+
+	TS_ASSERT_EQUALS(as->get_size(), expected_size);
 
 	store->erase();
 	store->close();
