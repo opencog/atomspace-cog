@@ -116,7 +116,7 @@ void SimpleMultiDeleteUTest::worker(int thread_id)
 	int nloops = 50;
 	int nsplice = 500;
 
-	Handle ha(as->add_node(CONCEPT_NODE, "a"));
+	Handle ha(as->add_node(CONCEPT_NODE, "aaaaa"));
 
 	for (int j=0; j<nsplice; j++)
 	{
@@ -181,9 +181,12 @@ void SimpleMultiDeleteUTest::test_add_delete(void)
 	for (std::thread& t : thread_pool) t.join();
 	printf("Done joining threads\n");
 
-	printf("Final atomspace size=%lu\n", as->get_size());
-	// Verify the atomspace size
-	// TS_ASSERT_EQUALS(as->get_size(), 2);
+	printf("Final AtomSpace size=%lu\n", as->get_size());
+	printf("AtomSpace contents = %s\n", as->to_string().c_str());
+
+	// Verify the atomspace size. Should be 18:
+	// The (Concept "aaaa") and 17 from thread-id modulo 17
+	TS_ASSERT_EQUALS(as->get_size(), 18);
 
 	store->erase();
 	store->close();
