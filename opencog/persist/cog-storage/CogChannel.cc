@@ -129,18 +129,27 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	try {
 		do_send(".\n.\n");
 		do_recv(true);
-		close(s._sockfd);
-		s._sockfd = 0;
 	}
 	catch (const IOException& ex) {
 		freeaddrinfo((struct addrinfo *) _servinfo);
 		_servinfo = nullptr;
-		if (0 != s._sockfd) close(s._sockfd);
-		s._sockfd = 0;
+		if (0 != s._sockfd)
+		{
+			std::lock_guard<std::mutex> lck(_sock_set_mtx);
+			_open_socks.erase(s._sockfd);
+			close(s._sockfd);
+			s._sockfd = 0;
+		}
 		throw;
 	}
-	if (0 != s._sockfd) close(s._sockfd);
-	s._sockfd = 0;
+
+	if (0 != s._sockfd)
+	{
+		std::lock_guard<std::mutex> lck(_sock_set_mtx);
+		_open_socks.erase(s._sockfd);
+		close(s._sockfd);
+		s._sockfd = 0;
+	}
 
 	// Make sure the buffer has some threads going.
 	_msg_buffer.open(NTHREADS);
