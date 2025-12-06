@@ -56,7 +56,7 @@ class SimpleValueSaveUTest :  public CxxTest::TestSuite
 
 		SimpleValueSaveUTest(void)
 		{
-			logger().set_level(Logger::DEBUG);
+			// logger().set_level(Logger::DEBUG);
 			logger().set_print_to_stdout_flag(true);
 
 			uri = "cog://localhost:16302";

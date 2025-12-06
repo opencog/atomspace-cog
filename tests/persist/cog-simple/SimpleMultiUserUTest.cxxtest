@@ -129,7 +129,7 @@ class MultiUserUTest :  public CxxTest::TestSuite
 
 MultiUserUTest:: MultiUserUTest(void)
 {
-    logger().set_level(Logger::DEBUG);
+    // logger().set_level(Logger::DEBUG);
     logger().set_print_to_stdout_flag(true);
 
     // Create a single cogserver node that will act as
