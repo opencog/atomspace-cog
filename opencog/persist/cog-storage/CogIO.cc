@@ -84,7 +84,7 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 	if (h->haveValues())
 		msg = "(cog-set-values! " + Sexpr::encode_atom(h) +
 			Sexpr::encode_atom_values(h) + ")\n";
-   else
+	else
 		// There is no "just create an atom with no values on it"
 		// message type in the protocol. So instead, we clobber the
 		// truth value on it. This is fully 100% backwards compat.
@@ -288,8 +288,9 @@ void CogStorage::kill_data(void)
 	CHECK_OPEN;
 	_io_queue.barrier();
 	Pkt pkt;
-	_io_queue.synchro(this, "(cog-atomspace-clear)\n",
-		pkt, &CogStorage::noop);
+	_io_queue.enqueue(this, "(cog-atomspace-clear)\n",
+		pkt, &CogStorage::noop_const);
+	_io_queue.barrier();
 }
 
 /// Decode a key-value-pair association list.

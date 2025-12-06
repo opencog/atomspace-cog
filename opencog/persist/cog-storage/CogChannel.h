@@ -31,6 +31,8 @@
 #define _OPENCOG_COG_CHANNEL_H
 
 #include <atomic>
+#include <mutex>
+#include <set>
 #include <string>
 #include <unistd.h> /* for close() */
 
@@ -50,13 +52,18 @@ class CogChannel
 		std::string _host;
 		std::string _port;
 		void* _servinfo;
-		static std::atomic_int _nsocks;
+		std::atomic_int _nsocks{0};
+
+		// Registry of open sockets, for barrier synchronization.
+		std::set<int> _open_socks;
+		std::mutex _sock_set_mtx;
 
 		// Socket API.
 		static thread_local struct tlso {
 			int _sockfd;
-			tlso() { _sockfd = 0; }
-			~tlso() { if (_sockfd) { close(_sockfd); _nsocks--; }}
+			CogChannel* _owner;
+			tlso() : _sockfd(0), _owner(nullptr) {}
+			~tlso() { if (_sockfd) { close(_sockfd); if (_owner) _owner->_nsocks--; }}
 		} s;
 		int open_sock();
 		void do_send(const std::string&);
@@ -64,12 +71,15 @@ class CogChannel
 
 		struct Msg
 		{
-			std::string str_to_send;
-			Data data;
 			Client* client;
 			void (Client::*callback)(const std::string&, const Data&);
+			bool noreply;  // If true, skip do_recv()
+
+			std::string str_to_send;
+			Data data;
 
 			// Need operator<() in order to queue up the messages.
+			// XXX Maybe should be `(this->data < other.data)` ??
 			int operator<(const Msg& other) const
 			{ return this < &other; }
 		};
@@ -89,6 +99,7 @@ class CogChannel
 
 		void enqueue(Client*, const std::string&, Data&,
 		             void (Client::*)(const std::string&, const Data&));
+		void enqueue_noreply(const std::string&);
 		void synchro(Client*, const std::string&, Data&,
 		             void (Client::*)(const std::string&, Data&));
 

@@ -27,6 +27,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <random>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -128,18 +129,27 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 	try {
 		do_send(".\n.\n");
 		do_recv(true);
-		close(s._sockfd);
-		s._sockfd = 0;
 	}
 	catch (const IOException& ex) {
 		freeaddrinfo((struct addrinfo *) _servinfo);
 		_servinfo = nullptr;
-		if (0 != s._sockfd) close(s._sockfd);
-		s._sockfd = 0;
+		if (0 != s._sockfd)
+		{
+			std::lock_guard<std::mutex> lck(_sock_set_mtx);
+			_open_socks.erase(s._sockfd);
+			close(s._sockfd);
+			s._sockfd = 0;
+		}
 		throw;
 	}
-	if (0 != s._sockfd) close(s._sockfd);
-	s._sockfd = 0;
+
+	if (0 != s._sockfd)
+	{
+		std::lock_guard<std::mutex> lck(_sock_set_mtx);
+		_open_socks.erase(s._sockfd);
+		close(s._sockfd);
+		s._sockfd = 0;
+	}
 
 	// Make sure the buffer has some threads going.
 	_msg_buffer.open(NTHREADS);
@@ -195,9 +205,14 @@ int CogChannel<Client, Data>::open_sock()
 
 	// Throw away the cogserver prompt.
 	s._sockfd = sockfd;
+	s._owner = this;
 	do_recv(true);
 
 	_nsocks++;
+
+	std::lock_guard<std::mutex> lck(_sock_set_mtx);
+	_open_socks.insert(sockfd);
+
 	return sockfd;
 }
 
@@ -212,15 +227,13 @@ void CogChannel<Client, Data>::close_connection(void)
 {
 	_msg_buffer.barrier();
 	_msg_buffer.close();
+	_open_socks.clear();
 
 	freeaddrinfo((struct addrinfo *) _servinfo);
 	_servinfo = nullptr;
 }
 
 /* ================================================================== */
-
-template<typename Client, typename Data>
-std::atomic_int CogChannel<Client, Data>::_nsocks = 0;
 
 template<typename Client, typename Data>
 thread_local typename CogChannel<Client, Data>::tlso CogChannel<Client, Data>::s;
@@ -324,14 +337,23 @@ void CogChannel<Client, Data>::synchro(Client* client,
 
 /* ================================================================== */
 
-// Place the message int to queue
+// Place the message into queue
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::enqueue(Client* client,
                                        const std::string& msg,
                                        Data& data,
                   void (Client::*handler)(const std::string&, const Data&))
 {
-	Msg block{msg, data, client, handler};
+	Msg block{client, handler, false, msg, data};
+	_msg_buffer.insert(block);
+}
+
+// Place message into queue, no response expected from server
+template<typename Client, typename Data>
+void CogChannel<Client, Data>::enqueue_noreply(const std::string& msg)
+{
+	Data dummy = Data();
+	Msg block{nullptr, nullptr, true, msg, dummy};
 	_msg_buffer.insert(block);
 }
 
@@ -340,6 +362,10 @@ template<typename Client, typename Data>
 void CogChannel<Client, Data>::reply_handler(const Msg& msg)
 {
 	do_send(msg.str_to_send);
+
+	// No-reply commands: just send, don't wait for response
+	if (msg.noreply) return;
+
 	std::string reply = do_recv();
 
 	// Client is called unlocked.
@@ -359,10 +385,22 @@ void CogChannel<Client, Data>::reply_handler(const Msg& msg)
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::barrier()
 {
+	// Drain work queues.
 	_msg_buffer.barrier();
-	do_send("(cog-barrier)\n");
-	// No do_recv because no response expected.
-	_msg_buffer.barrier();
+
+	// Server can complete barrier only after it receives it on
+	// all of the open sockets; the random string is the uuid to
+	// disambiguate this barrier from any others that might get
+	// issued. The barrier is retired after all N of them are received.
+	static thread_local std::minstd_rand rng(std::random_device{}());
+	uint64_t rnd = (uint64_t(rng()) << 32) | rng();
+
+	std::lock_guard<std::mutex> lck(_sock_set_mtx);
+	char msg[64];
+	snprintf(msg, sizeof(msg), "(cog-barrier %zu \"%016lx\")\n",
+	         _open_socks.size(), rnd);
+	for (int sockfd : _open_socks)
+		send(sockfd, msg, strlen(msg), MSG_NOSIGNAL);
 }
 
 template<typename Client, typename Data>
