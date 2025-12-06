@@ -27,6 +27,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <random>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
@@ -324,8 +325,15 @@ std::string CogSimpleStorage::do_recv(bool garbage)
 ///
 void CogSimpleStorage::barrier(AtomSpace* as)
 {
+	// Generate a random 64-bit hex string for the barrier UUID.
+	static thread_local std::minstd_rand rng(std::random_device{}());
+	uint64_t rnd = (uint64_t(rng()) << 32) | rng();
+
+	char msg[64];
+	snprintf(msg, sizeof(msg), "(cog-barrier 1 \"%016lx\")\n", rnd);
+
 	std::lock_guard<std::mutex> lck(_mtx);
-	do_send("(cog-barrier)\n");
+	do_send(msg);
 	// do_recv(); There is no reply for this.
 }
 
