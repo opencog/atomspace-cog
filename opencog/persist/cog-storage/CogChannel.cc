@@ -138,8 +138,6 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 		_servinfo = nullptr;
 		if (0 != s._sockfd)
 		{
-			std::lock_guard<std::mutex> lck(_sock_set_mtx);
-			_open_socks.erase(s._sockfd);
 			close(s._sockfd);
 			s._sockfd = 0;
 		}
@@ -148,8 +146,6 @@ void CogChannel<Client, Data>::open_connection(const std::string& uri)
 
 	if (0 != s._sockfd)
 	{
-		std::lock_guard<std::mutex> lck(_sock_set_mtx);
-		_open_socks.erase(s._sockfd);
 		close(s._sockfd);
 		s._sockfd = 0;
 	}
@@ -213,9 +209,6 @@ int CogChannel<Client, Data>::open_sock()
 
 	_nsocks++;
 
-	std::lock_guard<std::mutex> lck(_sock_set_mtx);
-	_open_socks.insert(sockfd);
-
 	return sockfd;
 }
 
@@ -230,7 +223,6 @@ void CogChannel<Client, Data>::close_connection(void)
 {
 	_msg_buffer.barrier();
 	_msg_buffer.close();
-	_open_socks.clear();
 
 	freeaddrinfo((struct addrinfo *) _servinfo);
 	_servinfo = nullptr;
@@ -388,22 +380,18 @@ void CogChannel<Client, Data>::reply_handler(const Msg& msg)
 template<typename Client, typename Data>
 void CogChannel<Client, Data>::barrier()
 {
-	// Drain work queues.
-	_msg_buffer.barrier();
-
-	// Server can complete barrier only after it receives it on
-	// all of the open sockets; the random string is the uuid to
-	// disambiguate this barrier from any others that might get
-	// issued. The barrier is retired after all N of them are received.
+	// Generate a unique barrier ID
 	static thread_local std::minstd_rand rng(std::random_device{}());
 	uint64_t rnd = (uint64_t(rng()) << 32) | rng();
 
-	std::lock_guard<std::mutex> lck(_sock_set_mtx);
+	// Build the barrier message. Each worker thread will send this,
+	// opening its socket if needed. Server completes when all N arrive.
 	char msg[64];
-	snprintf(msg, sizeof(msg), "(cog-barrier %zu \"%016lx\")\n",
-	         _open_socks.size(), rnd);
-	for (int sockfd : _open_socks)
-		send(sockfd, msg, strlen(msg), MSG_NOSIGNAL);
+	snprintf(msg, sizeof(msg), "(cog-barrier %u \"%016lx\")\n", NTHREADS, rnd);
+
+	Data dummy = Data();
+	Msg block{nullptr, nullptr, true, msg, dummy};
+	_msg_buffer.barrier(block);
 }
 
 template<typename Client, typename Data>

@@ -10,7 +10,7 @@
  *
  * LICENSE:
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License v3 as
  * published by the Free Software Foundation and including the exceptions
@@ -54,10 +54,6 @@ class CogChannel
 		void* _servinfo;
 		std::atomic_int _nsocks{0};
 
-		// Registry of open sockets, for barrier synchronization.
-		std::set<int> _open_socks;
-		std::mutex _sock_set_mtx;
-
 		// Socket API.
 		static thread_local struct tlso {
 			int _sockfd;
@@ -88,22 +84,16 @@ class CogChannel
 			// The mesage buffer is a de-duplicating buffer: identical
 			// messages are added only once. This makes sense for almost
 			// all messages: we do not need to store an Atom twice; the
-			// store operation is idempotent. There are two exceptions.
-			// One is the cog-value-increment message: these are never
-			// idempotent; we use a sequence number to make sure each is
-			// unique. The other case is the barrier. The exact same
-			// barrier message must be sent to each socket. The barrier
-			// code will make sure that the queues are all empty before
-			// enqueuing the barrier, so ordering does not matter, but
-			// having exactly NTHREADS copies does. It must not be
-			// deduplicated So that is what this ctor does.
+			// store operation is idempotent. The one exception is the
+			// cog-update-value! message: these are never idempotent;
+			// we use a sequence number to make sure each is unique.
 			Msg(Client* c, void (Client::*cb)(const std::string&, const Data&),
 			    bool nr, const std::string& str, const Data& d)
 				: client(c), callback(cb), noreply(nr),
 				  str_to_send(str), data(d)
 			{
-				if (str.compare(0, 19, "(cog-update-value!") == 0 or
-				    str.compare(0, 13, "(cog-barrier)") == 0)
+				// Non-idempotent messages get unique sequence numbers.
+				if (str.compare(0, 19, "(cog-update-value!") == 0)
 				{
 					sequence = ++_sequence_counter;
 				}
