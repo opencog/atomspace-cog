@@ -98,8 +98,10 @@ class CogChannel
 				: client(c), callback(cb), noreply(nr),
 				  str_to_send(str), data(d)
 			{
+				// Non-idempotent messages get unique sequence numbers.
+				// "(cog-barrier " - note trailing space, not closing paren!
 				if (str.compare(0, 19, "(cog-update-value!") == 0 or
-				    str.compare(0, 13, "(cog-barrier)") == 0)
+				    str.compare(0, 13, "(cog-barrier ") == 0)
 				{
 					sequence = ++_sequence_counter;
 				}
