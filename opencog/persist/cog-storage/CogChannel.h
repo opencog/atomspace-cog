@@ -107,11 +107,12 @@ class CogChannel
 			// If both sequence numbers are zero, compare by string content
 			// (idempotent messages deduplicate). Otherwise compare by
 			// sequence number (non-idempotent messages stay unique).
+			// Place `cog-update-value!` messages early in the set.
 			bool operator<(const Msg& other) const
 			{
 				if (sequence == 0 and other.sequence == 0)
 					return str_to_send < other.str_to_send;
-				return sequence < other.sequence;
+				return sequence > other.sequence;
 			}
 		};
 
