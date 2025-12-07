@@ -217,7 +217,7 @@ void SimpleMultiDeleteUTest::test_add_delete(void)
 	// remove ran in different threads, asynchronously, and so
 	// there may have been inserts after the "matching" remove.
 	// This is rare for this test (about one out of 30 runs)
-	// but happens a log for regular MultiDeleteUTest.
+	// but happens a lot for the regular MultiDeleteUTest.
 	size_t expected_size = 9 + n_threads;
 	if (as->get_size() != expected_size)
 		printf("Error: Bad size! AtomSpace contents =\n%s\n",
