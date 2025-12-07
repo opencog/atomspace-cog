@@ -73,15 +73,56 @@ class CogChannel
 		{
 			Client* client;
 			void (Client::*callback)(const std::string&, const Data&);
+			size_t sequence;
 			bool noreply;  // If true, skip do_recv()
 
 			std::string str_to_send;
 			Data data;
 
+			// Sequence counter for non-idempotent messages
+			static std::atomic<size_t> _sequence_counter;
+
+			// Default constructor required by concurrent_set
+			Msg() : client(nullptr), callback(nullptr), sequence(0), noreply(true) {}
+
+			// The mesage buffer is a de-duplicating buffer: identical
+			// messages are added only once. This makes sense for almost
+			// all messages: we do not need to store an Atom twice; the
+			// store operation is idempotent. There are two exceptions.
+			// One is the cog-value-increment message: these are never
+			// idempotent; we use a sequence number to make sure each is
+			// unique. The other case is the barrier. The exact same
+			// barrier message must be sent to each socket. The barrier
+			// code will make sure that the queues are all empty before
+			// enqueuing the barrier, so ordering does not matter, but
+			// having exactly NTHREADS copies does. It must not be
+			// deduplicated So that is what this ctor does.
+			Msg(Client* c, void (Client::*cb)(const std::string&, const Data&),
+			    bool nr, const std::string& str, const Data& d)
+				: client(c), callback(cb), noreply(nr),
+				  str_to_send(str), data(d)
+			{
+				if (str.compare(0, 19, "(cog-update-value!") == 0 or
+				    str.compare(0, 13, "(cog-barrier)") == 0)
+				{
+					sequence = ++_sequence_counter;
+				}
+				else
+				{
+					sequence = 0;
+				}
+			}
+
 			// Need operator<() in order to queue up the messages.
-			// XXX Maybe should be `(this->data < other.data)` ??
-			int operator<(const Msg& other) const
-			{ return this < &other; }
+			// If both sequence numbers are zero, compare by string content
+			// (idempotent messages deduplicate). Otherwise compare by
+			// sequence number (non-idempotent messages stay unique).
+			bool operator<(const Msg& other) const
+			{
+				if (sequence == 0 and other.sequence == 0)
+					return str_to_send < other.str_to_send;
+				return sequence < other.sequence;
+			}
 		};
 
 		async_buffer<CogChannel, Msg> _msg_buffer;

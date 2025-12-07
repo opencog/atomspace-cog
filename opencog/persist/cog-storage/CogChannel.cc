@@ -48,6 +48,9 @@ using namespace opencog;
 #define NTHREADS 4
 
 template<typename Client, typename Data>
+std::atomic<size_t> CogChannel<Client, Data>::Msg::_sequence_counter{0};
+
+template<typename Client, typename Data>
 CogChannel<Client, Data>::CogChannel(void) :
 	_servinfo(nullptr),
 	_msg_buffer(this, &CogChannel::reply_handler, NTHREADS)
