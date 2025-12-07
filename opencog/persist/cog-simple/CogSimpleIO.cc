@@ -94,6 +94,9 @@ void CogSimpleStorage::storeAtom(const Handle& h, bool synchronous)
 
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
+
+	// Flush the response.
+	do_recv();
 }
 
 void CogSimpleStorage::storeValue(const Handle& h, const Handle& key)
@@ -111,6 +114,9 @@ void CogSimpleStorage::storeValue(const Handle& h, const Handle& key)
 
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
+
+	// Flush the response.
+	do_recv();
 }
 
 void CogSimpleStorage::updateValue(const Handle& h, const Handle& key,
@@ -129,6 +135,9 @@ void CogSimpleStorage::updateValue(const Handle& h, const Handle& key,
 
 	std::lock_guard<std::mutex> lck(_mtx);
 	do_send(msg);
+
+	// Flush the response.
+	do_recv();
 }
 
 void CogSimpleStorage::loadValue(const Handle& h, const Handle& key)
@@ -370,6 +379,9 @@ std::string CogSimpleStorage::writeFrame(const Handle& hasp)
 	{
 		std::lock_guard<std::mutex> lck(_mtx);
 		do_send(msg);
+
+		// Flush the response.
+		do_recv();
 	}
 
 	// Store short-forms

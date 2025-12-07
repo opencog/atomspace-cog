@@ -91,7 +91,8 @@ void CogStorage::storeAtom(const Handle& h, bool synchronous)
 		msg = "(cog-set-value! " + Sexpr::encode_atom(h) +
 			"(Predicate \"*-TruthValueKey-*\") #f)\n";
 
-	_io_queue.enqueue_noreply(msg);
+	Pkt pkt;
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
 }
 
 void CogStorage::removeAtom(AtomSpace* frame, const Handle& h, bool recursive)
@@ -115,7 +116,8 @@ void CogStorage::storeValue(const Handle& h, const Handle& key)
 	      Sexpr::encode_atom(key) +
 	      Sexpr::encode_value(h->getValue(key)) + ")\n";
 
-	_io_queue.enqueue_noreply(msg);
+	Pkt pkt;
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
 }
 
 void CogStorage::updateValue(const Handle& h, const Handle& key,
@@ -127,7 +129,8 @@ void CogStorage::updateValue(const Handle& h, const Handle& key,
 	      Sexpr::encode_atom(key) +
 	      Sexpr::encode_value(delta) + ")\n";
 
-	_io_queue.enqueue_noreply(msg);
+	Pkt pkt;
+	_io_queue.enqueue(this, msg, pkt, &CogStorage::noop_const);
 }
 
 void CogStorage::loadValue(const Handle& h, const Handle& key)
