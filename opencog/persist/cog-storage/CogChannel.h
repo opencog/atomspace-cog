@@ -54,10 +54,6 @@ class CogChannel
 		void* _servinfo;
 		std::atomic_int _nsocks{0};
 
-		// Registry of open sockets, for barrier synchronization.
-		std::set<int> _open_socks;
-		std::mutex _sock_set_mtx;
-
 		// Socket API.
 		static thread_local struct tlso {
 			int _sockfd;
