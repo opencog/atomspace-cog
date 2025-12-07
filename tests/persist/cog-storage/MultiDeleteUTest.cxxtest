@@ -214,8 +214,6 @@ void MultiDeleteUTest::test_add_delete(void)
 	// Well, but this will not hold true, because the insert and
 	// remove ran in different threads, asynchronously, and so
 	// there may have been inserts after the "matching" remove.
-	// This will hold for the MonoMultiDeleteUTest, because
-	// everything is processed synchronously, there. But not here.
 	size_t expected_size = 9 + n_threads;
 	if (as->get_size() != expected_size)
 		printf("Error: Bad size! AtomSpace contents =\n%s\n",
