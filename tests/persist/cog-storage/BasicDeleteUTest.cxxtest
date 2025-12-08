@@ -333,6 +333,7 @@ void BasicDeleteUTest::test_key_deletion(void)
 	store = StorageNodeCast(hsn);
 	store->open();
 	store->fetch_all_atoms_of_type(PREDICATE_NODE);
+	store->barrier();
 
 	// key-b should be gone, key-a and key-c should be present
 	TS_ASSERT(nullptr == as->get_node(PREDICATE_NODE, "key-b"));
