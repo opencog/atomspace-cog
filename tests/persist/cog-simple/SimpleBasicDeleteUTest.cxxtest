@@ -324,6 +324,8 @@ void SimpleBasicDeleteUTest::test_key_deletion(void)
 
 	// Remove one of the keys
 	store->remove_atom(as, kb);
+	as->extract_atom(kb);
+	TS_ASSERT_EQUALS(as->get_size(), 4);
 
 	// Verify the key was deleted by loading only PredicateNodes.
 	as = createAtomSpace();
@@ -466,9 +468,10 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 
 	TS_ASSERT_EQUALS(as->get_size(), 6);
 
-	// Remove the value .. again. It won't actually be deleted because
-	// (Concept "x") is still referenced in a Value on (Concept "b").
+	// Remove the value .. again
 	store->remove_atom(as, hx);
+	as->extract_atom(hx);
+	TS_ASSERT_EQUALS(as->get_size(), 5);
 	store->close();
 	store->open();
 	store->load_atomspace();
