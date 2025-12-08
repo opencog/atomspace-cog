@@ -19,7 +19,7 @@ TARGET_LINK_LIBRARIES(SimpleFetchUTest execution)
 ADD_CXXTEST(SimpleAlphaEquivUTest)
 ADD_CXXTEST(SimpleMultiPersistUTest)
 ADD_CXXTEST(SimpleMultiUserUTest)
-# ADD_CXXTEST(SimpleMultiDeleteUTest)
+ADD_CXXTEST(SimpleMultiDeleteUTest)
 ADD_CXXTEST(SimpleQueryPersistUTest)
 #
 # At this time, the multi-space tests are guaranteed to fail,
