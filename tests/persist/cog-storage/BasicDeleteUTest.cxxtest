@@ -314,11 +314,12 @@ void BasicDeleteUTest::test_key_deletion(void)
 		printf("key=%s\n", k->get_name().c_str());
 	TS_ASSERT_EQUALS(hs.size(), 3);
 
-	// Remove one of the keys
+	// Attempt to remove one of the keys. Neither storage, nor
+	// AtomSpace will allow this.
 	store->remove_atom(as, kb);
 	as->extract_atom(kb);
 	// +1 for *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 5);
+	TS_ASSERT_EQUALS(as->get_size(), 6);
 
 	// Verify the key was deleted by loading only PredicateNodes.
 	as = createAtomSpace();
@@ -328,8 +329,8 @@ void BasicDeleteUTest::test_key_deletion(void)
 	store->fetch_all_atoms_of_type(PREDICATE_NODE);
 	store->barrier();
 
-	// key-b should be gone, key-a and key-c should be present
-	TS_ASSERT(nullptr == as->get_node(PREDICATE_NODE, "key-b"));
+	// All keys should have been restored.
+	TS_ASSERT(nullptr != as->get_node(PREDICATE_NODE, "key-b"));
 	TS_ASSERT(nullptr != as->get_node(PREDICATE_NODE, "key-a"));
 	TS_ASSERT(nullptr != as->get_node(PREDICATE_NODE, "key-c"));
 
