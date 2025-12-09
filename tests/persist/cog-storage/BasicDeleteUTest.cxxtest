@@ -139,9 +139,8 @@ void BasicDeleteUTest::test_duplicates(void)
 	TS_ASSERT_EQUALS(as->get_size(), 3);
 	store->open();
 	store->load_atomspace();
-	Handle tvk(as->get_node(PREDICATE_NODE, "*-TruthValueKey-*"));
-	if (tvk) as->extract_atom(tvk);
-	TS_ASSERT_EQUALS(as->get_size(), 3);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 5);
 
 	store->erase();
 	store->close();
@@ -198,9 +197,8 @@ void BasicDeleteUTest::test_recursive(void)
 	as->extract_atom(ha, true);
 	store->open();
 	store->load_atomspace();
-	Handle tvk(as->get_node(PREDICATE_NODE, "*-TruthValueKey-*"));
-	if (tvk) as->extract_atom(tvk);
-	TS_ASSERT_EQUALS(as->get_size(), 2);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 4);
 
 	// --------------------------------------
 	// Do it again, but with a different order.
@@ -213,18 +211,16 @@ void BasicDeleteUTest::test_recursive(void)
 	store->close();
 	store->open();
 	store->load_atomspace();
-	tvk = as->get_node(PREDICATE_NODE, "*-TruthValueKey-*");
-	if (tvk) as->extract_atom(tvk);
-	TS_ASSERT_EQUALS(as->get_size(), 5);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 7);
 
 	store->remove_atom(as, ha, true);
 	store->close();
 	as->extract_atom(ha, true);
 	store->open();
 	store->load_atomspace();
-	tvk = as->get_node(PREDICATE_NODE, "*-TruthValueKey-*");
-	if (tvk) as->extract_atom(tvk);
-	TS_ASSERT_EQUALS(as->get_size(), 2);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 4);
 
 	// --------------------------------------
 	// Do it again, but with a complex order.
@@ -237,18 +233,16 @@ void BasicDeleteUTest::test_recursive(void)
 	store->close();
 	store->open();
 	store->load_atomspace();
-	tvk = as->get_node(PREDICATE_NODE, "*-TruthValueKey-*");
-	if (tvk) as->extract_atom(tvk);
-	TS_ASSERT_EQUALS(as->get_size(), 5);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 7);
 
 	store->remove_atom(as, ha, true);
 	store->close();
 	as->extract_atom(ha, true);
 	store->open();
 	store->load_atomspace();
-	tvk = as->get_node(PREDICATE_NODE, "*-TruthValueKey-*");
-	if (tvk) as->extract_atom(tvk);
-	TS_ASSERT_EQUALS(as->get_size(), 2);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 4);
 
 	// --------------------------------------
 	// Do it again, but more deeply.
@@ -262,18 +256,16 @@ void BasicDeleteUTest::test_recursive(void)
 	store->close();
 	store->open();
 	store->load_atomspace();
-	tvk = as->get_node(PREDICATE_NODE, "*-TruthValueKey-*");
-	if (tvk) as->extract_atom(tvk);
-	TS_ASSERT_EQUALS(as->get_size(), 6);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 8);
 
 	store->remove_atom(as, ha, true);
 	store->close();
 	as->extract_atom(ha, true);
 	store->open();
 	store->load_atomspace();
-	tvk = as->get_node(PREDICATE_NODE, "*-TruthValueKey-*");
-	if (tvk) as->extract_atom(tvk);
-	TS_ASSERT_EQUALS(as->get_size(), 2);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 4);
 
 	// --------------------------------------
 	store->erase();
@@ -313,8 +305,8 @@ void BasicDeleteUTest::test_key_deletion(void)
 	store->store_atom(ha);
 	store->barrier();
 
-	// Verify the atomspace size
-	TS_ASSERT_EQUALS(as->get_size(), 5);
+	// Verify the atomspace size (+1 for *-IsKeyFlag-*)
+	TS_ASSERT_EQUALS(as->get_size(), 6);
 
 	// Verify that there are three keys
 	HandleSet hs = ha->getKeys();
@@ -325,7 +317,8 @@ void BasicDeleteUTest::test_key_deletion(void)
 	// Remove one of the keys
 	store->remove_atom(as, kb);
 	as->extract_atom(kb);
-	TS_ASSERT_EQUALS(as->get_size(), 4);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 5);
 
 	// Verify the key was deleted by loading only PredicateNodes.
 	as = createAtomSpace();
@@ -357,10 +350,10 @@ void BasicDeleteUTest::test_key_deletion(void)
 	store->open();
 	TS_ASSERT(store->connected())
 
-	// We expect 5 keys, including the truth-value key.
+	// We expect 6 keys (includes *-TruthValueKey-* and *-IsKeyFlag-*)
 	printf("Loading the atomspace ...\n");
 	store->load_atomspace();
-	TS_ASSERT_EQUALS(as->get_size(), 5);
+	TS_ASSERT_EQUALS(as->get_size(), 6);
 
 	// Verify that there are only two keys .. haha no, three.
 	// That is because the deleted key gets restored when the
@@ -415,13 +408,14 @@ void BasicDeleteUTest::test_key_corruption(void)
 	store->store_atom(hb);
 	store->barrier();
 
-	// Verify the atomspace size
-	TS_ASSERT_EQUALS(as->get_size(), 4);
+	// Verify the atomspace size (+1 for *-IsKeyFlag-*)
+	TS_ASSERT_EQUALS(as->get_size(), 5);
 
 	// Remove the value
 	store->remove_atom(as, hx);
 	as->extract_atom(hx);
-	TS_ASSERT_EQUALS(as->get_size(), 3);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 4);
 
 	// FYI, we should call store->close() at this point, but we
 	// don't, because ... most users forget to do this too.
@@ -440,7 +434,7 @@ void BasicDeleteUTest::test_key_corruption(void)
 	store->open();
 	TS_ASSERT(store->connected())
 
-	// We expect 4 keys (the truth-value key doesn't show up.)
+	// We expect 5 atoms: b, x, key-x, *-IsKeyFlag-*, StorageNode
 	// That's because the (Concept "x") sitting in the Value
 	// was never actually deleted; thus it is restored.
 	printf("Loading the atomspace ...\n");
@@ -451,10 +445,9 @@ void BasicDeleteUTest::test_key_corruption(void)
 	for (const Handle& h: hset)
 		printf("Atomspace contains h=%s\n", h->to_short_string().c_str());
 
-	Handle tvk(as->get_node(PREDICATE_NODE, "*-TruthValueKey-*"));
-	if (tvk) as->extract_atom(tvk);
-	// Size stays at 4 because (Concept "x") cannot be deleted.
-	TS_ASSERT_EQUALS(as->get_size(), 4);
+	// Size is 5 because (Concept "x") cannot be deleted.
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 5);
 
 	hb = as->add_node(CONCEPT_NODE, "b");
 	hx = as->add_node(CONCEPT_NODE, "x");
@@ -467,19 +460,20 @@ void BasicDeleteUTest::test_key_corruption(void)
 	store->store_atom(hb);
 	store->barrier();
 
-	TS_ASSERT_EQUALS(as->get_size(), 6);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 7);
 
 	// Remove the value .. again
 	store->remove_atom(as, hx);
 	as->extract_atom(hx);
-	TS_ASSERT_EQUALS(as->get_size(), 5);
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 6);
 	store->close();
 	store->open();
 	store->load_atomspace();
-	tvk = as->get_node(PREDICATE_NODE, "*-TruthValueKey-*");
-	if (tvk) as->extract_atom(tvk);
-	// Size stays at 6 because (Concept "x") cannot be deleted.
-	TS_ASSERT_EQUALS(as->get_size(), 6);
+	// Size is 7 because (Concept "x") cannot be deleted.
+	// +1 for *-IsKeyFlag-*
+	TS_ASSERT_EQUALS(as->get_size(), 7);
 
 	// We are done.
 	store->close();
@@ -496,10 +490,10 @@ void BasicDeleteUTest::test_key_corruption(void)
 	store->open();
 	TS_ASSERT(store->connected())
 
-	// We expect 6 keys, (the truth-value key does not show.)
+	// We expect 7 atoms (+1 for *-IsKeyFlag-*)
 	printf("Loading the atomspace ...\n");
 	store->load_atomspace();
-	TS_ASSERT_EQUALS(as->get_size(), 6);
+	TS_ASSERT_EQUALS(as->get_size(), 7);
 
 	// Verify that there are two keys
 	hb = as->add_node(CONCEPT_NODE, "b");

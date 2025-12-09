@@ -209,9 +209,9 @@ void SimpleMultiDeleteUTest::test_add_delete(void)
 	store->load_atomspace();
 	printf("Final AtomSpace size=%lu\n", as->get_size());
 
-	// Size should be 19: the 18 from before plus that annoying
-	// (Predicate "*-TruthValueKey-*")
-	size_t expected_size = 3 + 6 + n_threads;
+	// Size should be 20: the 18 from before plus
+	// (Predicate "*-TruthValueKey-*") and (Predicate "*-IsKeyFlag-*")
+	size_t expected_size = 4 + 6 + n_threads;
 	if (as->get_size() != expected_size)
 		printf("Error: Bad size! AtomSpace contents =\n%s\n",
 			as->to_string().c_str());
