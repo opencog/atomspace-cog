@@ -142,13 +142,13 @@ Changes since January 2025:
   the core AtomSpace.
 
 There is one missing feature, but no one uses it (yet): support for
-multiple atomspaces (aka frames) is missing. Work on adding this was
+multiple AtomSpaces (aka frames) is missing. Work on adding this was
 started but is low priority.  One unit test works. See the `cog-simple`
 directory.
 
 Build
 -----
-Prerequistes: of course the AtomSpace is needed:
+Prerequisites: of course the AtomSpace is needed:
 https://github.com/opencog/atomspace but so is the base `StorageNode`
 API, at https://github.com/opencog/atomspace-storage
 
@@ -191,7 +191,7 @@ asynchronously. In other words, requests might be handled out-of-order.
 If there is some critical code segment that can't tolerate this, use the
 `(barrier)` call. It will flush the network buffers, and force a
 serialization barrier at the remote end. The `(barrier)` is a 'fence'
-and not a synchronization chekpoint: it ensures that all reads/writes
+and not a synchronization checkpoint: it ensures that all reads/writes
 before the barrier are completed before any that come after are started.
 
 Usage is much like before:
