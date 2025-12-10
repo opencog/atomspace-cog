@@ -81,6 +81,9 @@ The network connection is provided by a
     +-------------+
 ```
 
+Complex storage network fabrics can be created with the
+[ProxyNode](https://wiki.opencog.org/w/ProxyNode). Basic proxies
+exist for mirroring, read load-balancing, write buffering, etc.
 
 Example Usage
 -------------
@@ -115,8 +118,39 @@ granular load and store is possible; see the
 
 Status
 ------
-This is **Version 1.1.0**. All 26 (13+13) unit tests consistently
-pass.
+This is **Version 1.2.0**. All 27 (13+13+1) unit tests consistently
+pass.  For a general overview, see the wiki documentation for the
+[StorageNode](https://wiki.opencog.org/w/StorageNode) and
+[CogStorageNode](https://wiki.opencog.org/w/CogStorageNode).
+
+Changes since January 2025:
+* Barriers are now implemented correctly and work reliably. Barriers
+  are fences that ensure all operations that come before are completed,
+  before any operations that come after are started.
+* Operations that don't need a reply (e.g. `*-store-atom-*`) no longer
+  wait for a confirmation reply to be received. This increases
+  throughput significantly.
+* Busy-wait spinloops have been replaced by c++-20 `std::atomic::wait()`
+  which means idle time on congested queues is significantly reduced.
+* Cogserver shutdown in unit tests has been fixed. For testing, the
+  unit tests start a cogserver, do TCP/IP I/O to it, and then shut down
+  the cogserver. These tests had been plagued by shutdown issues, where
+  the tests pass but then the cogserver would hang or crash on shutdown.
+  These issues have all been fixed. You can now start and stop
+  cogservers very rapidly, on demand, in a reliable fashion.
+* A random assortment of bug fixes and changes, driving by changes in
+  the core AtomSpace.
+
+There is one missing feature, but no one uses it (yet): support for
+multiple atomspaces (aka frames) is missing. Work on adding this was
+started but is low priority.  One unit test works. See the `cog-simple`
+directory.
+
+Build
+-----
+Prerequistes: of course the AtomSpace is needed:
+https://github.com/opencog/atomspace but so is the base `StorageNode`
+API, at https://github.com/opencog/atomspace-storage
 
 Build as below. Note parallel testing works!
 ```
@@ -125,19 +159,6 @@ cd build
 make -j
 make -j check ARGS=-j
 ```
-
-Performance looks good. Two of the unit tests take about 20 seconds
-each to run; two more take a few minutes.  This is intentional,
-they are pounding the server with large datasets.
-
-This is a "stable" version. There are no known bugs at this time.
-It is being used in "production" environments, successfully transferring
-gigabytes of data around.
-
-There is one missing feature, but no one uses it (yet): support for
-multiple atomspaces (aka frames) is missing. Work on adding this was
-started but is low priority.  One unit test works. See the `cog-simple`
-directory.
 
 Design
 ------
@@ -180,14 +201,8 @@ scheme> (define csn (CogStorageNode "cog://example.com/"))
 scheme> (cog-open csn)
 ```
 
-URL's
------
+### URL's
 Supported URL's include:
 * `cog://example.com/` -- standard internet hostname
 * `cog://1.2.3.4/` -- standard dotted IPv4 address
 * `cog://example.com:17001` -- specify the port of the cogserver.
-
-See
-[proxying](https://github.com/opencog/atomspace/tree/master/opencog/persist/proxy)
-for details about how the cogserver can pass on I/O requests to other
-storage nodes.
