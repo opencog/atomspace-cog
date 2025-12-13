@@ -46,8 +46,7 @@ class BasicDeleteUTest :  public CxxTest::TestSuite
 {
 	private:
 		std::string uri;
-		CogServer* srvr = NULL;
-		std::thread* main_loop = NULL;
+		DECLARE_TEST_COGSERVER
 
 	public:
 
@@ -59,21 +58,13 @@ class BasicDeleteUTest :  public CxxTest::TestSuite
 
 			uri = "cog://localhost:16010";
 
-			// Create a single cogserver node that will act as
-			// as the repo for the duration of the test.
-			srvr = &cogserver();
-			srvr->loadModules();
-			srvr->enableNetworkServer(16010);
-			main_loop = new std::thread(&CogServer::serverLoop, srvr);
+			INIT_TEST_COGSERVER(16010);
 			printf("Started CogServer\n");
 		}
 
 		~BasicDeleteUTest()
 		{
-			srvr->stop();
-			main_loop->join();
-			srvr->disableNetworkServer();
-			delete main_loop;
+			STOP_TEST_COGSERVER
 
 			// erase the log file if no assertions failed
 			if (!CxxTest::TestTracker::tracker().suiteFailed())

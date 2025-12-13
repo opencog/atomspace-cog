@@ -55,10 +55,7 @@ class FetchUTest :  public CxxTest::TestSuite
 		FetchUTest(void);
 		~FetchUTest()
 		{
-			srvr->stop();
-			main_loop->join();
-			srvr->disableNetworkServer();
-			delete main_loop;
+			STOP_TEST_COGSERVER
 
 			logger().flush();
 
@@ -86,12 +83,7 @@ FetchUTest::FetchUTest(void)
 
 	srv_open = "(cog-open (CogStorageNode \"" + uri + "\"))\n";
 
-	// Create a single cogserver node that will act as
-	// as the repo for the duration of the test.
-	srvr = &cogserver();
-	srvr->loadModules();
-	srvr->enableNetworkServer(16004);
-	main_loop = new std::thread(&CogServer::serverLoop, srvr);
+	INIT_TEST_COGSERVER(16004);
 	printf("Started CogServer\n");
 }
 
