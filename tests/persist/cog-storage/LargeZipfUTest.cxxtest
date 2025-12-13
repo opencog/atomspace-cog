@@ -91,7 +91,6 @@ LargeZipfUTest::~LargeZipfUTest()
 	main_loop->join();
 	srvr->disableNetworkServer();
 	delete main_loop;
-	delete srvr;
 
 	logger().flush();
 

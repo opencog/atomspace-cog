@@ -72,7 +72,6 @@ class ServerHangUTest : public CxxTest::TestSuite
 			printf("Server thread joined.\n");
 			srvr->disableNetworkServer();
 			delete main_loop;
-			delete srvr;
 
 			logger().flush();
 

@@ -102,7 +102,6 @@ class MultiUserUTest :  public CxxTest::TestSuite
             main_loop->join();
             srvr->disableNetworkServer();
             delete main_loop;
-            delete srvr;
 
             // Erase the log file if no assertions failed
             logger().flush();
