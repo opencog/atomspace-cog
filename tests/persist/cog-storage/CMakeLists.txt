@@ -1,8 +1,8 @@
 
 LINK_LIBRARIES(
 	persist-cog
-	server
-	atomspace
+	${COGSERVER_LIBRARIES}
+	${ATOMSPACE_LIBRARIES}
 )
 
 # The seven unit tests, ported over from the

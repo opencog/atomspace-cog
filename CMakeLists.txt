@@ -99,6 +99,15 @@ ELSE (ATOMSPACE_STORAGE_FOUND)
 	MESSAGE(FATAL_ERROR "AtomSpace Storage missing: it is needed!")
 ENDIF (ATOMSPACE_STORAGE_FOUND)
 
+# CogServer - needed for unit tests
+FIND_PACKAGE(CogServer CONFIG)
+IF (COGSERVER_FOUND)
+	MESSAGE(STATUS "CogServer found.")
+	SET(HAVE_COGSERVER 1)
+ELSE (COGSERVER_FOUND)
+	MESSAGE(STATUS "CogServer missing: needed for unit tests.")
+ENDIF (COGSERVER_FOUND)
+
 # ----------------------------------------------------------
 # Needed for unit tests
 
@@ -242,6 +251,6 @@ FIND_PACKAGE(Doxygen)
 
 SUMMARY_ADD("AtomSpace-Cog" "AtomSpace CogServer Network Client" HAVE_ATOMSPACE)
 SUMMARY_ADD("Doxygen" "Code documentation" DOXYGEN_FOUND)
-SUMMARY_ADD("Unit tests" "Unit tests" CXXTEST_FOUND)
+SUMMARY_ADD("Unit tests" "Unit tests" CXXTEST_FOUND AND HAVE_COGSERVER)
 
 SUMMARY_SHOW()
