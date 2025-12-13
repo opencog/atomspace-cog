@@ -91,6 +91,10 @@ void SimpleBasicDeleteUTest::tearDown(void)
 {
 }
 
+// 9 more from CogServerNode and gorp; 2 for *-TruthValueKey-* and
+// *-IsKeyFlag-*
+int basic_offset = 9 + 2;
+
 // ============================================================
 
 void SimpleBasicDeleteUTest::test_duplicates(void)
@@ -106,7 +110,7 @@ void SimpleBasicDeleteUTest::test_duplicates(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle ha(as->add_node(CONCEPT_NODE, "a"));
 	Handle hb(as->add_node(CONCEPT_NODE, "b"));
@@ -129,9 +133,9 @@ void SimpleBasicDeleteUTest::test_duplicates(void)
 	TS_ASSERT_EQUALS(as->get_size(), 3);
 	store->open();
 	store->load_atomspace();
-	TS_ASSERT_EQUALS(as->get_size(), 5);
+	TS_ASSERT_EQUALS(as->get_size(), 3 + basic_offset);
 
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 
 	logger().debug("END TEST: %s", __FUNCTION__);
@@ -152,7 +156,7 @@ void SimpleBasicDeleteUTest::test_recursive(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle ha(as->add_node(CONCEPT_NODE, "a"));
 	Handle hb(as->add_node(CONCEPT_NODE, "b"));
@@ -186,8 +190,7 @@ void SimpleBasicDeleteUTest::test_recursive(void)
 	as->extract_atom(ha, true);
 	store->open();
 	store->load_atomspace();
-	// +2 for *-TruthValueKey-* and *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 4);
+	TS_ASSERT_EQUALS(as->get_size(), 2 + basic_offset);
 
 	// --------------------------------------
 	// Do it again, but with a different order.
@@ -200,16 +203,14 @@ void SimpleBasicDeleteUTest::test_recursive(void)
 	store->close();
 	store->open();
 	store->load_atomspace();
-	// +2 for *-TruthValueKey-* and *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 7);
+	TS_ASSERT_EQUALS(as->get_size(), 5 + basic_offset);
 
 	store->remove_atom(as, ha, true);
 	store->close();
 	as->extract_atom(ha, true);
 	store->open();
 	store->load_atomspace();
-	// +2 for *-TruthValueKey-* and *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 4);
+	TS_ASSERT_EQUALS(as->get_size(), 2 + basic_offset);
 
 	// --------------------------------------
 	// Do it again, but with a complex order.
@@ -222,16 +223,14 @@ void SimpleBasicDeleteUTest::test_recursive(void)
 	store->close();
 	store->open();
 	store->load_atomspace();
-	// +2 for *-TruthValueKey-* and *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 7);
+	TS_ASSERT_EQUALS(as->get_size(), 5 + basic_offset);
 
 	store->remove_atom(as, ha, true);
 	store->close();
 	as->extract_atom(ha, true);
 	store->open();
 	store->load_atomspace();
-	// +2 for *-TruthValueKey-* and *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 4);
+	TS_ASSERT_EQUALS(as->get_size(), 2 + basic_offset);
 
 	// --------------------------------------
 	// Do it again, but more deeply.
@@ -245,19 +244,17 @@ void SimpleBasicDeleteUTest::test_recursive(void)
 	store->close();
 	store->open();
 	store->load_atomspace();
-	// +2 for *-TruthValueKey-* and *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 8);
+	TS_ASSERT_EQUALS(as->get_size(), 6 + basic_offset);
 
 	store->remove_atom(as, ha, true);
 	store->close();
 	as->extract_atom(ha, true);
 	store->open();
 	store->load_atomspace();
-	// +2 for *-TruthValueKey-* and *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 4);
+	TS_ASSERT_EQUALS(as->get_size(), 2 + basic_offset);
 
 	// --------------------------------------
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 
 	logger().debug("END TEST: %s", __FUNCTION__);
@@ -279,7 +276,7 @@ void SimpleBasicDeleteUTest::test_key_deletion(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle ha(as->add_node(CONCEPT_NODE, "a"));
 	Handle ka(as->add_node(PREDICATE_NODE, "key-a"));
@@ -339,10 +336,10 @@ void SimpleBasicDeleteUTest::test_key_deletion(void)
 	store->open();
 	TS_ASSERT(store->connected())
 
-	// We expect 6 atoms (+1 for *-IsKeyFlag-*)
+	// We expect 5 atoms
 	printf("Loading the atomspace ...\n");
 	store->load_atomspace();
-	TS_ASSERT_EQUALS(as->get_size(), 6);
+	TS_ASSERT_EQUALS(as->get_size(), 5 + basic_offset);
 
 	// Verify that there are only two keys .. haha no, three.
 	// That is because the deleted key gets restored when the
@@ -361,13 +358,16 @@ void SimpleBasicDeleteUTest::test_key_deletion(void)
 		printf("key=%s\n", k->get_name().c_str());
 	TS_ASSERT_EQUALS(hs.size(), 3);
 
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 
 	logger().debug("END TEST: %s", __FUNCTION__);
 }
 
 // ============================================================
+
+// A few more that cannot be deleted.
+int full_offset = basic_offset + 3;
 
 // This tests for a nasty off-by-one bug that showed up
 // in RocksDB. Make sure it never happens again.
@@ -385,7 +385,7 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle hb(as->add_node(CONCEPT_NODE, "b"));
 	Handle hx(as->add_node(CONCEPT_NODE, "x"));
@@ -397,13 +397,11 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 	store->store_atom(hb);
 	store->barrier();
 
-	// Verify the atomspace size (+1 for *-IsKeyFlag-*)
 	TS_ASSERT_EQUALS(as->get_size(), 5);
 
 	// Remove the value
 	store->remove_atom(as, hx);
 	as->extract_atom(hx);
-	// +1 for *-IsKeyFlag-*
 	TS_ASSERT_EQUALS(as->get_size(), 4);
 
 	// FYI, we should call store->close() at this point, but we
@@ -434,9 +432,8 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 	for (const Handle& h: hset)
 		printf("Atomspace contains h=%s\n", h->to_short_string().c_str());
 
-	// Size is 5 because (Concept "x") cannot be deleted.
-	// +1 for *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 5);
+	// Size is 4 because (Concept "x") cannot be deleted.
+	TS_ASSERT_EQUALS(as->get_size(), 4 + full_offset);
 
 	hb = as->add_node(CONCEPT_NODE, "b");
 	hx = as->add_node(CONCEPT_NODE, "x");
@@ -449,20 +446,17 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 	store->store_atom(hb);
 	store->barrier();
 
-	// +1 for *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 7);
+	TS_ASSERT_EQUALS(as->get_size(), 6 + full_offset);
 
 	// Remove the value .. again
 	store->remove_atom(as, hx);
 	as->extract_atom(hx);
-	// +1 for *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 6);
+	TS_ASSERT_EQUALS(as->get_size(), 5 + full_offset);
 	store->close();
 	store->open();
 	store->load_atomspace();
-	// Size is 7 because (Concept "x") cannot be deleted.
-	// +1 for *-IsKeyFlag-*
-	TS_ASSERT_EQUALS(as->get_size(), 7);
+	// Size is 6 because (Concept "x") cannot be deleted.
+	TS_ASSERT_EQUALS(as->get_size(), 6 + full_offset);
 
 	// We are done.
 	store->close();
@@ -479,10 +473,10 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 	store->open();
 	TS_ASSERT(store->connected())
 
-	// We expect 7 atoms (+1 for *-IsKeyFlag-*)
+	// We expect 6 atoms
 	printf("Loading the atomspace ...\n");
 	store->load_atomspace();
-	TS_ASSERT_EQUALS(as->get_size(), 7);
+	TS_ASSERT_EQUALS(as->get_size(), 6 + full_offset);
 
 	// Verify that there are two keys
 	hb = as->add_node(CONCEPT_NODE, "b");
@@ -495,7 +489,7 @@ void SimpleBasicDeleteUTest::test_key_corruption(void)
 	}
 	TS_ASSERT_EQUALS(hs.size(), 2);
 
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 
 	logger().debug("END TEST: %s", __FUNCTION__);
