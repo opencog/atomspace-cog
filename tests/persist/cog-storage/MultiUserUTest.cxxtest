@@ -36,7 +36,7 @@
 #include <opencog/atoms/base/Link.h>
 #include <opencog/atoms/base/Node.h>
 #include <opencog/persist/cog-storage/CogStorage.h>
-#include <opencog/cogserver/server/CogServer.h>
+#include "../TestCogServer.h"
 #include <opencog/atoms/value/FloatValue.h>
 
 #include <opencog/util/Logger.h>
@@ -71,8 +71,7 @@ class MultiUserUTest :  public CxxTest::TestSuite
         StorageNodePtr _store[NUSERS];
         std::atomic<int> nstarted;
 
-        CogServer* srvr = NULL;
-        std::thread * main_loop = NULL;
+        DECLARE_TEST_COGSERVER
 
 #define NCLAUSE 8
 #define NATOMS (NUSERS * NCLAUSE)
@@ -99,10 +98,7 @@ class MultiUserUTest :  public CxxTest::TestSuite
         MultiUserUTest(void);
         ~MultiUserUTest()
         {
-            srvr->stop();
-            main_loop->join();
-            srvr->disableNetworkServer();
-            delete main_loop;
+            STOP_TEST_COGSERVER
 
             // Erase the log file if no assertions failed
             logger().flush();
@@ -133,13 +129,7 @@ MultiUserUTest:: MultiUserUTest(void)
     // logger().set_level(Logger::DEBUG);
     logger().set_print_to_stdout_flag(true);
 
-    // Create a single cogserver node that will act as
-    // as the repo for the duration of the test.
-    srvr = &cogserver();
-    srvr->loadModules();
-    srvr->set_max_open_sockets(30);
-    srvr->enableNetworkServer(16007);
-    main_loop = new std::thread(&CogServer::serverLoop, srvr);
+    INIT_TEST_COGSERVER(16007);
     printf("Started CogServer\n");
 
     n_threads = NUSERS;

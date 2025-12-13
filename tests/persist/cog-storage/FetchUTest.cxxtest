@@ -34,7 +34,7 @@
 #include <opencog/guile/SchemeEval.h>
 #include <opencog/persist/cog-storage/CogStorage.h>
 #include <opencog/atoms/value/FloatValue.h>
-#include <opencog/cogserver/server/CogServer.h>
+#include "../TestCogServer.h"
 
 #include <opencog/util/Logger.h>
 
@@ -48,8 +48,7 @@ class FetchUTest :  public CxxTest::TestSuite
 
 		AtomSpacePtr _as;
 		SchemeEval* eval;
-		CogServer* srvr = NULL;
-		std::thread * main_loop = NULL;
+		DECLARE_TEST_COGSERVER
 
 	public:
 

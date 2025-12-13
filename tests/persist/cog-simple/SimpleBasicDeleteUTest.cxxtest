@@ -34,11 +34,11 @@
 #include <opencog/atoms/value/FloatValue.h>
 #include <opencog/atoms/value/LinkValue.h>
 #include <opencog/atomspace/AtomSpace.h>
-#include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/persist/api/StorageNode.h>
 
 #include <opencog/util/Logger.h>
+#include "../TestCogServer.h"
 
 using namespace opencog;
 
@@ -46,8 +46,7 @@ class SimpleBasicDeleteUTest :  public CxxTest::TestSuite
 {
 	private:
 		std::string uri;
-		CogServer* srvr = NULL;
-		std::thread* main_loop = NULL;
+		DECLARE_TEST_COGSERVER
 
 	public:
 
@@ -59,21 +58,13 @@ class SimpleBasicDeleteUTest :  public CxxTest::TestSuite
 
 			uri = "cog://localhost:16310";
 
-			// Create a single cogserver node that will act as
-			// as the repo for the duration of the test.
-			srvr = &cogserver();
-			srvr->loadModules();
-			srvr->enableNetworkServer(16310);
-			main_loop = new std::thread(&CogServer::serverLoop, srvr);
+			INIT_TEST_COGSERVER(16310);
 			printf("Started CogServer\n");
 		}
 
 		~SimpleBasicDeleteUTest()
 		{
-			srvr->stop();
-			main_loop->join();
-			srvr->disableNetworkServer();
-			delete main_loop;
+			STOP_TEST_COGSERVER
 
 			// erase the log file if no assertions failed
 			if (!CxxTest::TestTracker::tracker().suiteFailed())

@@ -31,7 +31,7 @@
 #include <opencog/atoms/base/Node.h>
 #include <opencog/atoms/value/FloatValue.h>
 #include <opencog/persist/cog-storage/CogStorage.h>
-#include <opencog/cogserver/server/CogServer.h>
+#include "../TestCogServer.h"
 
 #include <opencog/util/Logger.h>
 
@@ -41,8 +41,7 @@ class LargeFlatUTest :  public CxxTest::TestSuite
 {
 	private:
 		AtomSpacePtr _as;
-		CogServer* srvr = NULL;
-		std::thread * main_loop = NULL;
+		DECLARE_TEST_COGSERVER
 
 // 75000 * 7 == half-a-million atoms
 // 19000 * 7 == 133K atoms
@@ -88,21 +87,13 @@ LargeFlatUTest::LargeFlatUTest(void)
 	logger().set_level(Logger::INFO);
 	logger().set_print_to_stdout_flag(true);
 
-	// Create a single cogserver node that will act as
-	// as the repo for the duration of the test.
-	srvr = &cogserver();
-	srvr->loadModules();
-	srvr->enableNetworkServer(16008);
-	main_loop = new std::thread(&CogServer::serverLoop, srvr);
+	INIT_TEST_COGSERVER(16008);
 	printf("Started CogServer\n");
 }
 
 LargeFlatUTest::~LargeFlatUTest()
 {
-	srvr->stop();
-	main_loop->join();
-	srvr->disableNetworkServer();
-	delete main_loop;
+	STOP_TEST_COGSERVER
 
 	logger().flush();
 	// erase the log file if no assertions failed

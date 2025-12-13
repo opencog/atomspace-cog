@@ -34,10 +34,10 @@
 #include <opencog/atoms/value/FloatValue.h>
 #include <opencog/atoms/value/LinkValue.h>
 #include <opencog/persist/cog-simple/CogSimpleStorage.h>
-#include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
 #include <opencog/util/Config.h>
+#include "../TestCogServer.h"
 
 using namespace opencog;
 
@@ -46,18 +46,14 @@ class SimpleQueryPersistUTest :  public CxxTest::TestSuite
 	private:
 		AtomSpacePtr _as;
 		std::string uri;
-		CogServer* srvr = NULL;
-		std::thread * main_loop = NULL;
+		DECLARE_TEST_COGSERVER
 
 	public:
 
 		SimpleQueryPersistUTest(void);
 		~SimpleQueryPersistUTest()
 		{
-			srvr->stop();
-			main_loop->join();
-			srvr->disableNetworkServer();
-			delete main_loop;
+			STOP_TEST_COGSERVER
 
 			logger().flush();
 
@@ -83,12 +79,7 @@ SimpleQueryPersistUTest:: SimpleQueryPersistUTest(void)
 
 	uri = "cog://localhost:16313";
 
-	// Create a single cogserver node that will act as
-	// as the repo for the duration of the test.
-	srvr = &cogserver();
-	srvr->loadModules();
-	srvr->enableNetworkServer(16313);
-	main_loop = new std::thread(&CogServer::serverLoop, srvr);
+	INIT_TEST_COGSERVER(16313);
 	printf("Started CogServer\n");
 }
 

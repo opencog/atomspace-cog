@@ -29,9 +29,9 @@
 #include <opencog/atoms/base/Node.h>
 #include <opencog/atomspace/AtomSpace.h>
 #include <opencog/persist/cog-simple/CogSimpleStorage.h>
-#include <opencog/cogserver/server/CogServer.h>
 
 #include <opencog/util/Logger.h>
+#include "../TestCogServer.h"
 
 using namespace opencog;
 
@@ -40,8 +40,7 @@ class ServerHangUTest : public CxxTest::TestSuite
 	private:
 		AtomSpacePtr _as;
 		std::string uri;
-		CogServer* srvr = nullptr;
-		std::thread* main_loop = nullptr;
+		DECLARE_TEST_COGSERVER
 
 	public:
 
@@ -52,11 +51,7 @@ class ServerHangUTest : public CxxTest::TestSuite
 
 			uri = "cog://localhost:16314";
 
-			// Create a CogServer for the duration of the test.
-			srvr = &cogserver();
-			srvr->loadModules();
-			srvr->enableNetworkServer(16314);
-			main_loop = new std::thread(&CogServer::serverLoop, srvr);
+			INIT_TEST_COGSERVER(16314);
 			printf("Started CogServer on port 16314\n");
 		}
 
@@ -66,12 +61,8 @@ class ServerHangUTest : public CxxTest::TestSuite
 			// The fix in SocketManager::network_gone() now closes all
 			// sockets, allowing handler threads to exit.
 			printf("Stopping CogServer...\n");
-			srvr->stop();
-			printf("Joining server thread...\n");
-			main_loop->join();
-			printf("Server thread joined.\n");
-			srvr->disableNetworkServer();
-			delete main_loop;
+			STOP_TEST_COGSERVER
+			printf("Server stopped.\n");
 
 			logger().flush();
 
