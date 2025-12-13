@@ -106,7 +106,7 @@ void BasicDeleteUTest::test_duplicates(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle ha(as->add_node(CONCEPT_NODE, "a"));
 	Handle hb(as->add_node(CONCEPT_NODE, "b"));
@@ -132,7 +132,7 @@ void BasicDeleteUTest::test_duplicates(void)
 	// +1 for *-IsKeyFlag-*
 	TS_ASSERT_EQUALS(as->get_size(), 5);
 
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 
 	logger().debug("END TEST: %s", __FUNCTION__);
@@ -153,7 +153,7 @@ void BasicDeleteUTest::test_recursive(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle ha(as->add_node(CONCEPT_NODE, "a"));
 	Handle hb(as->add_node(CONCEPT_NODE, "b"));
@@ -258,7 +258,7 @@ void BasicDeleteUTest::test_recursive(void)
 	TS_ASSERT_EQUALS(as->get_size(), 4);
 
 	// --------------------------------------
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 
 	logger().debug("END TEST: %s", __FUNCTION__);
@@ -280,7 +280,7 @@ void BasicDeleteUTest::test_key_deletion(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle ha(as->add_node(CONCEPT_NODE, "a"));
 	Handle ka(as->add_node(PREDICATE_NODE, "key-a"));
@@ -363,7 +363,7 @@ void BasicDeleteUTest::test_key_deletion(void)
 		printf("key=%s\n", k->get_name().c_str());
 	TS_ASSERT_EQUALS(hs.size(), 3);
 
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 
 	logger().debug("END TEST: %s", __FUNCTION__);
@@ -387,7 +387,7 @@ void BasicDeleteUTest::test_key_corruption(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle hb(as->add_node(CONCEPT_NODE, "b"));
 	Handle hx(as->add_node(CONCEPT_NODE, "x"));
@@ -497,7 +497,7 @@ void BasicDeleteUTest::test_key_corruption(void)
 	}
 	TS_ASSERT_EQUALS(hs.size(), 2);
 
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 
 	logger().debug("END TEST: %s", __FUNCTION__);

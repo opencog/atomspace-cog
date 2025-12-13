@@ -217,7 +217,7 @@ void BasicSaveUTest::single_atom_save_restore(std::string id)
     atomCompare(l, hl, "Single link save-restore");
     printf("Done fetching single link\n");
 
-    store->kill_data();
+    kill_data(store, _test_asp.get());
     delete store;
 }
 
@@ -353,7 +353,7 @@ void BasicSaveUTest::test_fresh_atom(void)
     if (he) printf("Got %s\n", he->to_string().c_str());
     atomCompare(le, he, "Empty Fresh");
 
-    store->kill_data();
+    kill_data(store, _test_asp.get());
     delete store;
 
     logger().debug("END TEST: %s", __FUNCTION__);
@@ -417,7 +417,7 @@ void BasicSaveUTest::test_table()
     check_table(idx++, as2, "ddd ");
     check_table(idx++, as2, "eee ");
 
-    store->kill_data();
+    kill_data(store, _test_asp.get());
     delete store;
 
     logger().debug("END TEST: %s", __FUNCTION__);

@@ -156,7 +156,7 @@ void MultiDeleteUTest::test_add_delete(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	printf("Start creating %d threads\n", n_threads);
 
@@ -199,11 +199,12 @@ void MultiDeleteUTest::test_add_delete(void)
 
 	// Size should be 20: the 18 from before plus that annoying
 	// (Predicate "*-TruthValueKey-*") And also *-IsKeyFlag-*
+	// And 9 more from CogServerNode gorp
 	// Well, actually, there is no guarantee that the removes will
 	// happen after the stores. Best we can do is check lower and
 	// upper bounds of 20 and 36:
-	size_t min_size = 4 + n_threads + 6;
-	size_t max_size = 4 + 2*(n_threads + 6);
+	size_t min_size = 9 + 4 + n_threads + 6;
+	size_t max_size = 9 + 4 + 2*(n_threads + 6);
 	if (as->get_size() < min_size or max_size < as->get_size())
 		printf("Error: Bad size! AtomSpace contents =\n%s\n",
 			as->to_string().c_str());
@@ -211,7 +212,7 @@ void MultiDeleteUTest::test_add_delete(void)
 	TS_ASSERT(as->get_size() >= min_size);
 	TS_ASSERT(as->get_size() <= max_size);
 
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 	store = nullptr;
 

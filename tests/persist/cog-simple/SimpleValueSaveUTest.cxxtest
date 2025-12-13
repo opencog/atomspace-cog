@@ -277,7 +277,7 @@ void SimpleValueSaveUTest::test_load_by_type()
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle key = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle af = as->add_node(CONCEPT_NODE, "float node");

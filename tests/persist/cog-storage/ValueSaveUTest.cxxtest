@@ -260,7 +260,7 @@ void ValueSaveUTest::test_save_restore(bool fkey)
 
 	check_one(pvl2, fkey);
 
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	as = nullptr;
 
 	logger().info("END TEST: %s", __FUNCTION__);
@@ -282,7 +282,7 @@ void ValueSaveUTest::test_load_by_type()
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	Handle key = as->add_node(PREDICATE_NODE, "some pred key");
 	Handle af = as->add_node(CONCEPT_NODE, "float node");

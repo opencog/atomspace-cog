@@ -108,8 +108,8 @@ void AlphaEquivUTest::kill_data(void)
 		exit(1);
 	}
 
-	// Trash the contents of the database.
-	astore->kill_data();
+	// Selectively clear test data (preserves CogServerNode)
+	::kill_data(astore, _test_asp.get());
 
 	// Destructor also logs out of database
 	delete astore;

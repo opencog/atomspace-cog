@@ -104,8 +104,8 @@ void QueryPersistUTest::kill_data(void)
 	astore->open();
 	TS_ASSERT(astore->connected())
 
-	// Trash the contents of the database.
-	astore->kill_data();
+	// Selectively clear test data (preserves CogServerNode)
+	::kill_data(astore, _test_asp.get());
 	astore->barrier();
 	astore->close();
 

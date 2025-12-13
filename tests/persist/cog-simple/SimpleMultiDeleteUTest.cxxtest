@@ -158,7 +158,7 @@ void SimpleMultiDeleteUTest::test_add_delete(void)
 	TS_ASSERT(store->connected())
 
 	// Clear out left-over junk, just in case.
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 
 	printf("Start creating %d threads\n", n_threads);
 
@@ -201,14 +201,15 @@ void SimpleMultiDeleteUTest::test_add_delete(void)
 
 	// Size should be 20: the 18 from before plus
 	// (Predicate "*-TruthValueKey-*") and (Predicate "*-IsKeyFlag-*")
-	size_t expected_size = 4 + 6 + n_threads;
+	// Plus 9 more from CogServerNode gorp
+	size_t expected_size = 9 + 4 + 6 + n_threads;
 	if (as->get_size() != expected_size)
 		printf("Error: Bad size! AtomSpace contents =\n%s\n",
 			as->to_string().c_str());
 
 	TS_ASSERT_EQUALS(as->get_size(), expected_size);
 
-	store->erase();
+	::kill_data(store.get(), _test_asp.get());
 	store->close();
 	store = nullptr;
 
