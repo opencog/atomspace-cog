@@ -71,7 +71,6 @@ class PersistUTest :  public CxxTest::TestSuite
             main_loop->join();
             srvr->disableNetworkServer();
             delete main_loop;
-            delete srvr;
 
             // erase the log file if no assertions failed
             if (!CxxTest::TestTracker::tracker().suiteFailed())
@@ -121,7 +120,7 @@ void PersistUTest::tearDown(void)
 
 void PersistUTest::atomCompare(Handle a, AtomPtr b, std::string where)
 {
-    printf("Check %s expect %s\n", where.c_str(), a->to_string().c_str());
+    logger().debug("Check %s expect %s", where.c_str(), a->to_string().c_str());
     TSM_ASSERT("No atom found", b != nullptr);
 
     if (nullptr == b) return;
