@@ -213,7 +213,10 @@ bool CogSimpleStorage::connected(void)
 void CogSimpleStorage::close(void)
 {
 	if (connected())
+	{
+		barrier(nullptr);
 		unistd_close(_sockfd);
+	}
 	_sockfd = -1;
 }
 
