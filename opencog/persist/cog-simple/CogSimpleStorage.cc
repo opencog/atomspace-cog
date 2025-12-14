@@ -213,23 +213,8 @@ bool CogSimpleStorage::connected(void)
 void CogSimpleStorage::close(void)
 {
 	if (connected())
-	{
-		proxy_close();
 		unistd_close(_sockfd);
-	}
 	_sockfd = -1;
-}
-
-void CogSimpleStorage::proxy_open(void)
-{
-	do_send("(cog-proxy-open)\n");
-	do_recv();
-}
-
-void CogSimpleStorage::proxy_close(void)
-{
-	do_send("(cog-proxy-close)\n");
-	do_recv();
 }
 
 /* ================================================================== */

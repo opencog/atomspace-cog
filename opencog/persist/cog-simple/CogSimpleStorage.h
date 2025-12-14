@@ -85,10 +85,6 @@ class CogSimpleStorage : public StorageNode
 
 		void kill_data(void); // destroy DB contents
 
-		void set_proxy(const Handle&);
-		void proxy_open(void);
-		void proxy_close(void);
-
 		// BackingStore API implementation (virtual methods)
 		void getAtom(const Handle&);
 		void fetchIncomingSet(AtomSpace*, const Handle&);
