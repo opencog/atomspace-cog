@@ -47,6 +47,7 @@ using namespace opencog;
 void CogStorage::proxy_open(void)
 {
 	Pkt pkt;
+	_io_queue.barrier();
 	_io_queue.enqueue(this, "(cog-proxy-open)\n", pkt, &CogStorage::noop_const);
 	_io_queue.barrier();
 }
@@ -54,6 +55,7 @@ void CogStorage::proxy_open(void)
 void CogStorage::proxy_close(void)
 {
 	Pkt pkt;
+	_io_queue.barrier();
 	_io_queue.enqueue(this, "(cog-proxy-close)\n", pkt, &CogStorage::noop_const);
 	_io_queue.barrier();
 }

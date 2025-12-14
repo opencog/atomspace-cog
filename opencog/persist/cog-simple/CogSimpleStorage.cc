@@ -228,6 +228,14 @@ void CogSimpleStorage::proxy_open(void)
 
 void CogSimpleStorage::proxy_close(void)
 {
+	// The barrier forces the cogserver to finish processing before
+	// the proxy-close. The proxy-close in turn acts like a sync
+	// point, causing all commands (e.g. set-value!) to complete
+	// before the close takes effect. That is, it turns the close
+	// itself into a sync point. On a single-threaded socket, like
+	// the one used here for CogSimpleStorage, it's not really needed
+	// But I'm going to get paranoid about this, for now.
+	barrier();
 	do_send("(cog-proxy-close)\n");
 	do_recv();
 }
