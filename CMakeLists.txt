@@ -21,7 +21,7 @@ IF(CMAKE_VERSION VERSION_GREATER 3.31)
 	CMAKE_POLICY(SET CMP0177 NEW)
 ENDIF(CMAKE_VERSION VERSION_GREATER 3.31)
 
-PROJECT(cogclient VERSION 1.2.0)
+PROJECT(cog-storage VERSION 1.2.0)
 
 # ----------------------------------------------------------
 # User-modifiable options. Feel free to change these!
@@ -56,21 +56,10 @@ ADD_DEFINITIONS(-DPROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
 # Listed in alphabetical order, more or less.
 # CogUtil must come first, because it supplies various FindXXX macros.
 
-# Add the 'lib' dir to cmake's module search path
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/lib/")
-
 # Cogutil
 FIND_PACKAGE(CogUtil 2.2.1 CONFIG REQUIRED)
-IF (COGUTIL_FOUND)
-    MESSAGE(STATUS "CogUtil found.")
-    ADD_DEFINITIONS(-DHAVE_COGUTIL)
-    SET(HAVE_COGUTIL 1)
-ELSE (COGUTIL_FOUND)
-    MESSAGE(FATAL_ERROR "CogUtil missing: it is needed!")
-ENDIF (COGUTIL_FOUND)
-
-# add the 'cmake' directory from cogutil to search path
-list(APPEND CMAKE_MODULE_PATH  ${COGUTIL_DATA_DIR}/cmake)
+IF (NOT COGUTIL_FOUND)
+ENDIF ()
 
 include(${COGUTIL_DATA_DIR}/cmake/OpenCogGccOptions.cmake)
 include(${COGUTIL_DATA_DIR}/cmake/OpenCogLibOptions.cmake)
@@ -82,27 +71,18 @@ include(${COGUTIL_DATA_DIR}/cmake/Summary.cmake)
 
 # AtomSpace
 FIND_PACKAGE(AtomSpace 5.2.0 CONFIG REQUIRED)
-IF (ATOMSPACE_FOUND)
-	MESSAGE(STATUS "AtomSpace found.")
-	ADD_DEFINITIONS(-DHAVE_ATOMSPACE)
-	SET(HAVE_ATOMSPACE 1)
-ELSE (ATOMSPACE_FOUND)
+IF (NOT ATOMSPACE_FOUND)
 	MESSAGE(FATAL_ERROR "AtomSpace missing: it is needed!")
-ENDIF (ATOMSPACE_FOUND)
+ENDIF ()
 
 FIND_PACKAGE(AtomSpaceStorage 4.3 CONFIG REQUIRED)
-IF (ATOMSPACE_STORAGE_FOUND)
-	MESSAGE(STATUS "AtomSpace Storage found.")
-	ADD_DEFINITIONS(-DHAVE_ATOMSPACE_STORAGE)
-	SET(HAVE_ATOMSPACE_STORAGE 1)
-ELSE (ATOMSPACE_STORAGE_FOUND)
+IF (NOT ATOMSPACE_STORAGE_FOUND)
 	MESSAGE(FATAL_ERROR "AtomSpace Storage missing: it is needed!")
-ENDIF (ATOMSPACE_STORAGE_FOUND)
+ENDIF ()
 
 # CogServer - needed for unit tests
 FIND_PACKAGE(CogServer 3.4 CONFIG REQUIRED)
 IF (COGSERVER_FOUND)
-	MESSAGE(STATUS "CogServer found.")
 	SET(HAVE_COGSERVER 1)
 ELSE (COGSERVER_FOUND)
 	MESSAGE(STATUS "CogServer missing: needed for unit tests.")
@@ -231,8 +211,8 @@ SET(CPACK_PACKAGE_EXECUTABLES "atomspace-cog" "The AtomSpace Cogserver Client")
 SET(DEPENDENCY_LIST
 	"guile-3.0-dev (>= 3.0.0)"
 	"libstdc++6 (>= 4.7)"
-	"libcogutil-dev (>= 2.0.2)"
-	"atomspace-dev (>= 5.0.3)"
+	"libcogutil-dev (>= 2.2.1)"
+	"atomspace-dev (>= 5.2.0)"
 )
 
 STRING(REPLACE ";" ", " MAIN_DEPENDENCIES "${DEPENDENCY_LIST}")
@@ -249,7 +229,7 @@ FIND_PACKAGE(Doxygen)
 # ===================================================================
 # Show a summary of what we found, what we will do.
 
-SUMMARY_ADD("AtomSpace-Cog" "AtomSpace CogServer Network Client" HAVE_ATOMSPACE)
+SUMMARY_ADD("CogStorage" "Network Distributed AtomSpace" 1)
 SUMMARY_ADD("Doxygen" "Code documentation" DOXYGEN_FOUND)
 SUMMARY_ADD("Unit tests" "Unit tests" CXXTEST_FOUND AND HAVE_COGSERVER)
 
