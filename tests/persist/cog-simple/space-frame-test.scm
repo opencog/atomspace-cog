@@ -1,3 +1,6 @@
+#! /usr/bin/env guile
+-s
+!#
 ;
 ; space-frame-test.scm
 ; Test ability to store and retreive multiple atomspaces.
