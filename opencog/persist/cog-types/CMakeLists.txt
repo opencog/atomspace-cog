@@ -27,7 +27,7 @@ ADD_DEPENDENCIES(persist-cog-types persist_cog_atom_types)
 
 # Install targets
 INSTALL (TARGETS persist-cog-types EXPORT AtomSpaceCogStorageTargets
-	DESTINATION "lib${LIB_DIR_SUFFIX}/opencog"
+	DESTINATION "${CMAKE_INSTALL_LIBDIR}/opencog"
 )
 
 INSTALL (FILES

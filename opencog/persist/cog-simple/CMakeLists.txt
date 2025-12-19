@@ -25,7 +25,7 @@ ADD_GUILE_EXTENSION(SCM_CONFIG persist-cog-simple
 	"opencog-ext-path-persist-cog-simple")
 
 INSTALL (TARGETS persist-cog-simple EXPORT AtomSpaceTargets
-	DESTINATION "lib${LIB_DIR_SUFFIX}/opencog"
+	DESTINATION "${CMAKE_INSTALL_LIBDIR}/opencog"
 )
 
 INSTALL (FILES
