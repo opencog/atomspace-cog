@@ -24,7 +24,7 @@ ADD_DEPENDENCIES(persist-cog persist_cog_atom_types)
 ADD_GUILE_EXTENSION(SCM_CONFIG persist-cog "opencog-ext-path-persist-cog")
 
 INSTALL (TARGETS persist-cog EXPORT AtomSpaceTargets
-	DESTINATION "lib${LIB_DIR_SUFFIX}/opencog"
+	DESTINATION "${CMAKE_INSTALL_LIBDIR}/opencog"
 )
 
 INSTALL (FILES
